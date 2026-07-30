@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#6d5dfc" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="일당계산" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <title>일당 계산기</title>
+  <style>
+    :root{--bg:#f5f6fb;--card:#fff;--ink:#1f2330;--muted:#72798c;--line:#e5e7ef;--brand:#6d5dfc;--brand2:#8f83ff;--danger:#ef476f;--good:#18a77b;--shadow:0 10px 30px rgba(36,40,70,.09)}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",Segoe UI,sans-serif;padding-bottom:calc(88px + env(safe-area-inset-bottom))}
+    header{padding:calc(20px + env(safe-area-inset-top)) 18px 18px;background:linear-gradient(135deg,#5a49ed,#8f83ff);color:#fff;border-radius:0 0 28px 28px;box-shadow:var(--shadow)}
+    header h1{margin:0 0 4px;font-size:25px} header p{margin:0;opacity:.88;font-size:14px}
+    main{max-width:760px;margin:auto;padding:16px}.card{background:var(--card);border-radius:20px;padding:16px;box-shadow:var(--shadow);margin-bottom:14px}
+    .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.metric{background:#f7f6ff;border:1px solid #ece9ff;border-radius:14px;padding:12px 9px;text-align:center}.metric span{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}.metric b{font-size:16px;white-space:nowrap}
+    .toolbar,.row{display:flex;gap:9px;align-items:center}.toolbar{justify-content:space-between;margin-bottom:12px}.toolbar h2{font-size:18px;margin:0}.btn{border:0;border-radius:12px;padding:11px 14px;font-weight:700;font-size:14px;background:#eceafb;color:#4f42cf}.btn.primary{background:var(--brand);color:#fff}.btn.danger{background:#ffe9ef;color:#c52d57}.btn.ghost{background:#f1f2f7;color:#555d70}.btn:active{transform:scale(.98)}
+    label{display:block;font-size:13px;color:var(--muted);margin:10px 0 5px}input,select,textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px;font-size:16px;background:#fff;color:var(--ink);outline:none}input:focus,select:focus,textarea:focus{border-color:var(--brand)}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .records{display:grid;gap:10px}.record{border:1px solid var(--line);border-radius:16px;padding:14px}.record-head{display:flex;justify-content:space-between;gap:8px}.record h3{margin:0;font-size:17px}.record .sub{color:var(--muted);font-size:13px;margin-top:3px}.money{font-size:19px;font-weight:800;color:var(--brand);margin-top:10px}.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.chip{font-size:12px;padding:5px 8px;border-radius:999px;background:#f1f2f7;color:#596074}
+    .calendar-head{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;color:var(--muted);font-size:12px;margin-bottom:6px}.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.day{min-height:61px;border:1px solid var(--line);border-radius:11px;background:#fff;padding:6px 4px;text-align:center}.day.empty{background:transparent;border-color:transparent}.day .num{font-size:12px;color:var(--muted)}.day select{padding:4px 2px;margin-top:4px;border-radius:7px;font-size:13px;text-align:center;background:#f8f8fc}.day.sun .num{color:#e34a67}.day.sat .num{color:#3673d6}
+    dialog{border:0;border-radius:22px;padding:0;width:min(94vw,680px);max-height:88vh;overflow:auto;box-shadow:0 25px 80px rgba(0,0,0,.25)}dialog::backdrop{background:rgba(20,22,34,.45)}.modal{padding:18px}.modal h2{margin:0 0 6px}.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;position:sticky;bottom:0;background:#fff;padding-top:10px}
+    nav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom));width:min(94%,720px);display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);padding:7px;border-radius:18px;box-shadow:0 8px 35px rgba(30,35,60,.18);z-index:10}nav button{border:0;background:transparent;border-radius:12px;padding:10px 4px;color:#73798b;font-weight:700}nav button.active{background:#eceaff;color:#5547db}
+    .hidden{display:none!important}.empty-state{text-align:center;padding:30px 12px;color:var(--muted)}.note{font-size:12px;color:var(--muted);line-height:1.55}.backup-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:#252837;color:#fff;padding:11px 16px;border-radius:999px;font-size:14px;opacity:0;pointer-events:none;transition:.2s;z-index:30}.toast.show{opacity:1}
+    @media(max-width:420px){.metric b{font-size:14px}.day{min-height:57px;padding:5px 2px}.day select{font-size:12px}.grid2{grid-template-columns:1fr}.summary{gap:6px}.metric{padding:10px 5px}}
+  </style>
+</head>
+<body>
+<header><h1>일당 계산기</h1><p>공수 기록부터 실수령액까지 한 번에</p></header>
+<main>
+  <section id="homeView">
+    <div class="card summary"><div class="metric"><span>총 공수</span><b id="sumUnits">0</b></div><div class="metric"><span>총 지급액</span><b id="sumGross">0원</b></div><div class="metric"><span>총 실수령액</span><b id="sumNet">0원</b></div></div>
+    <div class="card"><div class="toolbar"><h2>기록</h2><button class="btn primary" id="addBtn">＋ 새 기록</button></div><div class="records" id="records"></div></div>
+  </section>
+  <section id="settingsView" class="hidden">
+    <div class="card"><h2>백업 및 복원</h2><p class="note">데이터는 현재 기기의 브라우저에 저장돼. 아이폰을 바꾸거나 사파리 데이터를 지우기 전에 백업해두는 게 좋아.</p><div class="backup-actions"><button class="btn primary" id="exportBtn">백업 파일 저장</button><label class="btn ghost" style="text-align:center;margin:0">백업 불러오기<input id="importInput" type="file" accept="application/json" hidden></label></div></div>
+    <div class="card"><h2>기본 설정</h2><label>기본 세율 (%)</label><input id="defaultTax" type="number" min="0" max="100" step="0.1"><button class="btn primary" id="saveSettings" style="margin-top:12px;width:100%">설정 저장</button></div>
+    <div class="card"><h2>초기화</h2><p class="note">모든 기록과 설정이 삭제돼. 이 작업은 되돌릴 수 없어.</p><button class="btn danger" id="resetBtn" style="width:100%">전체 데이터 삭제</button></div>
+  </section>
+</main>
+<nav><button data-view="home" class="active">🏠<br>기록</button><button id="quickAdd">➕<br>추가</button><button data-view="settings">⚙️<br>설정</button></nav>
+<dialog id="editor"><form method="dialog" class="modal" id="recordForm"><h2 id="modalTitle">새 기록</h2><input type="hidden" id="recordId"><div class="grid2"><div><label>업체명</label><input id="company" required placeholder="예: 멀텍"></div><div><label>기준 월</label><input id="month" type="month" required></div></div><div class="grid2"><div><label>일당</label><input id="dailyRate" type="number" min="0" step="1000" required inputmode="numeric"></div><div><label>세율 (%)</label><input id="taxRate" type="number" min="0" max="100" step="0.1" required></div></div><label>비고</label><textarea id="memo" rows="2" placeholder="선택 입력"></textarea><label>날짜별 공수</label><div class="calendar-head"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div><div id="calendar" class="calendar"></div><div class="card" style="box-shadow:none;background:#f7f6ff;margin-top:12px;margin-bottom:0"><div class="summary"><div class="metric"><span>공수</span><b id="formUnits">0</b></div><div class="metric"><span>총액</span><b id="formGross">0원</b></div><div class="metric"><span>실수령</span><b id="formNet">0원</b></div></div></div><div class="modal-actions"><button type="button" class="btn danger hidden" id="deleteBtn">삭제</button><button type="button" class="btn ghost" id="cancelBtn">취소</button><button type="submit" class="btn primary">저장</button></div></form></dialog>
+<div class="toast" id="toast"></div>
+<script>
+const KEY='dailyPayApp_v1';
+const initial={settings:{defaultTax:3.3},records:[
+{id:'seed1',company:'멀텍',month:'2025-04',dailyRate:180000,taxRate:3.3,memo:'',days:{'4':1,'7':1,'8':1,'9':1,'10':1,'11':1,'14':1,'15':1,'16':1,'17':1,'18':1,'21':1,'23':1,'25':1}},
+{id:'seed2',company:'에이원테크',month:'2025-04',dailyRate:200000,taxRate:3.3,memo:'',days:{'22':1,'28':1,'29':1,'30':1}}
+]};
+let data=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||structuredClone(initial)}catch{return structuredClone(initial)}}
+function persist(){localStorage.setItem(KEY,JSON.stringify(data));}
+const won=n=>new Intl.NumberFormat('ko-KR',{style:'currency',currency:'KRW',maximumFractionDigits:0}).format(Math.round(n));
+const units=r=>Object.values(r.days||{}).reduce((a,b)=>a+(Number(b)||0),0);
+const gross=r=>units(r)*Number(r.dailyRate||0); const tax=r=>gross(r)*(Number(r.taxRate||0)/100); const net=r=>gross(r)-tax(r);
+function esc(s=''){return s.replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function toast(t){const e=document.querySelector('#toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1600)}
+function render(){
+ const totals=data.records.reduce((a,r)=>({u:a.u+units(r),g:a.g+gross(r),n:a.n+net(r)}),{u:0,g:0,n:0});
+ sumUnits.textContent=totals.u.toLocaleString('ko-KR');sumGross.textContent=won(totals.g);sumNet.textContent=won(totals.n);
+ records.innerHTML=data.records.length?data.records.slice().sort((a,b)=>b.month.localeCompare(a.month)).map(r=>`<article class="record" data-id="${r.id}"><div class="record-head"><div><h3>${esc(r.company)}</h3><div class="sub">${r.month.replace('-','년 ')}월 · 일당 ${won(r.dailyRate)}</div></div><button class="btn ghost edit">수정</button></div><div class="money">${won(net(r))}</div><div class="chips"><span class="chip">공수 ${units(r)}</span><span class="chip">총액 ${won(gross(r))}</span><span class="chip">세금 ${won(tax(r))} (${r.taxRate}%)</span>${r.memo?`<span class="chip">${esc(r.memo)}</span>`:''}</div></article>`).join(''):'<div class="empty-state">아직 기록이 없어.<br>새 기록을 추가해봐 😊</div>';
+ document.querySelectorAll('.edit').forEach(b=>b.onclick=()=>openEditor(b.closest('.record').dataset.id));
+ defaultTax.value=data.settings.defaultTax;
+}
+function makeCalendar(month,vals={}){calendar.innerHTML='';if(!month)return;const [y,m]=month.split('-').map(Number),first=new Date(y,m-1,1).getDay(),last=new Date(y,m,0).getDate();for(let i=0;i<first;i++)calendar.insertAdjacentHTML('beforeend','<div class="day empty"></div>');for(let d=1;d<=last;d++){const dow=(first+d-1)%7;calendar.insertAdjacentHTML('beforeend',`<div class="day ${dow===0?'sun':dow===6?'sat':''}"><div class="num">${d}</div><select data-day="${d}" aria-label="${d}일 공수"><option value="0">-</option><option value="0.5">0.5</option><option value="1">1</option><option value="1.5">1.5</option><option value="2">2</option></select></div>`)}document.querySelectorAll('#calendar select').forEach(s=>{s.value=String(vals[s.dataset.day]||0);s.onchange=calcForm});calcForm()}
+function calcForm(){const u=[...document.querySelectorAll('#calendar select')].reduce((a,s)=>a+Number(s.value),0),g=u*Number(dailyRate.value||0),t=g*Number(taxRate.value||0)/100;formUnits.textContent=u;formGross.textContent=won(g);formNet.textContent=won(g-t)}
+function openEditor(id=null){const r=id?data.records.find(x=>x.id===id):null;modalTitle.textContent=r?'기록 수정':'새 기록';recordId.value=r?.id||'';company.value=r?.company||'';month.value=r?.month||new Date().toISOString().slice(0,7);dailyRate.value=r?.dailyRate||'';taxRate.value=r?.taxRate??data.settings.defaultTax;memo.value=r?.memo||'';deleteBtn.classList.toggle('hidden',!r);makeCalendar(month.value,r?.days||{});editor.showModal()}
+month.onchange=()=>makeCalendar(month.value,{});dailyRate.oninput=taxRate.oninput=calcForm;addBtn.onclick=quickAdd.onclick=()=>openEditor();cancelBtn.onclick=()=>editor.close();
+recordForm.onsubmit=e=>{e.preventDefault();const days={};document.querySelectorAll('#calendar select').forEach(s=>{if(Number(s.value))days[s.dataset.day]=Number(s.value)});const rec={id:recordId.value||crypto.randomUUID(),company:company.value.trim(),month:month.value,dailyRate:Number(dailyRate.value),taxRate:Number(taxRate.value),memo:memo.value.trim(),days};const i=data.records.findIndex(x=>x.id===rec.id);if(i>=0)data.records[i]=rec;else data.records.push(rec);persist();editor.close();render();toast('저장했어')};
+deleteBtn.onclick=()=>{if(confirm('이 기록을 삭제할까?')){data.records=data.records.filter(x=>x.id!==recordId.value);persist();editor.close();render();toast('삭제했어')}};
+document.querySelectorAll('nav [data-view]').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');homeView.classList.toggle('hidden',b.dataset.view!=='home');settingsView.classList.toggle('hidden',b.dataset.view!=='settings')});
+saveSettings.onclick=()=>{data.settings.defaultTax=Number(defaultTax.value||3.3);persist();toast('설정을 저장했어')};
+exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`일당계산_백업_${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(a.href)};
+importInput.onchange=async e=>{try{const obj=JSON.parse(await e.target.files[0].text());if(!obj.records||!obj.settings)throw Error();data=obj;persist();render();toast('백업을 복원했어')}catch{alert('올바른 백업 파일이 아니야.')}};
+resetBtn.onclick=()=>{if(confirm('정말 모든 데이터를 삭제할까?')){data={settings:{defaultTax:3.3},records:[]};persist();render();toast('초기화했어')}};
+if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});render();
+</script>
+</body></html>
