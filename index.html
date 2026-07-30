@@ -3,10 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<meta name="theme-color" content="#f3f6fb">
+<meta name="theme-color" content="#183a64">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="현장공수관리">
-<title>현장 공수관리 Pro v4.4 모바일·최적화</title>
+<meta name="apple-mobile-web-app-title" content="라비c공수 Pro">
+<title>라비c공수 Pro</title>
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="application-name" content="라비c공수 Pro">
+<meta name="description" content="개인용 공수·경비·정산 관리 앱">
+
 <style>
 :root{
   --bg:#f3f6fb;--card:#fff;--text:#142033;--muted:#77849a;--line:#dce5ef;
@@ -607,12 +617,34 @@ textarea.control{
   }
 }
 
+
+/* 라비c공수 Pro v5.0 브랜드 */
+.brand-wrap{display:flex;align-items:center;gap:11px;min-width:0}
+.brand-logo{
+  width:48px;height:48px;border-radius:15px;
+  box-shadow:0 9px 22px rgba(24,58,100,.2);
+  flex:0 0 auto
+}
+.sig-c{
+  color:#8567d8;
+  font-style:italic;
+  font-weight:950;
+  display:inline-block;
+  transform:translateY(-1px)
+}
+@media(max-width:390px){
+  .brand-wrap{gap:8px}
+  .brand-logo{width:42px;height:42px;border-radius:13px}
+  .brand h1{font-size:19px}
+  .brand h1 em{margin-left:4px;padding:0 7px}
+}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-  <div class="brand"><h1>현장 공수관리 Pro <em>v4.4 모바일·최적화</em></h1><p>공수 체크와 업체별 정산 관리</p></div>
+  <div class="brand-wrap"><img class="brand-logo" src="icon-192.png" alt=""><div class="brand"><h1>라비<span class="sig-c">c</span>공수 Pro <em>v5.0</em></h1><p>내 공수와 정산을 한 번에</p></div></div>
   <button id="backupTop" class="icon-btn" title="백업">⇩</button>
 </header>
 
@@ -755,7 +787,7 @@ textarea.control{
       <div class="box"><span>연간 실수령</span><strong id="yearNet">0원</strong></div>
     </div>
   </div>
-  <p class="version">현장 공수관리 Pro v4.4 모바일·최적화</p>
+  <p class="version">라비c공수 Pro v5.0</p>
 </section>
 </main>
 </div>
@@ -834,7 +866,7 @@ textarea.control{
 </template>
 
 <script>
-console.log("현장공수관리 Pro v4.4 모바일·최적화 로드 완료");
+console.log("라비c공수 Pro v5.0 로드 완료");
 
 (function(){
 "use strict";
@@ -1263,7 +1295,7 @@ function deleteCompany(){
 
 
 async function exportBackup(){
-  var fileName="현장공수관리_백업_"+today()+".json";
+  var fileName="라비c공수_백업_"+today()+".json";
   var json=JSON.stringify(state,null,2);
   var blob=new Blob([json],{type:"application/json;charset=utf-8"});
   var file;
@@ -1274,8 +1306,8 @@ async function exportBackup(){
     if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
       await navigator.share({
         files:[file],
-        title:"현장공수관리 백업",
-        text:"현장공수관리 데이터 백업 파일"
+        title:"라비c공수 Pro 백업",
+        text:"라비c공수 Pro 데이터 백업 파일"
       });
       return;
     }
@@ -1441,7 +1473,7 @@ function saveSettlementPng(){
     }
   }
 
-  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("현장 공수관리 Pro v4.4 모바일·최적화",65,H-45);
+  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("라비c공수 Pro v5.0",65,H-45);
 
   var fileName="월간정산서_"+r.period.replace(/ /g,"_")+"_"+r.company+".png";
   var dataUrl;
@@ -1602,6 +1634,15 @@ function boot(){
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot()
 })();
+
+if("serviceWorker" in navigator){
+  window.addEventListener("load",function(){
+    navigator.serviceWorker.register("./service-worker.js").catch(function(err){
+      console.warn("서비스워커 등록 실패",err)
+    })
+  })
+}
+
 </script>
 </body>
 </html>
