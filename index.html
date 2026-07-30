@@ -3,606 +3,165 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<meta name="theme-color" content="#102f55">
+<meta name="theme-color" content="#f3f6fb">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="공수정산">
-<link rel="manifest" href="./manifest.webmanifest?v=201">
-<title>공수정산 Pro</title>
+<meta name="apple-mobile-web-app-title" content="현장공수관리">
+<title>현장 공수관리 Pro v3.1</title>
 <style>
 :root{
-  --navy:#102f55;--blue:#2d6fbb;--bg:#f4f6f9;--card:#fff;--text:#182233;
-  --muted:#7a8596;--line:#e3e8ef;--green:#147a58;--red:#d74a4a;--orange:#bd741d;
-  --shadow:0 10px 30px rgba(22,46,78,.08);--r:20px
+  --bg:#f3f6fb;--card:#fff;--text:#142033;--muted:#77849a;--line:#dce5ef;
+  --blue:#1688f4;--navy:#19375f;--purple:#a879f7;--red:#d84d4d;--green:#20a579;
+  --shadow:0 10px 28px rgba(30,57,89,.07);--r:20px
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
-button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
 .app{max-width:720px;margin:auto;padding:env(safe-area-inset-top) 10px calc(82px + env(safe-area-inset-bottom))}
-header{height:56px;display:flex;align-items:center;justify-content:space-between}
-header h1{font-size:19px;margin:0}header p{font-size:10px;color:var(--muted);margin:2px 0 0}
-.icon{width:42px;height:42px;border-radius:13px;border:1px solid var(--line);background:#fff;font-size:20px;font-weight:900}
+header{height:74px;display:flex;align-items:center;justify-content:space-between}
+.brand h1{font-size:22px;margin:0;font-weight:900;letter-spacing:-.7px}
+.brand h1 em{font-style:normal;color:var(--blue);font-size:13px;margin-left:4px}
+.brand p{font-size:11px;color:var(--muted);margin:4px 0 0}
+.icon-btn{width:46px;height:46px;border:1px solid var(--line);background:#fff;border-radius:15px;box-shadow:var(--shadow);font-size:22px}
 .page{display:none}.page.active{display:block}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
-.month-card{padding:10px 12px;margin-bottom:8px}.month-row{display:grid;grid-template-columns:34px 1fr 34px;align-items:center;gap:6px}.month-row strong{text-align:center;font-size:16px}.filter{display:grid;grid-template-columns:1fr 86px;gap:7px;margin-top:8px}
-.control{width:100%;min-height:42px;border:1px solid var(--line);border-radius:13px;background:#fff;padding:10px 12px;outline:none}
-textarea.control{min-height:80px;resize:vertical}.control:focus{border-color:#82a9d4;box-shadow:0 0 0 3px rgba(45,111,187,.10)}
-.btn{min-height:42px;border:0;border-radius:13px;padding:0 14px;font-weight:850}.primary{background:var(--navy);color:#fff}.soft{background:#eaf2fb;color:var(--navy)}.danger{background:#fff0f0;color:var(--red)}
-.hero{padding:14px;margin-bottom:8px}.hero-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-.hero-top h2{font-size:14px;margin:0}.hero-top p{font-size:10px;color:var(--muted);margin:3px 0 0}
-.total{margin-top:10px;padding:13px 14px;border-radius:15px;background:linear-gradient(135deg,#102f55,#214e7e);color:#fff}
-.total span{font-size:11px;opacity:.78}.total strong{display:block;font-size:24px;margin-top:4px;letter-spacing:-1px}
-.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
-.stat{padding:9px 5px;text-align:center;background:#f7f9fc;border-radius:13px}.stat span{font-size:9px;color:var(--muted)}.stat strong{display:block;margin-top:4px;font-size:13px;white-space:nowrap}
-.action-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:7px;margin-top:9px}
-.section{padding:13px;margin-bottom:8px}.section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
-.section-head h2{font-size:16px;margin:0}.section-head p{font-size:10px;color:var(--muted);margin:3px 0 0}
-.list{display:grid;gap:8px}.row{width:100%;border:1px solid var(--line);border-radius:15px;padding:12px;background:#fff;text-align:left;display:flex;justify-content:space-between;gap:10px;align-items:center}
-.row-main{min-width:0}.row-main strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.row-main p{font-size:11px;color:var(--muted);margin:4px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.badges{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}.badge{font-size:10px;font-weight:800;padding:3px 7px;border-radius:999px;background:#edf3fa;color:var(--navy)}
-.badge.trip{background:#fff2e3;color:#9c5d13}.badge.exp{background:#e8f6f0;color:#176c50}
-.empty{text-align:center;padding:22px 8px;color:var(--muted);font-size:13px}
-.bottom{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(720px,100%);height:calc(67px + env(safe-area-inset-bottom));padding:6px 5px env(safe-area-inset-bottom);display:grid;grid-template-columns:repeat(4,1fr);background:rgba(255,255,255,.96);backdrop-filter:blur(18px);border-top:1px solid var(--line);z-index:20}
-.nav{border:0;background:transparent;border-radius:12px;color:var(--muted);font-size:11px}.nav b{display:block;font-size:18px;line-height:1.2}.nav.active{background:#eef4fb;color:var(--navy);font-weight:900}
-.fab{position:fixed;right:max(14px,calc((100vw - 720px)/2 + 14px));bottom:calc(74px + env(safe-area-inset-bottom));width:52px;height:52px;border:0;border-radius:18px;background:var(--navy);color:#fff;font-size:30px;box-shadow:0 14px 30px rgba(16,47,85,.3);z-index:25}
-.modal{position:fixed;inset:0;background:rgba(13,25,42,.52);display:none;align-items:flex-end;justify-content:center;z-index:50}.modal.show{display:flex}
-.sheet{width:min(720px,100%);max-height:94dvh;overflow:auto;background:#fff;border-radius:25px 25px 0 0;padding:10px 14px calc(16px + env(safe-area-inset-bottom));animation:up .18s ease-out}
-@keyframes up{from{transform:translateY(35px);opacity:.5}}
-.handle{width:42px;height:5px;border-radius:5px;background:#d5dae2;margin:0 auto 12px}.sheet-head{display:flex;justify-content:space-between;gap:10px}
-.sheet-head h2{font-size:19px;margin:0}.sheet-head p{font-size:11px;color:var(--muted);margin:4px 0 0}.close{width:36px;height:36px;border:0;border-radius:50%;background:#f0f3f7;font-size:20px}
-.form{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:13px}.field label{display:block;font-size:11px;color:var(--muted);margin:0 0 5px 2px}.full{grid-column:1/-1}
+.month-card{padding:13px;margin-bottom:10px}
+.month-top{display:grid;grid-template-columns:48px 1fr 48px;align-items:center;gap:8px}
+.month-top strong{text-align:center;font-size:18px}
+.month-top button{height:48px;border:1px solid var(--line);background:#fff;border-radius:15px;font-size:28px;color:var(--blue);font-weight:800}
+.month-bottom{display:grid;grid-template-columns:1fr 88px;gap:8px;margin-top:10px}
+.control{width:100%;min-height:48px;border:1px solid var(--line);border-radius:15px;background:#fff;padding:10px 13px;outline:none}
+.control:focus{border-color:#8ab8e8;box-shadow:0 0 0 3px rgba(22,136,244,.1)}
+.btn{min-height:46px;border:0;border-radius:14px;padding:0 14px;font-weight:850}
+.btn.primary{background:var(--navy);color:#fff}.btn.soft{background:#eaf2fb;color:var(--navy)}.btn.danger{background:#fff0f0;color:var(--red)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px}
+.stat{min-height:104px;padding:16px;display:flex;flex-direction:column;justify-content:center}
+.stat span{font-size:12px;color:var(--muted);margin-bottom:7px}
+.stat strong{font-size:24px;letter-spacing:-.8px}
+.calendar{padding:11px;margin-bottom:10px}
+.week,.days{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.week{margin-bottom:6px}
+.week div{text-align:center;color:var(--muted);font-size:11px;font-weight:850;padding:5px 0}
+.day{position:relative;min-height:82px;border:1px solid var(--line);border-radius:14px;background:#fff;padding:8px 6px;text-align:left}
+.day.blank{visibility:hidden}
+.day .num{font-size:13px;font-weight:900;color:var(--blue)}
+.day.sun .num{color:var(--red)}.day.sat .num{color:#2b68ad}
+.day.today{outline:2px solid #f3b642}
+.day .pill{display:block;margin-top:20px;background:var(--purple);color:#fff;border-radius:999px;text-align:center;padding:5px 2px;font-size:10px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trip-dot,.expense-dot{position:absolute;width:7px;height:7px;border-radius:50%;right:7px}
+.trip-dot{top:7px;background:#eea23e}.expense-dot{bottom:7px;background:var(--green)}
+.section{padding:15px;margin-bottom:10px}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.section-head h2{font-size:18px;margin:0}.section-head p{font-size:11px;color:var(--muted);margin:4px 0 0}
+.list{display:grid;gap:8px}.empty{text-align:center;color:var(--muted);padding:26px 8px;font-size:13px}
+.row{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);background:#fff;border-radius:15px;padding:13px;text-align:left}
+.row-main{min-width:0}.row-main strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row-main p{font-size:11px;color:var(--muted);margin:5px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.summary-box{padding:15px;margin-bottom:10px}.summary-line{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line)}
+.summary-line:last-child{border:0}.summary-line span{color:var(--muted)}.summary-line.final{margin-top:7px;background:#edf4fb;padding:14px;border-radius:14px}.summary-line.final *{color:var(--navy);font-weight:900}
+.bottom{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(720px,100%);height:calc(70px + env(safe-area-inset-bottom));padding:6px 5px env(safe-area-inset-bottom);display:grid;grid-template-columns:repeat(4,1fr);background:rgba(255,255,255,.97);backdrop-filter:blur(18px);border-top:1px solid var(--line);z-index:20}
+.nav{border:0;background:transparent;border-radius:13px;color:var(--muted);font-size:11px}.nav b{display:block;font-size:19px;line-height:1.15}.nav.active{background:#edf4fb;color:var(--navy);font-weight:900}
+.modal{position:fixed;inset:0;background:rgba(12,24,39,.5);display:none;align-items:flex-end;justify-content:center;z-index:50}.modal.show{display:flex}
+.sheet{width:min(720px,100%);max-height:94dvh;overflow:auto;background:#fff;border-radius:25px 25px 0 0;padding:10px 14px calc(16px + env(safe-area-inset-bottom))}
+.handle{width:42px;height:5px;background:#d7dde5;border-radius:999px;margin:0 auto 12px}
+.sheet-head{display:flex;justify-content:space-between;gap:10px}.sheet-head h2{font-size:20px;margin:0}.sheet-head p{font-size:11px;color:var(--muted);margin:4px 0 0}
+.close{width:36px;height:36px;border:0;border-radius:50%;background:#eff3f7;font-size:20px}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.field label{display:block;font-size:11px;color:var(--muted);margin:0 0 5px 2px}.full{grid-column:1/-1}
+textarea.control{min-height:78px;resize:vertical}
 .unit-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.unit{height:42px;border:1px solid var(--line);border-radius:12px;background:#f7f9fc;font-weight:850}.unit.on{background:var(--navy);color:#fff;border-color:var(--navy)}
-.switch-card{display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid var(--line);border-radius:15px;padding:12px}.switch-card strong{font-size:14px}.switch-card p{font-size:11px;color:var(--muted);margin:4px 0 0}
-.switch{position:relative;width:52px;height:31px}.switch input{opacity:0;width:0}.switch span{position:absolute;inset:0;background:#d8dde5;border-radius:99px}.switch span:after{content:"";position:absolute;width:25px;height:25px;left:3px;top:3px;background:#fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.18);transition:.2s}.switch input:checked+span{background:var(--navy)}.switch input:checked+span:after{transform:translateX(21px)}
-.exp-box{border:1px solid var(--line);border-radius:16px;padding:12px}.exp-head{display:flex;justify-content:space-between;align-items:center;gap:8px}.exp-head strong{font-size:14px}.exp-head p{font-size:11px;color:var(--muted);margin:4px 0 0}.exp-list{display:grid;gap:8px;margin-top:10px}.exp-row{display:grid;grid-template-columns:110px 1fr 1.2fr 36px;gap:6px}.remove{border:0;border-radius:10px;background:#fff0f0;color:var(--red);font-size:19px}.exp-total{display:flex;justify-content:space-between;border-top:1px dashed var(--line);margin-top:10px;padding-top:10px}.exp-total span{font-size:12px;color:var(--muted)}.exp-total strong{color:var(--green)}
+.switch-card{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--line);border-radius:15px;padding:12px}
+.switch-card strong{font-size:14px}.switch-card p{font-size:11px;color:var(--muted);margin:4px 0 0}
+.switch{position:relative;width:52px;height:31px}.switch input{opacity:0;width:0}.switch span{position:absolute;inset:0;background:#d9dee6;border-radius:99px}.switch span:after{content:"";position:absolute;width:25px;height:25px;left:3px;top:3px;background:#fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.18);transition:.2s}.switch input:checked+span{background:var(--navy)}.switch input:checked+span:after{transform:translateX(21px)}
+.exp-box{border:1px solid var(--line);border-radius:16px;padding:12px}.exp-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.exp-head strong{font-size:14px}.exp-head p{font-size:11px;color:var(--muted);margin:4px 0 0}
+.exp-list{display:grid;gap:8px;margin-top:10px}.exp-row{display:grid;grid-template-columns:105px 1fr 1.2fr 36px;gap:6px}.remove{border:0;border-radius:10px;background:#fff0f0;color:var(--red);font-size:19px}
+.exp-total{display:flex;justify-content:space-between;border-top:1px dashed var(--line);margin-top:10px;padding-top:10px}.exp-total span{font-size:12px;color:var(--muted)}.exp-total strong{color:var(--green)}
 .sticky{display:flex;gap:8px;position:sticky;bottom:-1px;background:#fff;padding-top:12px;margin-top:12px}.sticky .btn{flex:1}
-.report-box{padding:15px}.report-line{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line)}.report-line:last-child{border:0}.report-line span{color:var(--muted)}.report-line strong{font-size:16px}.report-line.final{margin-top:6px;padding:15px 12px;border-radius:14px;background:#edf4fb}.report-line.final span,.report-line.final strong{color:var(--navy);font-weight:900}
-.notice{padding:11px;border-radius:12px;background:#fff8df;border:1px solid #f1de97;color:#6a5512;font-size:11px;line-height:1.55;margin-top:10px}
-.file{display:flex;align-items:center;justify-content:center}.file input{display:none}
-.version{text-align:center;color:var(--muted);font-size:11px;margin:16px 0}
-@media(max-width:430px){.app{padding-left:8px;padding-right:8px}.total strong{font-size:26px}.stat strong{font-size:12px}.exp-row{grid-template-columns:1fr 1fr 36px}.exp-memo{grid-column:1/3}}
-
-/* v2.2.1 calendar-first home */
-#home .hero,#home #fab,#home .section{display:none!important}
-#home .month-card{padding:14px 14px 12px;margin-bottom:10px}
-#home .month-row{grid-template-columns:48px 1fr 48px;gap:8px}
-#home .month-row .icon{width:48px;height:48px;border-radius:15px;color:#1688f4;font-size:28px}
-#home .month-row strong{text-align:left;padding-left:4px;font-size:18px}
-#home .filter{grid-template-columns:1fr 92px;gap:8px;margin-top:10px}
-#home .filter .control,#home .filter .btn{min-height:48px;font-size:16px}
-.dashboard-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px}
-.dashboard-card{padding:14px 16px;min-height:94px;display:flex;flex-direction:column;justify-content:center}
-.dashboard-card span{font-size:12px;color:var(--muted);margin-bottom:6px}
-.dashboard-card strong{font-size:23px;letter-spacing:-.7px}
-.calendar-card{padding:12px;margin-bottom:10px}
-.week-row,.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
-.week-row{margin-bottom:6px}
-.week-row div{text-align:center;color:var(--muted);font-size:11px;font-weight:800;padding:4px 0}
-.day{position:relative;min-height:82px;border:1px solid #d8e1ec;background:#fff;border-radius:13px;padding:8px 6px;text-align:left}
-.day.empty{border-color:transparent;background:transparent}
-.day .num{font-size:13px;font-weight:900;color:#1688f4}
-.day.sun .num{color:#d95151}.day.sat .num{color:#2d68ad}
-.day.today{outline:2px solid #f2b84a;outline-offset:0}
-.day.has-work{background:#fff}
-.day .work-pill{display:block;margin-top:20px;padding:5px 2px;border-radius:999px;background:#a97af7;color:#fff;text-align:center;font-size:10px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.day .trip-dot{position:absolute;right:7px;top:8px;width:7px;height:7px;border-radius:50%;background:#f0a23c}
-.day .expense-dot{position:absolute;right:7px;bottom:7px;width:7px;height:7px;border-radius:50%;background:#26a77b}
+.notice{margin-top:10px;padding:12px;border:1px solid #f0dc93;background:#fff8df;border-radius:13px;color:#665312;font-size:11px;line-height:1.55}
+.file{display:flex;align-items:center;justify-content:center}.file input{display:none}.version{text-align:center;color:var(--muted);font-size:11px;margin:16px 0}
 @media(max-width:430px){
-  .dashboard-card{min-height:88px;padding:13px 14px}
-  .dashboard-card strong{font-size:20px}
-  .calendar-card{padding:10px}
-  .week-row,.calendar-grid{gap:4px}
-  .day{min-height:75px;padding:7px 5px}
-  .day .work-pill{margin-top:18px;font-size:9px}
+  .app{padding-left:8px;padding-right:8px}.brand h1{font-size:20px}.stat{min-height:96px;padding:14px}.stat strong{font-size:21px}
+  .calendar{padding:9px}.week,.days{gap:4px}.day{min-height:76px;padding:7px 5px}.day .pill{margin-top:18px;font-size:9px}
+  .exp-row{grid-template-columns:1fr 1fr 36px}.exp-memo{grid-column:1/3}
 }
 
+.export-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.export-actions .btn{min-height:48px}
+.expense-breakdown{margin-top:10px;padding:12px;border:1px solid var(--line);border-radius:14px;background:#fafbfd}
+.expense-breakdown h3{font-size:13px;margin:0 0 8px}
+.expense-mini{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed var(--line);font-size:12px}
+.expense-mini:last-child{border-bottom:0}
 </style>
 </head>
 <body>
-<div id="localPreviewNotice" style="display:none;position:fixed;inset:0;z-index:9999;background:#f4f6f9;padding:40px 22px;font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif">
-  <div style="max-width:520px;margin:80px auto 0;background:#fff;border:1px solid #e3e8ef;border-radius:22px;padding:24px;box-shadow:0 12px 34px rgba(20,45,75,.1)">
-    <h2 style="margin:0 0 12px;font-size:22px">파일 미리보기 화면입니다</h2>
-    <p style="margin:0;line-height:1.65;color:#667085">아이폰 파일 앱에서 index.html을 직접 열면 앱 기능이 정상 실행되지 않습니다.<br><br>GitHub에 업로드한 뒤 Safari에서 GitHub Pages 주소로 실행해 주세요.</p>
-  </div>
-</div>
-<script>
-
-(function () {
-  "use strict";
-
-  var KEY = "work-ledger-pro-v1";
-  var state = null;
-  var view = new Date();
-  view.setDate(1);
-  var editingDate = null;
-  var editingCompany = null;
-
-  function q(s) { return document.querySelector(s); }
-  function qa(s) { return Array.prototype.slice.call(document.querySelectorAll(s)); }
-  function money(n) { return Math.round(Number(n) || 0).toLocaleString("ko-KR") + "원"; }
-  function uid() { return "id_" + Date.now().toString(36) + Math.random().toString(36).slice(2); }
-  function dateKey(d) {
-    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
-  }
-  function today() { return dateKey(new Date()); }
-  function esc(v) {
-    return String(v == null ? "" : v).replace(/[&<>"']/g, function (c) {
-      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
-    });
-  }
-
-  function freshState() {
-    return {
-      version: 4,
-      companies: [{
-        id: "default", name: "기본 업체", rate: 180000, tax: 3.3, fixed: 0,
-        color: "#2d6fbb", manager: "", phone: "", memo: ""
-      }],
-      entries: {},
-      settings: {}
-    };
-  }
-
-  function normalize(raw) {
-    var base = freshState();
-    if (!raw || typeof raw !== "object") return base;
-
-    if (Array.isArray(raw.companies) && raw.companies.length) {
-      base.companies = raw.companies.map(function (c) {
-        c = c || {};
-        return {
-          id: String(c.id || uid()),
-          name: String(c.name || "이름 없는 업체"),
-          rate: Math.max(0, Number(c.rate) || 0),
-          tax: Math.max(0, Number(c.tax) || 0),
-          fixed: Math.max(0, Number(c.fixed) || 0),
-          color: String(c.color || "#2d6fbb"),
-          manager: String(c.manager || ""),
-          phone: String(c.phone || ""),
-          memo: String(c.memo || "")
-        };
-      });
-    }
-
-    var sourceEntries = raw.entries && typeof raw.entries === "object" ? raw.entries : {};
-    Object.keys(sourceEntries).forEach(function (date) {
-      var e = sourceEntries[date];
-      if (!e || typeof e !== "object") return;
-      var expenses = [];
-      if (Array.isArray(e.expenses)) {
-        expenses = e.expenses.map(function (x) {
-          x = x || {};
-          return {
-            id: String(x.id || uid()),
-            type: String(x.type || "fuel"),
-            amount: Math.max(0, Number(x.amount) || 0),
-            memo: String(x.memo || "")
-          };
-        });
-      }
-      base.entries[date] = {
-        companyId: String(e.companyId || "default"),
-        units: Math.max(0, Number(e.units) || 0),
-        rate: Math.max(0, Number(e.rate) || 0),
-        type: String(e.type || e.work || ""),
-        memo: String(e.memo || ""),
-        businessTrip: Boolean(typeof e.businessTrip !== "undefined" ? e.businessTrip : e.trip),
-        expenses: expenses
-      };
-    });
-    return base;
-  }
-
-  function load() {
-    try {
-      return normalize(JSON.parse(localStorage.getItem(KEY) || "null"));
-    } catch (err) {
-      return freshState();
-    }
-  }
-  function save() {
-    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (err) {}
-  }
-
-  function companyById(id) {
-    for (var i = 0; i < state.companies.length; i++) if (state.companies[i].id === id) return state.companies[i];
-    return state.companies[0];
-  }
-  function selectedCompanyId() {
-    var el = q("#companyFilter");
-    return el && el.value ? el.value : state.companies[0].id;
-  }
-  function monthPrefix() {
-    return view.getFullYear() + "-" + String(view.getMonth() + 1).padStart(2, "0");
-  }
-  function expenseTotal(e) {
-    var total = 0;
-    (e.expenses || []).forEach(function (x) { total += Number(x.amount) || 0; });
-    return total;
-  }
-  function monthEntries() {
-    var cid = selectedCompanyId();
-    var p = monthPrefix() + "-";
-    return Object.keys(state.entries).filter(function (date) {
-      var e = state.entries[date];
-      return date.indexOf(p) === 0 && e && e.companyId === cid;
-    }).sort().map(function (date) { return [date, state.entries[date]]; });
-  }
-  function calc() {
-    var rows = monthEntries();
-    var c = companyById(selectedCompanyId());
-    var units = 0, labor = 0, expenses = 0;
-    rows.forEach(function (row) {
-      var e = row[1];
-      units += Number(e.units) || 0;
-      labor += (Number(e.units) || 0) * (Number(e.rate) || 0);
-      expenses += expenseTotal(e);
-    });
-    var deduction = Math.max(0, labor * (Number(c.tax) || 0) / 100 + (Number(c.fixed) || 0));
-    return {rows: rows, c: c, units: units, labor: labor, deduction: deduction, expenses: expenses, final: labor - deduction + expenses};
-  }
-
-  function renderSelects() {
-    var html = "";
-    state.companies.forEach(function (c) {
-      html += '<option value="' + esc(c.id) + '">' + esc(c.name) + '</option>';
-    });
-    q("#companyFilter").innerHTML = html;
-    q("#entryCompany").innerHTML = html;
-  }
-
-  function renderCalendar() {
-    var grid = q("#calendarGrid");
-    var y = view.getFullYear(), m = view.getMonth();
-    var first = new Date(y, m, 1).getDay();
-    var last = new Date(y, m + 1, 0).getDate();
-    var cid = selectedCompanyId();
-    var html = "", i, d;
-
-    for (i = 0; i < first; i++) html += '<div class="day empty"></div>';
-
-    for (d = 1; d <= last; d++) {
-      var date = y + "-" + String(m + 1).padStart(2, "0") + "-" + String(d).padStart(2, "0");
-      var e = state.entries[date];
-      var active = e && e.companyId === cid;
-      var dow = new Date(y, m, d).getDay();
-      var cls = "day" + (dow === 0 ? " sun" : "") + (dow === 6 ? " sat" : "") +
-        (date === today() ? " today" : "") + (active ? " has-work" : "");
-      var pill = active && Number(e.units) > 0 ? '<span class="work-pill">' + Number(e.units) + '공수</span>' : "";
-      var trip = active && e.businessTrip ? '<span class="trip-dot"></span>' : "";
-      var exp = active && expenseTotal(e) > 0 ? '<span class="expense-dot"></span>' : "";
-      html += '<button class="' + cls + '" data-cal-date="' + date + '"><span class="num">' + d + '</span>' + trip + pill + exp + '</button>';
-    }
-    grid.innerHTML = html;
-    qa("[data-cal-date]").forEach(function (b) {
-      b.onclick = function () { openEntry(b.getAttribute("data-cal-date")); };
-    });
-  }
-
-  function renderHome() {
-    var x = calc();
-    q("#monthTitle").textContent = view.getFullYear() + "년 " + (view.getMonth() + 1) + "월";
-    q("#workDays").textContent = x.rows.filter(function (r) { return (Number(r[1].units) || 0) > 0; }).length + "일";
-    q("#totalUnits").textContent = (Math.round(x.units * 10) / 10) + "공수";
-    q("#grossTotal").textContent = money(x.labor);
-    q("#netTotal").textContent = money(x.labor - x.deduction);
-    renderCalendar();
-  }
-
-  function rowHtml(date, e) {
-    var pay = (Number(e.units) || 0) * (Number(e.rate) || 0);
-    var ex = expenseTotal(e);
-    return '<button class="row" data-date="' + date + '"><div class="row-main"><strong>' +
-      date + ' · ' + esc(e.type || "작업 내용 없음") + '</strong><p>' + (Number(e.units) || 0) +
-      '공수 · 노무비 ' + money(pay) + (ex ? ' · 경비 ' + money(ex) : '') + '</p></div><b>›</b></button>';
-  }
-
-  function renderLists() {
-    var list = q("#monthList");
-    if (!list) return;
-    var rows = monthEntries().slice().reverse();
-    list.innerHTML = rows.length ? rows.map(function (r) { return rowHtml(r[0], r[1]); }).join("") :
-      '<div class="empty">이번 달 기록이 없습니다.</div>';
-    qa("[data-date]").forEach(function (b) {
-      b.onclick = function () { openEntry(b.getAttribute("data-date")); };
-    });
-  }
-
-  function renderCompanies() {
-    var box = q("#companyList");
-    var html = "";
-    state.companies.forEach(function (c) {
-      var count = 0;
-      Object.keys(state.entries).forEach(function (d) { if (state.entries[d].companyId === c.id) count++; });
-      html += '<button class="row" data-company="' + esc(c.id) + '"><div class="row-main"><strong>' +
-        esc(c.name) + '</strong><p>일당 ' + money(c.rate) + ' · 공제 ' + c.tax + '% · 기록 ' + count +
-        '건</p></div><b>›</b></button>';
-    });
-    box.innerHTML = html;
-    qa("[data-company]").forEach(function (b) {
-      b.onclick = function () { openCompany(b.getAttribute("data-company")); };
-    });
-  }
-
-  function renderAll() {
-    renderSelects();
-    renderHome();
-    renderLists();
-    renderCompanies();
-  }
-
-  function show(id) { q("#" + id).classList.add("show"); }
-  function hide(id) { q("#" + id).classList.remove("show"); }
-
-  function setUnitButtons() {
-    var v = Number(q("#entryUnits").value);
-    qa(".unit").forEach(function (b) {
-      b.classList.toggle("on", Number(b.getAttribute("data-unit")) === v);
-    });
-  }
-
-  function addExpense(x) {
-    x = x || {};
-    var frag = q("#expenseTemplate").content.cloneNode(true);
-    var row = frag.querySelector(".exp-row");
-    row.setAttribute("data-id", x.id || uid());
-    row.querySelector(".exp-type").value = x.type || "fuel";
-    row.querySelector(".exp-amount").value = Number(x.amount) || "";
-    row.querySelector(".exp-memo").value = x.memo || "";
-    row.querySelector(".remove").onclick = function () { row.remove(); updateExpenseTotal(); };
-    row.querySelector(".exp-amount").oninput = updateExpenseTotal;
-    q("#expenseList").appendChild(frag);
-    updateExpenseTotal();
-  }
-
-  function updateExpenseTotal() {
-    var n = 0;
-    qa(".exp-amount").forEach(function (i) { n += Number(i.value) || 0; });
-    q("#expenseTotal").textContent = money(n);
-  }
-
-  function readExpenses() {
-    var arr = [];
-    qa(".exp-row").forEach(function (r) {
-      var amount = Math.max(0, Number(r.querySelector(".exp-amount").value) || 0);
-      var memo = r.querySelector(".exp-memo").value.trim();
-      if (amount > 0 || memo) arr.push({
-        id: r.getAttribute("data-id") || uid(),
-        type: r.querySelector(".exp-type").value,
-        amount: amount,
-        memo: memo
-      });
-    });
-    return arr;
-  }
-
-  function openEntry(date) {
-    date = date || today();
-    editingDate = date;
-    var e = state.entries[date];
-    var cid = e ? e.companyId : selectedCompanyId();
-    var c = companyById(cid);
-
-    q("#entryTitle").textContent = e ? "공수 기록 수정" : "공수 기록 입력";
-    q("#entryDate").value = date;
-    q("#entryCompany").value = cid;
-    q("#entryUnits").value = e ? e.units : 1;
-    q("#entryRate").value = e ? e.rate : c.rate;
-    q("#entryWork").value = e ? e.type : "";
-    q("#entryMemo").value = e ? e.memo : "";
-    q("#entryTrip").checked = e ? !!e.businessTrip : false;
-    q("#expenseList").innerHTML = "";
-    if (e && e.expenses) e.expenses.forEach(addExpense);
-    updateExpenseTotal();
-    setUnitButtons();
-    q("#deleteEntry").style.display = e ? "block" : "none";
-    show("entryModal");
-  }
-
-  function saveEntry() {
-    var date = q("#entryDate").value;
-    var cid = q("#entryCompany").value;
-    var units = Math.max(0, Number(q("#entryUnits").value) || 0);
-    var expenses = readExpenses();
-    var trip = q("#entryTrip").checked;
-    if (!date) { alert("날짜를 선택해 주세요."); return; }
-    if (units === 0 && !trip && !expenses.length) { alert("공수, 출장 또는 경비를 입력해 주세요."); return; }
-
-    if (editingDate && editingDate !== date) delete state.entries[editingDate];
-    state.entries[date] = {
-      companyId: cid,
-      units: units,
-      rate: Math.max(0, Number(q("#entryRate").value) || 0),
-      type: q("#entryWork").value.trim(),
-      memo: q("#entryMemo").value.trim(),
-      businessTrip: trip,
-      expenses: expenses
-    };
-    save();
-    q("#companyFilter").value = cid;
-    hide("entryModal");
-    renderAll();
-  }
-
-  function deleteEntry() {
-    if (!editingDate || !state.entries[editingDate]) return;
-    if (!confirm(editingDate + " 기록을 삭제할까요?")) return;
-    delete state.entries[editingDate];
-    save();
-    hide("entryModal");
-    renderAll();
-  }
-
-  function openCompany(cid) {
-    editingCompany = cid || null;
-    var c = cid ? companyById(cid) : {name:"",rate:180000,tax:3.3,fixed:0,color:"#2d6fbb",manager:"",phone:"",memo:""};
-    q("#companyTitle").textContent = cid ? "업체 수정" : "업체 추가";
-    q("#companyName").value = c.name;
-    q("#companyRate").value = c.rate;
-    q("#companyTax").value = c.tax;
-    q("#companyFixed").value = c.fixed;
-    q("#companyColor").value = c.color;
-    q("#companyManager").value = c.manager;
-    q("#companyPhone").value = c.phone;
-    q("#companyMemo").value = c.memo;
-    q("#deleteCompany").style.display = cid ? "block" : "none";
-    show("companyModal");
-  }
-
-  function saveCompany() {
-    var name = q("#companyName").value.trim();
-    if (!name) { alert("업체명을 입력해 주세요."); return; }
-    var c = {
-      id: editingCompany || uid(), name: name,
-      rate: Math.max(0, Number(q("#companyRate").value) || 0),
-      tax: Math.max(0, Number(q("#companyTax").value) || 0),
-      fixed: Math.max(0, Number(q("#companyFixed").value) || 0),
-      color: q("#companyColor").value || "#2d6fbb",
-      manager: q("#companyManager").value.trim(),
-      phone: q("#companyPhone").value.trim(),
-      memo: q("#companyMemo").value.trim()
-    };
-    if (editingCompany) {
-      state.companies = state.companies.map(function (x) { return x.id === editingCompany ? c : x; });
-    } else state.companies.push(c);
-    save(); hide("companyModal"); renderAll();
-  }
-
-  function deleteCompany() {
-    if (state.companies.length <= 1) { alert("업체는 최소 1개가 필요합니다."); return; }
-    var used = Object.keys(state.entries).some(function (d) { return state.entries[d].companyId === editingCompany; });
-    if (used) { alert("연결된 기록이 있어 삭제할 수 없습니다."); return; }
-    if (!confirm("이 업체를 삭제할까요?")) return;
-    state.companies = state.companies.filter(function (c) { return c.id !== editingCompany; });
-    save(); hide("companyModal"); renderAll();
-  }
-
-  function exportBackup() {
-    var blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement("a");
-    a.href = url; a.download = "공수정산Pro_백업_" + today() + ".json"; a.click();
-    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
-  }
-
-  function page(id) {
-    qa(".page").forEach(function (p) { p.classList.toggle("active", p.id === id); });
-    qa(".nav").forEach(function (n) { n.classList.toggle("active", n.getAttribute("data-page") === id); });
-    window.scrollTo(0, 0);
-  }
-
-  function bind() {
-    q("#prevMonth").onclick = function () { view.setMonth(view.getMonth() - 1); renderAll(); };
-    q("#nextMonth").onclick = function () { view.setMonth(view.getMonth() + 1); renderAll(); };
-    q("#todayBtn").onclick = function () { view = new Date(); view.setDate(1); renderAll(); };
-    q("#companyFilter").onchange = renderAll;
-    q("#addExpense").onclick = function () { addExpense(); };
-    q("#saveEntry").onclick = saveEntry;
-    q("#deleteEntry").onclick = deleteEntry;
-    q("#entryUnits").oninput = setUnitButtons;
-    q("#entryCompany").onchange = function () { q("#entryRate").value = companyById(q("#entryCompany").value).rate; };
-    qa(".unit").forEach(function (b) {
-      b.onclick = function () { q("#entryUnits").value = b.getAttribute("data-unit"); setUnitButtons(); };
-    });
-    q("#addCompany").onclick = function () { openCompany(null); };
-    q("#saveCompany").onclick = saveCompany;
-    q("#deleteCompany").onclick = deleteCompany;
-    qa("[data-close]").forEach(function (b) { b.onclick = function () { hide(b.getAttribute("data-close")); }; });
-    qa(".modal").forEach(function (m) { m.onclick = function (e) { if (e.target === m) hide(m.id); }; });
-    qa(".nav").forEach(function (n) { n.onclick = function () { page(n.getAttribute("data-page")); }; });
-    q("#backupBtn").onclick = exportBackup;
-    q("#backupTop").onclick = exportBackup;
-    q("#restoreInput").onchange = function (e) {
-      var f = e.target.files && e.target.files[0];
-      if (!f) return;
-      var reader = new FileReader();
-      reader.onload = function () {
-        try {
-          state = normalize(JSON.parse(reader.result));
-          save(); renderAll(); alert("복원했습니다.");
-        } catch (err) { alert("백업 파일을 읽지 못했습니다."); }
-      };
-      reader.readAsText(f);
-      e.target.value = "";
-    };
-  }
-
-  function boot() {
-    try {
-      state = load();
-      bind();
-      renderAll();
-    } catch (err) {
-      var box = document.createElement("div");
-      box.style.cssText = "position:fixed;left:12px;right:12px;top:90px;z-index:9999;background:#fff3f3;border:1px solid #efb8b8;border-radius:16px;padding:16px;color:#9c2222;font-size:13px;line-height:1.5";
-      box.textContent = "앱 실행 오류: " + (err && err.message ? err.message : String(err));
-      document.body.appendChild(box);
-    }
-  }
-
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
-  else boot();
-})();
-
-</script>
 <div class="app">
 <header>
-  <div><h1>현장 공수관리 Pro <small style="font-size:10px;color:#1688f4;vertical-align:middle">v2.2.1</small></h1><p>공수 체크와 업체별 정산 관리</p></div>
-  <button id="backupTop" class="icon" title="백업">⇩</button>
+  <div class="brand"><h1>현장 공수관리 Pro <em>v3.1</em></h1><p>공수 체크와 업체별 정산 관리</p></div>
+  <button id="backupTop" class="icon-btn" title="백업">⇩</button>
 </header>
 
 <main>
 <section id="home" class="page active">
   <div class="card month-card">
-    <div class="month-row">
-      <button id="prevMonth" class="icon">‹</button>
-      <strong id="monthTitle"></strong>
-      <button id="nextMonth" class="icon">›</button>
+    <div class="month-top">
+      <button id="prevMonth">‹</button>
+      <strong id="monthTitle">-</strong>
+      <button id="nextMonth">›</button>
     </div>
-    <div class="filter">
-      <select id="companyFilter" class="control" aria-label="업체 선택"></select>
+    <div class="month-bottom">
+      <select id="companyFilter" class="control"></select>
       <button id="todayBtn" class="btn soft">오늘</button>
     </div>
   </div>
 
-  <div class="dashboard-grid">
-    <div class="card dashboard-card"><span>출근일수</span><strong id="workDays">0일</strong></div>
-    <div class="card dashboard-card"><span>총 공수</span><strong id="totalUnits">0공수</strong></div>
-    <div class="card dashboard-card"><span>총액</span><strong id="grossTotal">0원</strong></div>
-    <div class="card dashboard-card"><span>예상 실수령</span><strong id="netTotal">0원</strong></div>
+  <div class="stats">
+    <div class="card stat"><span>출근일수</span><strong id="workDays">0일</strong></div>
+    <div class="card stat"><span>총 공수</span><strong id="totalUnits">0공수</strong></div>
+    <div class="card stat"><span>총액</span><strong id="grossTotal">0원</strong></div>
+    <div class="card stat"><span>예상 실수령</span><strong id="netTotal">0원</strong></div>
   </div>
 
-  <div class="card calendar-card">
-    <div class="week-row">
-      <div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div>
-    </div>
-    <div id="calendarGrid" class="calendar-grid"></div>
+  <div class="card calendar">
+    <div class="week"><div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div></div>
+    <div id="calendarGrid" class="days"></div>
   </div>
 </section>
 
 <section id="records" class="page">
+  <div class="export-actions">
+    <button id="savePng" class="btn primary">PNG 정산서 저장</button>
+    <button id="printPdf" class="btn soft">PDF 인쇄</button>
+  </div>
+  <div class="card summary-box">
+    <div class="summary-line"><span>총 공수</span><strong id="sumUnits">0공수</strong></div>
+    <div class="summary-line"><span>노무비</span><strong id="sumLabor">0원</strong></div>
+    <div class="summary-line"><span>공제액</span><strong id="sumDeduction">0원</strong></div>
+    <div class="summary-line"><span>경비</span><strong id="sumExpenses">0원</strong></div>
+    <div class="summary-line final"><span>최종 청구금액</span><strong id="sumFinal">0원</strong></div>
+    <div id="expenseBreakdown" class="expense-breakdown"></div>
+  </div>
   <div class="card section">
-    <div class="section-head"><div><h2>월별 정산</h2><p>선택한 업체의 이번 달 상세 내역</p></div></div>
-    <div id="monthList" class="list"></div>
+    <div class="section-head"><div><h2>월별 정산</h2><p>날짜를 누르면 수정할 수 있습니다.</p></div></div>
+    <div id="recordList" class="list"></div>
   </div>
 </section>
 
 <section id="companies" class="page">
   <div class="card section">
-    <div class="section-head"><div><h2>업체 관리</h2><p>일당과 공제율을 업체별로 저장</p></div><button id="addCompany" class="btn primary">＋ 추가</button></div>
+    <div class="section-head"><div><h2>업체 관리</h2><p>기본 일당과 공제율을 저장합니다.</p></div><button id="addCompany" class="btn primary">＋ 추가</button></div>
     <div id="companyList" class="list"></div>
   </div>
 </section>
 
 <section id="settings" class="page">
   <div class="card section">
-    <div class="section-head"><div><h2>데이터 관리</h2><p>아이폰 변경 전 백업 권장</p></div></div>
-    <div class="action-grid">
+    <div class="section-head"><div><h2>데이터 관리</h2><p>정기적으로 백업해 주세요.</p></div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       <button id="backupBtn" class="btn primary">백업 저장</button>
       <label class="btn soft file">백업 복원<input id="restoreInput" type="file" accept=".json,application/json"></label>
     </div>
-    <div class="notice">데이터는 현재 아이폰 Safari에 저장됩니다. Safari 웹사이트 데이터 삭제 시 기록이 사라질 수 있으니 정기적으로 백업해 주세요.</div>
+    <div class="notice">데이터는 현재 아이폰 Safari에 저장됩니다. Safari 웹사이트 데이터를 삭제하면 기록도 사라질 수 있습니다.</div>
   </div>
-  <p class="version">현장 공수관리 Pro v2.2.1 · 달력형 홈</p>
+  <p class="version">현장 공수관리 Pro v3.1</p>
 </section>
 </main>
 </div>
@@ -616,237 +175,365 @@ textarea.control{min-height:80px;resize:vertical}.control:focus{border-color:#82
 
 <div id="entryModal" class="modal">
 <div class="sheet">
-<div class="handle"></div>
-<div class="sheet-head"><div><h2 id="entryTitle">공수 입력</h2><p>출장과 경비는 서로 별개입니다.</p></div><button class="close" data-close="entryModal">×</button></div>
-<div class="form">
-  <div class="field full"><label>날짜</label><input id="entryDate" class="control" type="date"></div>
-  <div class="field full"><label>업체</label><select id="entryCompany" class="control"></select></div>
-  <div class="field full"><label>공수 빠른 선택</label><div class="unit-grid">
-    <button class="unit" data-unit="0.5">0.5</button><button class="unit" data-unit="1">1.0</button><button class="unit" data-unit="1.5">1.5</button><button class="unit" data-unit="2">2.0</button>
-  </div></div>
-  <div class="field"><label>공수</label><input id="entryUnits" class="control" type="number" min="0" step="0.1" inputmode="decimal"></div>
-  <div class="field"><label>일당</label><input id="entryRate" class="control" type="number" min="0" step="1000" inputmode="numeric"></div>
-  <div class="field full"><label>작업 내용</label><input id="entryWork" class="control" placeholder="예: 판넬 배선"></div>
-  <div class="field full switch-card">
-    <div><strong>출장</strong><p>출장 체크만 하고 경비 없이 저장할 수도 있습니다.</p></div>
-    <label class="switch"><input id="entryTrip" type="checkbox"><span></span></label>
+  <div class="handle"></div>
+  <div class="sheet-head"><div><h2 id="entryTitle">공수 입력</h2><p>날짜별 공수와 경비를 입력합니다.</p></div><button class="close" data-close="entryModal">×</button></div>
+  <div class="form">
+    <div class="field full"><label>날짜</label><input id="entryDate" class="control" type="date"></div>
+    <div class="field full"><label>업체</label><select id="entryCompany" class="control"></select></div>
+    <div class="field full"><label>공수 빠른 선택</label><div class="unit-grid">
+      <button class="unit" data-unit="0.5">0.5</button><button class="unit" data-unit="1">1.0</button><button class="unit" data-unit="1.5">1.5</button><button class="unit" data-unit="2">2.0</button>
+    </div></div>
+    <div class="field"><label>공수</label><input id="entryUnits" class="control" type="number" min="0" step="0.1" inputmode="decimal"></div>
+    <div class="field"><label>일당</label><input id="entryRate" class="control" type="number" min="0" step="1000" inputmode="numeric"></div>
+    <div class="field full"><label>작업 내용</label><input id="entryWork" class="control" placeholder="예: 판넬 배선"></div>
+    <div class="field full switch-card">
+      <div><strong>출장</strong><p>경비 청구 없이 출장만 체크할 수도 있습니다.</p></div>
+      <label class="switch"><input id="entryTrip" type="checkbox"><span></span></label>
+    </div>
+    <div class="field full exp-box">
+      <div class="exp-head"><div><strong>업체 청구 경비</strong><p>여러 건을 추가할 수 있습니다.</p></div><button id="addExpense" class="btn soft" type="button">＋ 추가</button></div>
+      <div id="expenseList" class="exp-list"></div>
+      <div class="exp-total"><span>경비 합계</span><strong id="expenseTotal">0원</strong></div>
+    </div>
+    <div class="field full"><label>메모</label><textarea id="entryMemo" class="control"></textarea></div>
   </div>
-  <div class="field full exp-box">
-    <div class="exp-head"><div><strong>업체 청구 경비</strong><p>유류비, 숙박비, 식비 등을 여러 건 추가</p></div><button id="addExpense" class="btn soft" type="button">＋ 추가</button></div>
-    <div id="expenseList" class="exp-list"></div>
-    <div class="exp-total"><span>경비 합계</span><strong id="expenseTotal">0원</strong></div>
-  </div>
-  <div class="field full"><label>메모</label><textarea id="entryMemo" class="control" placeholder="현장명, 특이사항 등"></textarea></div>
-</div>
-<div class="sticky"><button id="deleteEntry" class="btn danger">삭제</button><button id="saveEntry" class="btn primary">저장</button></div>
+  <div class="sticky"><button id="deleteEntry" class="btn danger">삭제</button><button id="saveEntry" class="btn primary">저장</button></div>
 </div>
 </div>
 
 <div id="companyModal" class="modal">
 <div class="sheet">
-<div class="handle"></div>
-<div class="sheet-head"><div><h2 id="companyTitle">업체 추가</h2><p>정산에 사용할 기본값을 입력합니다.</p></div><button class="close" data-close="companyModal">×</button></div>
-<div class="form">
-  <div class="field full"><label>업체명</label><input id="companyName" class="control"></div>
-  <div class="field"><label>기본 일당</label><input id="companyRate" class="control" type="number" inputmode="numeric"></div>
-  <div class="field"><label>공제율 (%)</label><input id="companyTax" class="control" type="number" min="0" step="0.1" inputmode="decimal"></div>
-  <div class="field"><label>고정 공제액</label><input id="companyFixed" class="control" type="number" min="0" inputmode="numeric"></div>
-  <div class="field"><label>표시 색상</label><input id="companyColor" class="control" type="color"></div>
-  <div class="field"><label>담당자</label><input id="companyManager" class="control"></div>
-  <div class="field"><label>연락처</label><input id="companyPhone" class="control" inputmode="tel"></div>
-  <div class="field full"><label>메모</label><textarea id="companyMemo" class="control"></textarea></div>
-</div>
-<div class="sticky"><button id="deleteCompany" class="btn danger">삭제</button><button id="saveCompany" class="btn primary">저장</button></div>
-</div>
-</div>
-
-<div id="reportModal" class="modal">
-<div class="sheet">
-<div class="handle"></div>
-<div class="sheet-head"><div><h2>월 정산 내역</h2><p id="reportCaption"></p></div><button class="close" data-close="reportModal">×</button></div>
-<div class="report-box">
-  <div class="report-line"><span>총 공수</span><strong id="reportUnits">0공수</strong></div>
-  <div class="report-line"><span>노무비</span><strong id="reportLabor">0원</strong></div>
-  <div class="report-line"><span>공제액</span><strong id="reportDeduction">0원</strong></div>
-  <div class="report-line"><span>경비</span><strong id="reportExpenses">0원</strong></div>
-  <div class="report-line final"><span>최종 청구금액</span><strong id="reportFinal">0원</strong></div>
-</div>
-<div id="reportEntries" class="list"></div>
+  <div class="handle"></div>
+  <div class="sheet-head"><div><h2 id="companyTitle">업체 추가</h2><p>정산에 사용할 기본값을 입력합니다.</p></div><button class="close" data-close="companyModal">×</button></div>
+  <div class="form">
+    <div class="field full"><label>업체명</label><input id="companyName" class="control"></div>
+    <div class="field"><label>기본 일당</label><input id="companyRate" class="control" type="number" inputmode="numeric"></div>
+    <div class="field"><label>공제율 (%)</label><input id="companyTax" class="control" type="number" min="0" step="0.1" inputmode="decimal"></div>
+    <div class="field"><label>고정 공제액</label><input id="companyFixed" class="control" type="number" min="0" inputmode="numeric"></div>
+    <div class="field"><label>표시 색상</label><input id="companyColor" class="control" type="color"></div>
+    <div class="field"><label>담당자</label><input id="companyManager" class="control"></div>
+    <div class="field"><label>연락처</label><input id="companyPhone" class="control" inputmode="tel"></div>
+    <div class="field full"><label>메모</label><textarea id="companyMemo" class="control"></textarea></div>
+  </div>
+  <div class="sticky"><button id="deleteCompany" class="btn danger">삭제</button><button id="saveCompany" class="btn primary">저장</button></div>
 </div>
 </div>
 
 <template id="expenseTemplate">
-<div class="exp-row">
-  <select class="control exp-type"><option value="fuel">유류비</option><option value="lodging">숙박비</option><option value="meal">식비</option><option value="toll">통행료</option><option value="parking">주차비</option><option value="material">자재비</option><option value="other">기타</option></select>
-  <input class="control exp-amount" type="number" min="0" step="100" inputmode="numeric" placeholder="금액">
-  <input class="control exp-memo" placeholder="메모">
-  <button class="remove" type="button">×</button>
-</div>
+  <div class="exp-row">
+    <select class="control exp-type">
+      <option value="fuel">유류비</option><option value="lodging">숙박비</option><option value="meal">식비</option>
+      <option value="toll">통행료</option><option value="parking">주차비</option><option value="material">자재비</option><option value="other">기타</option>
+    </select>
+    <input class="control exp-amount" type="number" min="0" step="100" inputmode="numeric" placeholder="금액">
+    <input class="control exp-memo" placeholder="메모">
+    <button class="remove" type="button">×</button>
+  </div>
 </template>
 
 <script>
-(() => {
+(function(){
 "use strict";
-if(location.protocol==="file:"){const n=document.getElementById("localPreviewNotice");if(n)n.style.display="block";}
-const KEY="work-ledger-pro-v1";
-const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const won=n=>`${Math.round(Number(n)||0).toLocaleString("ko-KR")}원`;
-const id=()=>crypto?.randomUUID?.()||Date.now().toString(36)+Math.random().toString(36).slice(2);
-const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const dkey=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
-const today=()=>dkey(new Date());
-const expenseNames={fuel:"유류비",lodging:"숙박비",meal:"식비",toll:"통행료",parking:"주차비",material:"자재비",other:"기타"};
 
-const defaults={version:3,companies:[{id:"default",name:"기본 업체",rate:180000,tax:3.3,fixed:0,color:"#2d6fbb",manager:"",phone:"",memo:""}],entries:{},settings:{}};
+var STORE_KEY="work-ledger-pro-v1";
+var state;
+var viewDate=new Date();
+viewDate.setDate(1);
+var editingDate=null;
+var editingCompanyId=null;
 
+function el(s){return document.querySelector(s)}
+function els(s){return Array.prototype.slice.call(document.querySelectorAll(s))}
+function uid(){return "id_"+Date.now().toString(36)+Math.random().toString(36).slice(2)}
+function won(n){return Math.round(Number(n)||0).toLocaleString("ko-KR")+"원"}
+function dateKey(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function today(){return dateKey(new Date())}
+function escapeHtml(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+
+function defaultState(){
+  return {
+    version:5,
+    companies:[{id:"default",name:"기본 업체",rate:180000,tax:3.3,fixed:0,color:"#2d6fbb",manager:"",phone:"",memo:""}],
+    entries:{},
+    settings:{}
+  }
+}
 function normalize(raw){
-  const s=Object.assign({},defaults,raw||{});
-  s.companies=Array.isArray(s.companies)&&s.companies.length?s.companies.map(c=>({
-    id:String(c.id||id()),name:String(c.name||"이름 없는 업체"),rate:Math.max(0,Number(c.rate)||0),
-    tax:Math.max(0,Number(c.tax)||0),fixed:Math.max(0,Number(c.fixed)||0),color:String(c.color||"#2d6fbb"),
-    manager:String(c.manager||""),phone:String(c.phone||""),memo:String(c.memo||"")
-  })):JSON.parse(JSON.stringify(defaults.companies));
-  s.entries=Object.fromEntries(Object.entries(s.entries||{}).map(([date,e])=>[date,{
-    companyId:String(e.companyId||"default"),units:Math.max(0,Number(e.units)||0),rate:Math.max(0,Number(e.rate)||0),
-    type:String(e.type||e.work||""),memo:String(e.memo||""),businessTrip:Boolean(e.businessTrip??e.trip??false),
-    expenses:Array.isArray(e.expenses)?e.expenses.map(x=>({id:String(x.id||id()),type:String(x.type||"fuel"),amount:Math.max(0,Number(x.amount)||0),memo:String(x.memo||"")})):[]
-  }]));
-  s.version=3; return s;
+  var base=defaultState(),i,k,c,e,x;
+  if(!raw||typeof raw!=="object")return base;
+  if(Array.isArray(raw.companies)&&raw.companies.length){
+    base.companies=[];
+    for(i=0;i<raw.companies.length;i++){
+      c=raw.companies[i]||{};
+      base.companies.push({
+        id:String(c.id||uid()),name:String(c.name||"이름 없는 업체"),rate:Math.max(0,Number(c.rate)||0),
+        tax:Math.max(0,Number(c.tax)||0),fixed:Math.max(0,Number(c.fixed)||0),color:String(c.color||"#2d6fbb"),
+        manager:String(c.manager||""),phone:String(c.phone||""),memo:String(c.memo||"")
+      })
+    }
+  }
+  if(raw.entries&&typeof raw.entries==="object"){
+    for(k in raw.entries){
+      if(!Object.prototype.hasOwnProperty.call(raw.entries,k))continue;
+      e=raw.entries[k]||{};
+      base.entries[k]={
+        companyId:String(e.companyId||"default"),units:Math.max(0,Number(e.units)||0),rate:Math.max(0,Number(e.rate)||0),
+        type:String(e.type||e.work||""),memo:String(e.memo||""),businessTrip:Boolean(e.businessTrip||e.trip),
+        expenses:[]
+      };
+      if(Array.isArray(e.expenses)){
+        for(i=0;i<e.expenses.length;i++){
+          x=e.expenses[i]||{};
+          base.entries[k].expenses.push({id:String(x.id||uid()),type:String(x.type||"fuel"),amount:Math.max(0,Number(x.amount)||0),memo:String(x.memo||"")})
+        }
+      }
+    }
+  }
+  return base
 }
-function load(){try{return normalize(JSON.parse(localStorage.getItem(KEY)||"null"))}catch{return normalize(null)}}
-function save(){state=normalize(state);localStorage.setItem(KEY,JSON.stringify(state))}
-let state=load(), view=new Date(); view.setDate(1), editingDate=null, editingCompany=null;
-
-const companyById=x=>state.companies.find(c=>c.id===x);
-const selectedCompany=()=>$("#companyFilter").value||state.companies[0].id;
-const prefix=()=>`${view.getFullYear()}-${String(view.getMonth()+1).padStart(2,"0")}`;
-const expTotal=e=>(e.expenses||[]).reduce((a,x)=>a+(Number(x.amount)||0),0);
-
-function monthEntries(){
-  const cid=selectedCompany();
-  return Object.entries(state.entries).filter(([date,e])=>date.startsWith(prefix()+"-")&&e.companyId===cid).sort((a,b)=>a[0].localeCompare(b[0]));
+function loadState(){
+  try{return normalize(JSON.parse(localStorage.getItem(STORE_KEY)||"null"))}catch(err){return defaultState()}
 }
-function calc(){
-  const rows=monthEntries(), c=companyById(selectedCompany())||state.companies[0];
-  const units=rows.reduce((a,[,e])=>a+(Number(e.units)||0),0);
-  const labor=rows.reduce((a,[,e])=>a+(Number(e.units)||0)*(Number(e.rate)||0),0);
-  const deduction=Math.max(0,labor*(Number(c.tax)||0)/100+(Number(c.fixed)||0));
-  const expenses=rows.reduce((a,[,e])=>a+expTotal(e),0);
-  return {rows,c,units,labor,deduction,expenses,final:labor-deduction+expenses};
+function saveState(){try{localStorage.setItem(STORE_KEY,JSON.stringify(state))}catch(err){}}
+function getCompany(id){
+  var i;
+  for(i=0;i<state.companies.length;i++)if(state.companies[i].id===id)return state.companies[i];
+  return state.companies[0]
+}
+function selectedCompanyId(){return el("#companyFilter").value||state.companies[0].id}
+function monthPrefix(){return viewDate.getFullYear()+"-"+String(viewDate.getMonth()+1).padStart(2,"0")}
+function expenseSum(entry){
+  var t=0,i;entry=entry||{};
+  for(i=0;i<(entry.expenses||[]).length;i++)t+=Number(entry.expenses[i].amount)||0;
+  return t
+}
+function getMonthRows(){
+  var p=monthPrefix()+"-",cid=selectedCompanyId(),rows=[],k,e;
+  for(k in state.entries){
+    if(!Object.prototype.hasOwnProperty.call(state.entries,k))continue;
+    e=state.entries[k];
+    if(k.indexOf(p)===0&&e.companyId===cid)rows.push([k,e])
+  }
+  rows.sort(function(a,b){return a[0].localeCompare(b[0])});
+  return rows
+}
+function calculate(){
+  var rows=getMonthRows(),c=getCompany(selectedCompanyId()),units=0,labor=0,expenses=0,i,e,deduction;
+  for(i=0;i<rows.length;i++){
+    e=rows[i][1];units+=Number(e.units)||0;labor+=(Number(e.units)||0)*(Number(e.rate)||0);expenses+=expenseSum(e)
+  }
+  deduction=Math.max(0,labor*(Number(c.tax)||0)/100+(Number(c.fixed)||0));
+  return {rows:rows,company:c,units:units,labor:labor,expenses:expenses,deduction:deduction,final:labor-deduction+expenses}
 }
 function renderSelects(){
-  const current=selectedCompany();
-  const html=state.companies.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("");
-  $("#companyFilter").innerHTML=html; $("#entryCompany").innerHTML=html;
-  $("#companyFilter").value=state.companies.some(c=>c.id===current)?current:state.companies[0].id;
-}
-function renderHome(){
-  const x=calc();
-  $("#monthTitle").textContent=`${view.getFullYear()}년 ${view.getMonth()+1}월`;
-  const workDays=x.rows.filter(([,e])=>(Number(e.units)||0)>0).length;
-  $("#workDays").textContent=`${workDays}일`;
-  $("#totalUnits").textContent=`${Math.round(x.units*10)/10}공수`;
-  $("#grossTotal").textContent=won(x.labor);
-  $("#netTotal").textContent=won(x.labor-x.deduction);
-  renderCalendar();
+  var html="",i,current=selectedCompanyId();
+  for(i=0;i<state.companies.length;i++)html+='<option value="'+escapeHtml(state.companies[i].id)+'">'+escapeHtml(state.companies[i].name)+'</option>';
+  el("#companyFilter").innerHTML=html;el("#entryCompany").innerHTML=html;
+  if(getCompany(current))el("#companyFilter").value=current
 }
 function renderCalendar(){
-  const grid=$("#calendarGrid");
-  if(!grid)return;
-  const y=view.getFullYear(), m=view.getMonth();
-  const first=new Date(y,m,1).getDay();
-  const last=new Date(y,m+1,0).getDate();
-  const cid=selectedCompany();
-  let html="";
-  for(let i=0;i<first;i++) html+='<div class="day empty"></div>';
-  for(let d=1;d<=last;d++){
-    const date=`${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
-    const e=state.entries[date];
-    const dow=new Date(y,m,d).getDay();
-    const active=e&&e.companyId===cid;
-    const cls=["day",dow===0?"sun":"",dow===6?"sat":"",date===today()?"today":"",active?"has-work":""].filter(Boolean).join(" ");
-    const pill=active&&Number(e.units)>0?`<span class="work-pill">${Number(e.units)}공수</span>`:"";
-    const trip=active&&e.businessTrip?'<span class="trip-dot"></span>':"";
-    const expense=active&&expTotal(e)>0?'<span class="expense-dot"></span>':"";
-    html+=`<button class="${cls}" data-cal-date="${date}"><span class="num">${d}</span>${trip}${pill}${expense}</button>`;
+  var grid=el("#calendarGrid"),y=viewDate.getFullYear(),m=viewDate.getMonth(),first=new Date(y,m,1).getDay(),last=new Date(y,m+1,0).getDate();
+  var cid=selectedCompanyId(),html="",i,d,date,e,dow,cls;
+  for(i=0;i<first;i++)html+='<div class="day blank"></div>';
+  for(d=1;d<=last;d++){
+    date=y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");
+    e=state.entries[date];dow=new Date(y,m,d).getDay();
+    cls="day"+(dow===0?" sun":"")+(dow===6?" sat":"")+(date===today()?" today":"");
+    html+='<button class="'+cls+'" data-date="'+date+'"><span class="num">'+d+'</span>';
+    if(e&&e.companyId===cid){
+      if(e.businessTrip)html+='<span class="trip-dot"></span>';
+      if(Number(e.units)>0)html+='<span class="pill">'+Number(e.units)+'공수</span>';
+      if(expenseSum(e)>0)html+='<span class="expense-dot"></span>'
+    }
+    html+='</button>'
   }
   grid.innerHTML=html;
-  $$("[data-cal-date]").forEach(b=>b.onclick=()=>openEntry(b.dataset.calDate));
+  els("#calendarGrid [data-date]").forEach(function(b){b.onclick=function(){openEntry(b.getAttribute("data-date"))}})
 }
-
 function rowHtml(date,e){
-  const pay=(Number(e.units)||0)*(Number(e.rate)||0), ex=expTotal(e);
-  return `<button class="row" data-date="${date}"><div class="row-main"><strong>${date} · ${esc(e.type||"작업 내용 없음")}</strong><p>${Number(e.units)||0}공수 · 노무비 ${won(pay)}${ex?` · 경비 ${won(ex)}`:""}</p><div class="badges">${e.businessTrip?'<span class="badge trip">출장</span>':""}${ex?`<span class="badge exp">경비 ${e.expenses.length}건</span>`:""}</div></div><b>›</b></button>`;
+  var pay=(Number(e.units)||0)*(Number(e.rate)||0),ex=expenseSum(e);
+  return '<button class="row" data-record-date="'+date+'"><div class="row-main"><strong>'+date+' · '+escapeHtml(e.type||"작업 내용 없음")+'</strong><p>'+
+  (Number(e.units)||0)+'공수 · 노무비 '+won(pay)+(ex?' · 경비 '+won(ex):'')+'</p></div><b>›</b></button>'
 }
-function renderLists(){
-  const all=Object.entries(state.entries).filter(([,e])=>e.companyId===selectedCompany()).sort((a,b)=>b[0].localeCompare(a[0]));
-  const recent=$("#recentList");
-  if(recent) recent.innerHTML=all.slice(0,7).map(([d,e])=>rowHtml(d,e)).join("")||'<div class="empty">아직 등록된 기록이 없습니다.</div>';
-  const month=monthEntries().slice().reverse();
-  const monthList=$("#monthList");
-  if(monthList) monthList.innerHTML=month.map(([d,e])=>rowHtml(d,e)).join("")||'<div class="empty">이번 달 기록이 없습니다.</div>';
-  $$("[data-date]").forEach(b=>b.onclick=()=>openEntry(b.dataset.date));
+function renderRecords(){
+  var x=calculate(),html="",i;
+  el("#sumUnits").textContent=(Math.round(x.units*10)/10)+"공수";
+  el("#sumLabor").textContent=won(x.labor);el("#sumDeduction").textContent=won(x.deduction);
+  el("#sumExpenses").textContent=won(x.expenses);el("#sumFinal").textContent=won(x.final);renderExpenseBreakdown(x.rows);
+  for(i=x.rows.length-1;i>=0;i--)html+=rowHtml(x.rows[i][0],x.rows[i][1]);
+  el("#recordList").innerHTML=html||'<div class="empty">이번 달 기록이 없습니다.</div>';
+  els("[data-record-date]").forEach(function(b){b.onclick=function(){openEntry(b.getAttribute("data-record-date"))}})
 }
 function renderCompanies(){
-  $("#companyList").innerHTML=state.companies.map(c=>{
-    const count=Object.values(state.entries).filter(e=>e.companyId===c.id).length;
-    return `<button class="row" data-company="${esc(c.id)}"><div class="row-main"><strong><span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:${esc(c.color)};margin-right:6px"></span>${esc(c.name)}</strong><p>일당 ${won(c.rate)} · 공제 ${c.tax}% · 기록 ${count}건</p></div><b>›</b></button>`;
-  }).join("");
-  $$("[data-company]").forEach(b=>b.onclick=()=>openCompany(b.dataset.company));
+  var html="",i,c,count,k;
+  for(i=0;i<state.companies.length;i++){
+    c=state.companies[i];count=0;
+    for(k in state.entries)if(Object.prototype.hasOwnProperty.call(state.entries,k)&&state.entries[k].companyId===c.id)count++;
+    html+='<button class="row" data-company="'+escapeHtml(c.id)+'"><div class="row-main"><strong>'+escapeHtml(c.name)+'</strong><p>일당 '+won(c.rate)+' · 공제 '+c.tax+'% · 기록 '+count+'건</p></div><b>›</b></button>'
+  }
+  el("#companyList").innerHTML=html;
+  els("[data-company]").forEach(function(b){b.onclick=function(){openCompany(b.getAttribute("data-company"))}})
 }
-function renderAll(){renderSelects();renderHome();renderLists();renderCompanies()}
-function show(id){$("#"+id).classList.add("show")} function hide(id){$("#"+id).classList.remove("show")}
-function setUnits(){const v=Number($("#entryUnits").value); $$(".unit").forEach(b=>b.classList.toggle("on",Number(b.dataset.unit)===v))}
-function addExpense(x={}){
-  const f=$("#expenseTemplate").content.cloneNode(true), r=f.querySelector(".exp-row"); r.dataset.id=x.id||id();
-  r.querySelector(".exp-type").value=x.type||"fuel";r.querySelector(".exp-amount").value=Number(x.amount)||"";r.querySelector(".exp-memo").value=x.memo||"";
-  r.querySelector(".remove").onclick=()=>{r.remove();updateExpense()};r.querySelector(".exp-amount").oninput=updateExpense;$("#expenseList").appendChild(f);updateExpense();
+function renderAll(){
+  var x;
+  renderSelects();
+  x=calculate();
+  el("#monthTitle").textContent=viewDate.getFullYear()+"년 "+(viewDate.getMonth()+1)+"월";
+  el("#workDays").textContent=x.rows.filter(function(r){return Number(r[1].units)>0}).length+"일";
+  el("#totalUnits").textContent=(Math.round(x.units*10)/10)+"공수";
+  el("#grossTotal").textContent=won(x.labor);
+  el("#netTotal").textContent=won(x.labor-x.deduction);
+  renderCalendar();renderRecords();renderCompanies()
 }
-function updateExpense(){const n=$$(".exp-amount").reduce((a,i)=>a+(Number(i.value)||0),0);$("#expenseTotal").textContent=won(n)}
-function readExpenses(){return $$(".exp-row").map(r=>({id:r.dataset.id||id(),type:r.querySelector(".exp-type").value,amount:Math.max(0,Number(r.querySelector(".exp-amount").value)||0),memo:r.querySelector(".exp-memo").value.trim()})).filter(x=>x.amount>0||x.memo)}
-function openEntry(date=today()){
-  editingDate=date;const e=state.entries[date], cid=e?.companyId||selectedCompany(), c=companyById(cid)||state.companies[0];
-  $("#entryTitle").textContent=e?"공수 기록 수정":"공수 기록 입력";$("#entryDate").value=date;$("#entryCompany").value=cid;
-  $("#entryUnits").value=e?.units??1;$("#entryRate").value=e?.rate??c.rate;$("#entryWork").value=e?.type||"";$("#entryMemo").value=e?.memo||"";
-  $("#entryTrip").checked=!!e?.businessTrip;$("#expenseList").innerHTML="";(e?.expenses||[]).forEach(addExpense);updateExpense();setUnits();
-  $("#deleteEntry").style.display=e?"block":"none";show("entryModal");
+function show(id){el("#"+id).classList.add("show")}
+function hide(id){el("#"+id).classList.remove("show")}
+function updateUnitButtons(){
+  var v=Number(el("#entryUnits").value);
+  els(".unit").forEach(function(b){b.classList.toggle("on",Number(b.getAttribute("data-unit"))===v)})
+}
+function updateExpenseTotal(){
+  var t=0;els(".exp-amount").forEach(function(i){t+=Number(i.value)||0});el("#expenseTotal").textContent=won(t)
+}
+function addExpense(data){
+  var frag=el("#expenseTemplate").content.cloneNode(true),row=frag.querySelector(".exp-row");
+  data=data||{};row.setAttribute("data-id",data.id||uid());
+  row.querySelector(".exp-type").value=data.type||"fuel";row.querySelector(".exp-amount").value=Number(data.amount)||"";
+  row.querySelector(".exp-memo").value=data.memo||"";
+  row.querySelector(".remove").onclick=function(){row.remove();updateExpenseTotal()};
+  row.querySelector(".exp-amount").oninput=updateExpenseTotal;
+  el("#expenseList").appendChild(frag);updateExpenseTotal()
+}
+function readExpenses(){
+  var arr=[];
+  els(".exp-row").forEach(function(r){
+    var amount=Math.max(0,Number(r.querySelector(".exp-amount").value)||0),memo=r.querySelector(".exp-memo").value.trim();
+    if(amount>0||memo)arr.push({id:r.getAttribute("data-id")||uid(),type:r.querySelector(".exp-type").value,amount:amount,memo:memo})
+  });
+  return arr
+}
+function openEntry(date){
+  var e,c,cid,i;
+  editingDate=date||today();e=state.entries[editingDate];cid=e?e.companyId:selectedCompanyId();c=getCompany(cid);
+  el("#entryTitle").textContent=e?"공수 기록 수정":"공수 기록 입력";
+  el("#entryDate").value=editingDate;el("#entryCompany").value=cid;el("#entryUnits").value=e?e.units:1;el("#entryRate").value=e?e.rate:c.rate;
+  el("#entryWork").value=e?e.type:"";el("#entryMemo").value=e?e.memo:"";el("#entryTrip").checked=e?!!e.businessTrip:false;
+  el("#expenseList").innerHTML="";
+  if(e&&e.expenses)for(i=0;i<e.expenses.length;i++)addExpense(e.expenses[i]);
+  updateExpenseTotal();updateUnitButtons();el("#deleteEntry").style.display=e?"block":"none";show("entryModal")
 }
 function saveEntry(){
-  const date=$("#entryDate").value,cid=$("#entryCompany").value,units=Math.max(0,Number($("#entryUnits").value)||0),rate=Math.max(0,Number($("#entryRate").value)||0),expenses=readExpenses(),trip=$("#entryTrip").checked;
-  if(!date){alert("날짜를 선택해 주세요.");return} if(units===0&&!trip&&!expenses.length){alert("공수, 출장 또는 경비 중 하나 이상을 입력해 주세요.");return}
-  if(editingDate&&editingDate!==date) delete state.entries[editingDate];
-  state.entries[date]={companyId:cid,units,rate,type:$("#entryWork").value.trim(),memo:$("#entryMemo").value.trim(),businessTrip:trip,expenses};
-  save();$("#companyFilter").value=cid;hide("entryModal");renderAll();
+  var date=el("#entryDate").value,cid=el("#entryCompany").value,units=Math.max(0,Number(el("#entryUnits").value)||0),expenses=readExpenses(),trip=el("#entryTrip").checked;
+  if(!date){alert("날짜를 선택해 주세요.");return}
+  if(units===0&&!trip&&!expenses.length){alert("공수, 출장 또는 경비를 입력해 주세요.");return}
+  if(editingDate&&editingDate!==date)delete state.entries[editingDate];
+  state.entries[date]={companyId:cid,units:units,rate:Math.max(0,Number(el("#entryRate").value)||0),type:el("#entryWork").value.trim(),memo:el("#entryMemo").value.trim(),businessTrip:trip,expenses:expenses};
+  saveState();el("#companyFilter").value=cid;hide("entryModal");renderAll()
 }
-function deleteEntry(){if(!editingDate||!state.entries[editingDate])return;if(!confirm(`${editingDate} 기록을 삭제할까요?`))return;delete state.entries[editingDate];save();hide("entryModal");renderAll()}
-function openCompany(cid=null){
-  editingCompany=cid;const c=cid?companyById(cid):{name:"",rate:180000,tax:3.3,fixed:0,color:"#2d6fbb",manager:"",phone:"",memo:""};
-  $("#companyTitle").textContent=cid?"업체 수정":"업체 추가";$("#companyName").value=c.name;$("#companyRate").value=c.rate;$("#companyTax").value=c.tax;$("#companyFixed").value=c.fixed;$("#companyColor").value=c.color;$("#companyManager").value=c.manager;$("#companyPhone").value=c.phone;$("#companyMemo").value=c.memo;$("#deleteCompany").style.display=cid?"block":"none";show("companyModal");
+function deleteEntry(){
+  if(!editingDate||!state.entries[editingDate])return;
+  if(!confirm(editingDate+" 기록을 삭제할까요?"))return;
+  delete state.entries[editingDate];saveState();hide("entryModal");renderAll()
+}
+function openCompany(id){
+  var c=id?getCompany(id):{name:"",rate:180000,tax:3.3,fixed:0,color:"#2d6fbb",manager:"",phone:"",memo:""};
+  editingCompanyId=id||null;el("#companyTitle").textContent=id?"업체 수정":"업체 추가";
+  el("#companyName").value=c.name;el("#companyRate").value=c.rate;el("#companyTax").value=c.tax;el("#companyFixed").value=c.fixed;
+  el("#companyColor").value=c.color;el("#companyManager").value=c.manager;el("#companyPhone").value=c.phone;el("#companyMemo").value=c.memo;
+  el("#deleteCompany").style.display=id?"block":"none";show("companyModal")
 }
 function saveCompany(){
-  const name=$("#companyName").value.trim();if(!name){alert("업체명을 입력해 주세요.");return}
-  const c={id:editingCompany||id(),name,rate:Math.max(0,Number($("#companyRate").value)||0),tax:Math.max(0,Number($("#companyTax").value)||0),fixed:Math.max(0,Number($("#companyFixed").value)||0),color:$("#companyColor").value||"#2d6fbb",manager:$("#companyManager").value.trim(),phone:$("#companyPhone").value.trim(),memo:$("#companyMemo").value.trim()};
-  if(editingCompany)state.companies=state.companies.map(x=>x.id===editingCompany?c:x);else state.companies.push(c);save();hide("companyModal");renderAll();
+  var name=el("#companyName").value.trim(),c,i;
+  if(!name){alert("업체명을 입력해 주세요.");return}
+  c={id:editingCompanyId||uid(),name:name,rate:Math.max(0,Number(el("#companyRate").value)||0),tax:Math.max(0,Number(el("#companyTax").value)||0),fixed:Math.max(0,Number(el("#companyFixed").value)||0),color:el("#companyColor").value||"#2d6fbb",manager:el("#companyManager").value.trim(),phone:el("#companyPhone").value.trim(),memo:el("#companyMemo").value.trim()};
+  if(editingCompanyId){
+    for(i=0;i<state.companies.length;i++)if(state.companies[i].id===editingCompanyId)state.companies[i]=c
+  }else state.companies.push(c);
+  saveState();hide("companyModal");renderAll()
 }
-function deleteCompany(){if(state.companies.length<=1){alert("업체는 최소 1개가 필요합니다.");return}if(Object.values(state.entries).some(e=>e.companyId===editingCompany)){alert("연결된 기록이 있어 삭제할 수 없습니다.");return}if(!confirm("이 업체를 삭제할까요?"))return;state.companies=state.companies.filter(c=>c.id!==editingCompany);save();hide("companyModal");renderAll()}
-function openReport(){
-  const x=calc();$("#reportCaption").textContent=`${view.getFullYear()}년 ${view.getMonth()+1}월 · ${x.c.name}`;$("#reportUnits").textContent=`${Math.round(x.units*10)/10}공수`;$("#reportLabor").textContent=won(x.labor);$("#reportDeduction").textContent=won(x.deduction);$("#reportExpenses").textContent=won(x.expenses);$("#reportFinal").textContent=won(x.final);
-  $("#reportEntries").innerHTML=x.rows.map(([d,e])=>rowHtml(d,e)).join("")||'<div class="empty">정산할 기록이 없습니다.</div>';show("reportModal");
+function deleteCompany(){
+  var k;
+  if(state.companies.length<=1){alert("업체는 최소 1개가 필요합니다.");return}
+  for(k in state.entries)if(Object.prototype.hasOwnProperty.call(state.entries,k)&&state.entries[k].companyId===editingCompanyId){alert("연결된 기록이 있어 삭제할 수 없습니다.");return}
+  if(!confirm("이 업체를 삭제할까요?"))return;
+  state.companies=state.companies.filter(function(c){return c.id!==editingCompanyId});saveState();hide("companyModal");renderAll()
 }
-function exportBackup(){const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`공수정산Pro_백업_${today()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
-function page(id){$$(".page").forEach(p=>p.classList.toggle("active",p.id===id));$$(".nav").forEach(n=>n.classList.toggle("active",n.dataset.page===id));scrollTo({top:0,behavior:"smooth"})}
+function exportBackup(){
+  var blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+  a.href=url;a.download="현장공수관리_백업_"+today()+".json";a.click();setTimeout(function(){URL.revokeObjectURL(url)},1000)
+}
+function changePage(id){
+  els(".page").forEach(function(p){p.classList.toggle("active",p.id===id)});
+  els(".nav").forEach(function(n){n.classList.toggle("active",n.getAttribute("data-page")===id)});
+  window.scrollTo(0,0)
+}
 
-$("#prevMonth").onclick=()=>{view.setMonth(view.getMonth()-1);renderAll()};$("#nextMonth").onclick=()=>{view.setMonth(view.getMonth()+1);renderAll()};
-$("#todayBtn").onclick=()=>{view=new Date();view.setDate(1);renderAll()};$("#companyFilter").onchange=renderAll;
-const ti=$("#todayInput");if(ti)ti.onclick=()=>openEntry(today());const fb=$("#fab");if(fb)fb.onclick=()=>openEntry(today());const or=$("#openReport");if(or)or.onclick=openReport;
-$("#addExpense").onclick=()=>addExpense();$("#saveEntry").onclick=saveEntry;$("#deleteEntry").onclick=deleteEntry;
-$("#entryUnits").oninput=setUnits;$("#entryCompany").onchange=()=>{const c=companyById($("#entryCompany").value);if(c)$("#entryRate").value=c.rate};
-$$(".unit").forEach(b=>b.onclick=()=>{$("#entryUnits").value=b.dataset.unit;setUnits()});
-$("#addCompany").onclick=()=>openCompany();$("#saveCompany").onclick=saveCompany;$("#deleteCompany").onclick=deleteCompany;
-$$("[data-close]").forEach(b=>b.onclick=()=>hide(b.dataset.close));$$(".modal").forEach(m=>m.onclick=e=>{if(e.target===m)hide(m.id)});
-$$(".nav").forEach(n=>n.onclick=()=>page(n.dataset.page));$("#backupBtn").onclick=exportBackup;$("#backupTop").onclick=exportBackup;
-$("#restoreInput").onchange=async e=>{try{const f=e.target.files?.[0];if(!f)return;if(!confirm("현재 데이터를 백업 파일 내용으로 교체할까요?"))return;state=normalize(JSON.parse(await f.text()));save();renderAll();alert("복원했습니다.")}catch{alert("백업 파일을 읽지 못했습니다.")}e.target.value=""};
-renderAll();
+var expenseLabels={fuel:"유류비",lodging:"숙박비",meal:"식비",toll:"통행료",parking:"주차비",material:"자재비",other:"기타"};
+function expenseCategories(rows){
+  var t={},i,j,e,x;
+  for(i=0;i<rows.length;i++){e=rows[i][1];for(j=0;j<(e.expenses||[]).length;j++){x=e.expenses[j];t[x.type]=(t[x.type]||0)+(Number(x.amount)||0)}}
+  return t
+}
+function renderExpenseBreakdown(rows){
+  var t=expenseCategories(rows),keys=Object.keys(t).filter(function(k){return t[k]>0}),html="<h3>경비 구분</h3>",i;
+  if(!keys.length)html+='<div class="expense-mini"><span>등록된 경비 없음</span><strong>0원</strong></div>';
+  else for(i=0;i<keys.length;i++)html+='<div class="expense-mini"><span>'+escapeHtml(expenseLabels[keys[i]]||keys[i])+'</span><strong>'+won(t[keys[i]])+'</strong></div>';
+  el("#expenseBreakdown").innerHTML=html
+}
+function reportData(){var x=calculate();return {period:viewDate.getFullYear()+"년 "+(viewDate.getMonth()+1)+"월",company:x.company.name,rows:x.rows,units:x.units,labor:x.labor,deduction:x.deduction,expenses:x.expenses,final:x.final}}
+function saveSettlementPng(){
+  var r=reportData(),W=900,S=2,rowH=52,H=430+Math.max(1,r.rows.length)*rowH+80,c=document.createElement("canvas"),ctx,i,y;
+  c.width=W*S;c.height=H*S;ctx=c.getContext("2d");ctx.scale(S,S);
+  ctx.fillStyle="#f4f6f9";ctx.fillRect(0,0,W,H);ctx.fillStyle="#fff";ctx.fillRect(35,30,W-70,H-60);
+  ctx.fillStyle="#142033";ctx.font="bold 30px sans-serif";ctx.fillText("현장 공수 정산서",65,82);
+  ctx.fillStyle="#718096";ctx.font="16px sans-serif";ctx.fillText(r.period+" · "+r.company,65,112);
+  var cards=[["총 공수",(Math.round(r.units*10)/10)+"공수"],["노무비",won(r.labor)],["공제액",won(r.deduction)],["경비",won(r.expenses)]];
+  for(i=0;i<4;i++){var x=65+(i%2)*385,cy=145+Math.floor(i/2)*82;ctx.fillStyle="#f7f9fc";ctx.fillRect(x,cy,355,64);ctx.fillStyle="#718096";ctx.font="13px sans-serif";ctx.fillText(cards[i][0],x+16,cy+23);ctx.fillStyle="#142033";ctx.font="bold 21px sans-serif";ctx.fillText(cards[i][1],x+16,cy+50)}
+  ctx.fillStyle="#19375f";ctx.fillRect(65,320,W-130,58);ctx.fillStyle="#fff";ctx.font="bold 18px sans-serif";ctx.fillText("최종 청구금액",85,356);ctx.textAlign="right";ctx.font="bold 24px sans-serif";ctx.fillText(won(r.final),W-85,356);ctx.textAlign="left";
+  y=405;ctx.fillStyle="#edf4fb";ctx.fillRect(65,y,W-130,36);ctx.fillStyle="#19375f";ctx.font="bold 12px sans-serif";
+  ctx.fillText("날짜",80,y+23);ctx.fillText("작업 내용",190,y+23);ctx.fillText("공수",510,y+23);ctx.fillText("노무비",590,y+23);ctx.fillText("경비",735,y+23);y+=36;
+  if(!r.rows.length){ctx.fillStyle="#718096";ctx.font="14px sans-serif";ctx.fillText("이번 달 기록이 없습니다.",80,y+32)}
+  else for(i=0;i<r.rows.length;i++){var d=r.rows[i][0],e=r.rows[i][1],pay=(Number(e.units)||0)*(Number(e.rate)||0);ctx.fillStyle=i%2?"#fafbfd":"#fff";ctx.fillRect(65,y,W-130,rowH);ctx.fillStyle="#142033";ctx.font="13px sans-serif";ctx.fillText(d.slice(5),80,y+31);ctx.fillText((e.type||"작업 내용 없음").slice(0,22),190,y+31);ctx.fillText(String(Number(e.units)||0),510,y+31);ctx.fillText(won(pay),590,y+31);ctx.fillText(won(expenseSum(e)),735,y+31);y+=rowH}
+  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("현장 공수관리 Pro v3.1",65,H-42);
+  var a=document.createElement("a");a.download="공수정산서_"+r.period.replace(/ /g,"_")+"_"+r.company+".png";a.href=c.toDataURL("image/png");a.click()
+}
+function printSettlementPdf(){
+  var r=reportData(),rows="",i,w;
+  for(i=0;i<r.rows.length;i++){var d=r.rows[i][0],e=r.rows[i][1],pay=(Number(e.units)||0)*(Number(e.rate)||0);rows+="<tr><td>"+escapeHtml(d)+"</td><td>"+escapeHtml(e.type||"작업 내용 없음")+"</td><td>"+(Number(e.units)||0)+"</td><td>"+won(pay)+"</td><td>"+won(expenseSum(e))+"</td></tr>"}
+  if(!rows)rows='<tr><td colspan="5">이번 달 기록이 없습니다.</td></tr>';
+  w=window.open("","_blank");if(!w){alert("팝업 차단을 해제해 주세요.");return}
+  w.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>공수정산서</title><style>body{font-family:sans-serif;color:#142033;padding:28px}p{color:#718096}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0}.box{border:1px solid #dce5ef;border-radius:10px;padding:13px}.box span{display:block;color:#718096;font-size:12px}.box strong{font-size:19px}.final{background:#19375f;color:#fff;padding:16px;border-radius:10px;display:flex;justify-content:space-between;font-size:19px;font-weight:bold}table{width:100%;border-collapse:collapse;margin-top:20px;font-size:12px}th,td{border:1px solid #dce5ef;padding:8px}th{background:#edf4fb}@page{size:A4;margin:15mm}@media print{body{padding:0}}</style></head><body><h1>현장 공수 정산서</h1><p>'+escapeHtml(r.period)+' · '+escapeHtml(r.company)+'</p><div class="grid"><div class="box"><span>총 공수</span><strong>'+(Math.round(r.units*10)/10)+'공수</strong></div><div class="box"><span>노무비</span><strong>'+won(r.labor)+'</strong></div><div class="box"><span>공제액</span><strong>'+won(r.deduction)+'</strong></div><div class="box"><span>경비</span><strong>'+won(r.expenses)+'</strong></div></div><div class="final"><span>최종 청구금액</span><span>'+won(r.final)+'</span></div><table><thead><tr><th>날짜</th><th>작업 내용</th><th>공수</th><th>노무비</th><th>경비</th></tr></thead><tbody>'+rows+'</tbody></table><script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>');w.document.close()
+}
+
+function bind(){
+  el("#prevMonth").onclick=function(){viewDate.setMonth(viewDate.getMonth()-1);renderAll()};
+  el("#nextMonth").onclick=function(){viewDate.setMonth(viewDate.getMonth()+1);renderAll()};
+  el("#todayBtn").onclick=function(){viewDate=new Date();viewDate.setDate(1);renderAll()};
+  el("#companyFilter").onchange=renderAll;
+  el("#addExpense").onclick=function(){addExpense()};
+  el("#saveEntry").onclick=saveEntry;el("#deleteEntry").onclick=deleteEntry;el("#entryUnits").oninput=updateUnitButtons;
+  el("#entryCompany").onchange=function(){el("#entryRate").value=getCompany(el("#entryCompany").value).rate};
+  els(".unit").forEach(function(b){b.onclick=function(){el("#entryUnits").value=b.getAttribute("data-unit");updateUnitButtons()}});
+  el("#addCompany").onclick=function(){openCompany(null)};el("#saveCompany").onclick=saveCompany;el("#deleteCompany").onclick=deleteCompany;
+  els("[data-close]").forEach(function(b){b.onclick=function(){hide(b.getAttribute("data-close"))}});
+  els(".modal").forEach(function(m){m.onclick=function(e){if(e.target===m)hide(m.id)}});
+  els(".nav").forEach(function(n){n.onclick=function(){changePage(n.getAttribute("data-page"))}});
+  el("#backupBtn").onclick=exportBackup;el("#backupTop").onclick=exportBackup;el("#savePng").onclick=saveSettlementPng;el("#printPdf").onclick=printSettlementPdf;
+  el("#restoreInput").onchange=function(e){
+    var file=e.target.files&&e.target.files[0],reader;
+    if(!file)return;reader=new FileReader();
+    reader.onload=function(){try{state=normalize(JSON.parse(reader.result));saveState();renderAll();alert("복원했습니다.")}catch(err){alert("백업 파일을 읽지 못했습니다.")}};
+    reader.readAsText(file);e.target.value=""
+  }
+}
+function boot(){
+  try{state=loadState();bind();renderAll()}
+  catch(err){
+    var box=document.createElement("div");
+    box.style.cssText="position:fixed;left:12px;right:12px;top:90px;z-index:9999;background:#fff3f3;border:1px solid #efb8b8;border-radius:16px;padding:16px;color:#9c2222;font-size:13px;line-height:1.5";
+    box.textContent="앱 실행 오류: "+(err&&err.message?err.message:String(err));document.body.appendChild(box)
+  }
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot()
 })();
 </script>
 </body>
