@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#f3f6fb">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="현장공수관리">
-<title>현장 공수관리 Pro v4.3 통계·실사용</title>
+<title>현장 공수관리 Pro v4.3.1 경비내역</title>
 <style>
 :root{
   --bg:#f3f6fb;--card:#fff;--text:#142033;--muted:#77849a;--line:#dce5ef;
@@ -120,7 +120,7 @@ textarea.control{min-height:78px;resize:vertical}
 .year-total span{display:block;color:var(--muted);font-size:11px}
 .year-total strong{display:block;margin-top:4px;font-size:17px}
 
-/* v4.3 통계·실사용 개선 - 기능 로직 변경 없음 */
+/* v4.3.1 경비내역 개선 - 기능 로직 변경 없음 */
 :root{
   --bg:#eef3f8;
   --card:#ffffff;
@@ -393,7 +393,7 @@ header{
 }
 
 
-/* v4.3 통계·실사용 */
+/* v4.3.1 경비내역 */
 .dashboard-card{margin-top:12px}
 .money-dashboard{
   display:grid;
@@ -498,7 +498,7 @@ header{
 <body>
 <div class="app">
 <header>
-  <div class="brand"><h1>현장 공수관리 Pro <em>v4.3 통계·실사용</em></h1><p>공수 체크와 업체별 정산 관리</p></div>
+  <div class="brand"><h1>현장 공수관리 Pro <em>v4.3.1 경비내역</em></h1><p>공수 체크와 업체별 정산 관리</p></div>
   <button id="backupTop" class="icon-btn" title="백업">⇩</button>
 </header>
 
@@ -641,7 +641,7 @@ header{
       <div class="box"><span>연간 실수령</span><strong id="yearNet">0원</strong></div>
     </div>
   </div>
-  <p class="version">현장 공수관리 Pro v4.3 통계·실사용</p>
+  <p class="version">현장 공수관리 Pro v4.3.1 경비내역</p>
 </section>
 </main>
 </div>
@@ -720,7 +720,7 @@ header{
 </template>
 
 <script>
-console.log("현장공수관리 Pro v4.3 통계·실사용 로드 완료");
+console.log("현장공수관리 Pro v4.3.1 경비내역 로드 완료");
 
 (function(){
 "use strict";
@@ -1196,7 +1196,23 @@ function reportCalendarData(){
   return r
 }
 function saveSettlementPng(){
-  var r=reportCalendarData(),S=2,W=980,H=1320,c=document.createElement("canvas"),ctx=c.getContext("2d");
+  var r=reportCalendarData(),expenseDetails=[],expenseTotals=expenseCategories(r.rows),ei,ej,entry,expenseItem;
+  for(ei=0;ei<r.rows.length;ei++){
+    entry=r.rows[ei][1];
+    for(ej=0;ej<(entry.expenses||[]).length;ej++){
+      expenseItem=entry.expenses[ej];
+      if((Number(expenseItem.amount)||0)>0)expenseDetails.push({
+        date:r.rows[ei][0],
+        type:expenseLabels[expenseItem.type]||expenseItem.type||"기타",
+        amount:Number(expenseItem.amount)||0,
+        memo:String(expenseItem.memo||"")
+      })
+    }
+  }
+  expenseDetails.sort(function(a,b){return a.date.localeCompare(b.date)});
+  var expenseCategoryKeys=Object.keys(expenseTotals).filter(function(k){return expenseTotals[k]>0});
+  var expenseSectionHeight=expenseDetails.length?86+expenseCategoryKeys.length*32+expenseDetails.length*36:0;
+  var S=2,W=980,H=1320+expenseSectionHeight,c=document.createElement("canvas"),ctx=c.getContext("2d");
   c.width=W*S;c.height=H*S;ctx.scale(S,S);
   ctx.fillStyle="#f4f6f9";ctx.fillRect(0,0,W,H);
   ctx.fillStyle="#fff";ctx.fillRect(35,30,W-70,H-60);
@@ -1250,7 +1266,47 @@ function saveSettlementPng(){
     ctx.fillStyle=i===4?"#fff":(i===6?"#c94c4c":"#718096");ctx.font=i===4?"bold 16px sans-serif":"14px sans-serif";ctx.fillText(items[i][0],gx+20,iy+27);
     ctx.textAlign="right";ctx.fillStyle=i===4?"#fff":(i===6?"#c94c4c":"#142033");ctx.font=i===4?"bold 20px sans-serif":"bold 17px sans-serif";ctx.fillText(items[i][1],gx+gw-20,iy+27);ctx.textAlign="left"
   }
-  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("현장 공수관리 Pro v4.3 통계·실사용",65,H-45);
+
+  if(expenseDetails.length){
+    var expenseY=sumY+items.length*50+22,categoryX=gx,categoryW=gw;
+    ctx.fillStyle="#142033";ctx.font="bold 20px sans-serif";ctx.fillText("경비 내역",categoryX,expenseY);
+    expenseY+=18;
+
+    ctx.fillStyle="#edf7f3";ctx.fillRect(categoryX,expenseY,categoryW,34);
+    ctx.fillStyle="#28745b";ctx.font="bold 14px sans-serif";ctx.fillText("경비 구분별 합계",categoryX+14,expenseY+22);
+    expenseY+=40;
+
+    for(i=0;i<expenseCategoryKeys.length;i++){
+      var categoryKey=expenseCategoryKeys[i];
+      ctx.fillStyle=i%2===0?"#f8fafc":"#fff";ctx.fillRect(categoryX,expenseY,categoryW,28);
+      ctx.fillStyle="#536273";ctx.font="13px sans-serif";ctx.fillText(expenseLabels[categoryKey]||categoryKey,categoryX+14,expenseY+19);
+      ctx.textAlign="right";ctx.fillStyle="#142033";ctx.font="bold 13px sans-serif";ctx.fillText(won(expenseTotals[categoryKey]),categoryX+categoryW-14,expenseY+19);ctx.textAlign="left";
+      expenseY+=32
+    }
+
+    expenseY+=8;
+    ctx.fillStyle="#edf4fb";ctx.fillRect(categoryX,expenseY,categoryW,32);
+    ctx.fillStyle="#536273";ctx.font="bold 13px sans-serif";
+    ctx.fillText("날짜",categoryX+12,expenseY+21);
+    ctx.fillText("구분",categoryX+125,expenseY+21);
+    ctx.fillText("메모",categoryX+300,expenseY+21);
+    ctx.textAlign="right";ctx.fillText("금액",categoryX+categoryW-12,expenseY+21);ctx.textAlign="left";
+    expenseY+=32;
+
+    for(i=0;i<expenseDetails.length;i++){
+      var detail=expenseDetails[i],memo=detail.memo||"-";
+      if(memo.length>28)memo=memo.slice(0,28)+"…";
+      ctx.fillStyle=i%2===0?"#fff":"#f9fbfd";ctx.fillRect(categoryX,expenseY,categoryW,32);
+      ctx.strokeStyle="#e4eaf1";ctx.beginPath();ctx.moveTo(categoryX,expenseY+32);ctx.lineTo(categoryX+categoryW,expenseY+32);ctx.stroke();
+      ctx.fillStyle="#536273";ctx.font="12px sans-serif";ctx.fillText(detail.date.slice(5).replace("-","."),categoryX+12,expenseY+21);
+      ctx.fillStyle="#142033";ctx.font="bold 12px sans-serif";ctx.fillText(detail.type,categoryX+125,expenseY+21);
+      ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText(memo,categoryX+300,expenseY+21);
+      ctx.textAlign="right";ctx.fillStyle="#142033";ctx.font="bold 12px sans-serif";ctx.fillText(won(detail.amount),categoryX+categoryW-12,expenseY+21);ctx.textAlign="left";
+      expenseY+=36
+    }
+  }
+
+  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("현장 공수관리 Pro v4.3.1 경비내역",65,H-45);
 
   var fileName="월간정산서_"+r.period.replace(/ /g,"_")+"_"+r.company+".png";
   var dataUrl;
@@ -1284,7 +1340,7 @@ function saveSettlementPng(){
   var img=document.createElement("img");
   img.id="pngPreviewImage";
   img.src=dataUrl;
-  img.alt="현장 공수 정산서 이미지";
+  img.alt="월간 정산서 이미지";
   img.style.cssText="display:block!important;width:100%!important;height:auto!important;max-height:none!important;border:1px solid #dce5ef!important;border-radius:10px!important;background:#f4f6f9!important;-webkit-touch-callout:default!important;-webkit-user-select:auto!important;user-select:auto!important";
 
   var btnRow=document.createElement("div");
@@ -1331,7 +1387,7 @@ function saveSettlementPng(){
       var blob=await (await fetch(dataUrl)).blob();
       var file=new File([blob],fileName,{type:"image/png"});
       if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
-        await navigator.share({files:[file],title:"현장 공수 정산서"})
+        await navigator.share({files:[file],title:"월간 정산서"})
       }else{
         openBtn.click()
       }
