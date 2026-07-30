@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#f3f6fb">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="현장공수관리">
-<title>현장 공수관리 Pro v3.5</title>
+<title>현장 공수관리 Pro v3.5.1</title>
 <style>
 :root{
   --bg:#f3f6fb;--card:#fff;--text:#142033;--muted:#77849a;--line:#dce5ef;
@@ -124,7 +124,7 @@ textarea.control{min-height:78px;resize:vertical}
 <body>
 <div class="app">
 <header>
-  <div class="brand"><h1>현장 공수관리 Pro <em>v3.5</em></h1><p>공수 체크와 업체별 정산 관리</p></div>
+  <div class="brand"><h1>현장 공수관리 Pro <em>v3.5.1</em></h1><p>공수 체크와 업체별 정산 관리</p></div>
   <button id="backupTop" class="icon-btn" title="백업">⇩</button>
 </header>
 
@@ -229,7 +229,7 @@ textarea.control{min-height:78px;resize:vertical}
       <div class="box"><span>연간 실수령</span><strong id="yearNet">0원</strong></div>
     </div>
   </div>
-  <p class="version">현장 공수관리 Pro v3.5</p>
+  <p class="version">현장 공수관리 Pro v3.5.1</p>
 </section>
 </main>
 </div>
@@ -668,11 +668,55 @@ function saveSettlementPng(){
     ctx.fillStyle=i===4?"#fff":"#718096";ctx.font=i===4?"bold 17px sans-serif":"15px sans-serif";ctx.fillText(items[i][0],gx+20,iy+31);
     ctx.textAlign="right";ctx.fillStyle=i===4?"#fff":"#142033";ctx.font=i===4?"bold 22px sans-serif":"bold 18px sans-serif";ctx.fillText(items[i][1],gx+gw-20,iy+31);ctx.textAlign="left"
   }
-  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("현장 공수관리 Pro v3.5",65,H-45);
+  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("현장 공수관리 Pro v3.5.1",65,H-45);
 
-  var a=document.createElement("a");
-  a.download="달력형_공수정산서_"+r.period.replace(/ /g,"_")+"_"+r.company+".png";
-  a.href=c.toDataURL("image/png");a.click()
+  var fileName="달력형_공수정산서_"+r.period.replace(/ /g,"_")+"_"+r.company+".png";
+  c.toBlob(function(blob){
+    if(!blob){alert("이미지를 만들지 못했습니다.");return}
+    var url=URL.createObjectURL(blob);
+    var old=document.getElementById("pngPreviewLayer");
+    if(old)old.remove();
+
+    var layer=document.createElement("div");
+    layer.id="pngPreviewLayer";
+    layer.style.cssText="position:fixed;inset:0;z-index:99999;background:rgba(13,24,39,.88);display:flex;flex-direction:column;align-items:center;overflow:auto;padding:18px 12px 28px;box-sizing:border-box;-webkit-overflow-scrolling:touch";
+    layer.innerHTML=
+      '<div style="width:min(100%,720px);background:#fff;border-radius:18px;padding:14px;box-shadow:0 18px 50px rgba(0,0,0,.35)">'+
+        '<div style="font-size:18px;font-weight:900;color:#142033;margin:2px 2px 6px">정산서 이미지가 완성됐어요</div>'+
+        '<div style="font-size:13px;line-height:1.55;color:#66758a;margin:0 2px 12px">아이폰에서는 아래 <b>공유·저장</b>을 누른 뒤 <b>이미지 저장</b> 또는 <b>파일에 저장</b>을 선택하세요. 이미지 자체를 길게 눌러도 저장할 수 있어요.</div>'+
+        '<img id="pngPreviewImage" src="'+url+'" alt="공수 정산서" style="display:block;width:100%;height:auto;border:1px solid #dce5ef;border-radius:12px;background:#f4f6f9;touch-action:auto;-webkit-user-select:auto;user-select:auto">'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">'+
+          '<button id="pngShareBtn" style="border:0;border-radius:12px;padding:13px 8px;background:#1688f4;color:#fff;font-size:15px;font-weight:900">공유·저장</button>'+
+          '<button id="pngOpenBtn" style="border:1px solid #cfd9e5;border-radius:12px;padding:13px 8px;background:#fff;color:#19375f;font-size:15px;font-weight:900">새 화면으로 열기</button>'+
+        '</div>'+
+        '<button id="pngCloseBtn" style="width:100%;margin-top:8px;border:0;border-radius:12px;padding:12px;background:#edf2f7;color:#34465a;font-size:14px;font-weight:800">닫기</button>'+
+      '</div>';
+
+    document.body.appendChild(layer);
+
+    document.getElementById("pngCloseBtn").onclick=function(){
+      URL.revokeObjectURL(url);layer.remove()
+    };
+    document.getElementById("pngOpenBtn").onclick=function(){
+      var opened=window.open(url,"_blank");
+      if(!opened)alert("Safari의 팝업 차단을 해제해 주세요.")
+    };
+    document.getElementById("pngShareBtn").onclick=async function(){
+      try{
+        var file=new File([blob],fileName,{type:"image/png"});
+        if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
+          await navigator.share({files:[file],title:"현장 공수 정산서"});
+        }else{
+          var opened=window.open(url,"_blank");
+          if(!opened)alert("이미지를 길게 눌러 ‘사진에 저장’을 선택해 주세요.")
+        }
+      }catch(err){
+        if(err && err.name==="AbortError")return;
+        var opened=window.open(url,"_blank");
+        if(!opened)alert("이미지를 길게 눌러 ‘사진에 저장’을 선택해 주세요.")
+      }
+    };
+  },"image/png",1)
 }
 
 function companyProfile(cid){
@@ -760,7 +804,7 @@ function printSettlementPdf(){
   '</div>'+
   '<div class="memo"><strong>메모</strong><br><br>'+escapeHtml(payMemo||profile.memo||"")+'</div>'+
   '<div class="sign"><div class="signbox">작성자 서명</div><div class="signbox">확인자 서명</div></div>'+
-  '<div class="foot">현장 공수관리 Pro v3.5</div>'+
+  '<div class="foot">현장 공수관리 Pro v3.5.1</div>'+
   '</div><script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>');
   w.document.close();
 }
