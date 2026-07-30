@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#f3f6fb">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="현장공수관리">
-<title>현장 공수관리 Pro v4.0 Stable</title>
+<title>현장 공수관리 Pro v4.1 UI</title>
 <style>
 :root{
   --bg:#f3f6fb;--card:#fff;--text:#142033;--muted:#77849a;--line:#dce5ef;
@@ -119,12 +119,232 @@ textarea.control{min-height:78px;resize:vertical}
 .year-total .box{padding:12px;border:1px solid var(--line);border-radius:13px;background:#fafbfd}
 .year-total span{display:block;color:var(--muted);font-size:11px}
 .year-total strong{display:block;margin-top:4px;font-size:17px}
+
+/* v4.1 UI 개선 - 기능 로직 변경 없음 */
+:root{
+  --bg:#eef3f8;
+  --card:#ffffff;
+  --text:#172235;
+  --muted:#718096;
+  --line:#dfe7f0;
+  --blue:#2478d4;
+  --navy:#183a64;
+  --purple:#8567d8;
+  --red:#d65757;
+  --green:#1f9b73;
+  --gold:#d99b33;
+  --shadow:0 10px 30px rgba(29,54,86,.08);
+  --shadow-strong:0 16px 40px rgba(29,54,86,.12);
+  --r:22px;
+}
+body{
+  background:
+    radial-gradient(circle at top left,rgba(36,120,212,.08),transparent 30%),
+    linear-gradient(180deg,#f7f9fc 0,#eef3f8 45%,#edf2f7 100%);
+}
+.app{padding-left:12px;padding-right:12px}
+header{
+  height:84px;
+  padding:4px 2px 0;
+}
+.brand h1{font-size:23px}
+.brand h1 em{
+  display:inline-flex;
+  align-items:center;
+  min-height:23px;
+  padding:0 9px;
+  margin-left:7px;
+  border-radius:999px;
+  background:#e8f1fb;
+  color:var(--blue);
+  font-size:11px;
+  vertical-align:3px;
+}
+.brand p{font-size:12px;margin-top:6px}
+.icon-btn{
+  border:0;
+  background:linear-gradient(145deg,#fff,#f2f6fb);
+  box-shadow:var(--shadow);
+}
+.card{
+  border:1px solid rgba(215,226,238,.9);
+  box-shadow:var(--shadow);
+}
+.month-card{
+  padding:16px;
+  border:0;
+  box-shadow:var(--shadow-strong);
+}
+.month-top strong{font-size:20px;letter-spacing:-.5px}
+.month-top button{
+  border:0;
+  background:#edf4fb;
+  color:var(--navy);
+}
+.control{
+  border-color:#dbe4ee;
+  background:#fbfcfe;
+}
+.btn{
+  min-height:48px;
+  transition:transform .12s ease,filter .12s ease;
+}
+.btn:active{transform:scale(.98)}
+.btn.primary{
+  background:linear-gradient(135deg,var(--navy),#285d94);
+  box-shadow:0 8px 20px rgba(24,58,100,.16);
+}
+.btn.soft{background:#edf4fb}
+.stats{gap:10px}
+.stat{
+  min-height:112px;
+  border:0;
+  position:relative;
+  overflow:hidden;
+}
+.stat:after{
+  content:"";
+  position:absolute;
+  right:-18px;
+  bottom:-28px;
+  width:82px;
+  height:82px;
+  border-radius:50%;
+  background:rgba(36,120,212,.07);
+}
+.stat span{
+  font-size:12px;
+  font-weight:750;
+}
+.stat strong{font-size:25px}
+.calendar{
+  border:0;
+  padding:13px;
+}
+.day{
+  border-color:#e4ebf2;
+  box-shadow:0 3px 10px rgba(36,55,80,.03);
+}
+.day.today{
+  outline:0;
+  border-color:#e2ad45;
+  box-shadow:0 0 0 3px rgba(226,173,69,.17);
+}
+.day .pill{
+  background:linear-gradient(135deg,#8567d8,#a482ef);
+}
+.section,.summary-box,.payment-card{padding:17px}
+.section-head h2{font-size:19px}
+.row{border-color:#e2e9f1}
+.bottom{
+  height:calc(74px + env(safe-area-inset-bottom));
+  padding-top:7px;
+  box-shadow:0 -8px 24px rgba(33,53,79,.06);
+}
+.nav.active{
+  background:#e8f1fa;
+  color:var(--navy);
+}
+.page-intro{
+  margin:2px 0 12px;
+  padding:18px;
+  border-radius:24px;
+  color:#fff;
+  background:
+    radial-gradient(circle at 90% 10%,rgba(255,255,255,.18),transparent 35%),
+    linear-gradient(135deg,#17375f,#2f679f);
+  box-shadow:var(--shadow-strong);
+}
+.page-intro .eyebrow{
+  display:block;
+  margin-bottom:6px;
+  font-size:11px;
+  font-weight:850;
+  letter-spacing:.08em;
+  color:#bcd8f3;
+}
+.page-intro h2{
+  margin:0;
+  font-size:24px;
+  letter-spacing:-.8px;
+}
+.page-intro p{
+  margin:7px 0 0;
+  font-size:12px;
+  line-height:1.5;
+  color:#dceafa;
+}
+.export-actions{
+  grid-template-columns:1fr;
+  margin-bottom:12px;
+}
+.export-actions .btn{
+  min-height:52px;
+  font-size:15px;
+}
+.payment-card{
+  border:0;
+  box-shadow:var(--shadow-strong);
+}
+.payment-head h3{font-size:18px}
+.payment-state{
+  padding:7px 12px;
+  background:#fff1dc;
+}
+.payment-state.paid{
+  background:#e6f5ee;
+}
+.summary-box{
+  border:0;
+  box-shadow:var(--shadow-strong);
+}
+.summary-box:before{
+  content:"정산 요약";
+  display:block;
+  margin-bottom:5px;
+  color:var(--navy);
+  font-size:18px;
+  font-weight:900;
+}
+.summary-line{
+  align-items:center;
+  min-height:49px;
+  padding:12px 2px;
+}
+.summary-line strong{font-size:16px}
+.summary-line.final{
+  margin-top:10px;
+  padding:17px 15px;
+  background:linear-gradient(135deg,#eaf3fc,#f4f8fc);
+  border:1px solid #d8e7f5;
+}
+.summary-line.final strong{font-size:20px}
+.expense-breakdown{
+  background:#f8fafc;
+  border-color:#e0e8f1;
+}
+.payment-actions{margin-top:12px}
+.receivable-row{
+  box-shadow:0 5px 16px rgba(36,55,80,.04);
+}
+.year-table-wrap{background:#fff}
+@media(max-width:430px){
+  .app{padding-left:9px;padding-right:9px}
+  header{height:79px}
+  .brand h1{font-size:20px}
+  .brand h1 em{display:none}
+  .page-intro{padding:16px}
+  .page-intro h2{font-size:22px}
+  .stat{min-height:102px}
+  .stat strong{font-size:22px}
+}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-  <div class="brand"><h1>현장 공수관리 Pro <em>v4.0 Stable</em></h1><p>공수 체크와 업체별 정산 관리</p></div>
+  <div class="brand"><h1>현장 공수관리 Pro <em>v4.1 UI</em></h1><p>공수 체크와 업체별 정산 관리</p></div>
   <button id="backupTop" class="icon-btn" title="백업">⇩</button>
 </header>
 
@@ -156,6 +376,11 @@ textarea.control{min-height:78px;resize:vertical}
 </section>
 
 <section id="records" class="page">
+  <div class="page-intro">
+    <span class="eyebrow">MONTHLY SETTLEMENT</span>
+    <h2>월간 정산서</h2>
+    <p>선택한 업체와 월의 공수, 경비, 입금 상태를 한눈에 확인합니다.</p>
+  </div>
   <div class="export-actions">
     <button id="savePng" class="btn primary">PNG 정산서 저장</button>
   </div>
@@ -183,7 +408,7 @@ textarea.control{min-height:78px;resize:vertical}
     <div id="expenseBreakdown" class="expense-breakdown"></div>
   </div>
   <div class="card section">
-    <div class="section-head"><div><h2>월별 정산</h2><p>날짜를 누르면 수정할 수 있습니다.</p></div></div>
+    <div class="section-head"><div><h2>상세 작업 내역</h2><p>날짜를 누르면 해당 기록을 수정할 수 있습니다.</p></div></div>
     <div id="recordList" class="list"></div>
   </div>
 </section>
@@ -228,7 +453,7 @@ textarea.control{min-height:78px;resize:vertical}
       <div class="box"><span>연간 실수령</span><strong id="yearNet">0원</strong></div>
     </div>
   </div>
-  <p class="version">현장 공수관리 Pro v4.0 Stable</p>
+  <p class="version">현장 공수관리 Pro v4.1 UI</p>
 </section>
 </main>
 </div>
@@ -299,7 +524,7 @@ textarea.control{min-height:78px;resize:vertical}
 </template>
 
 <script>
-console.log("현장공수관리 Pro v4.0 Stable 로드 완료");
+console.log("현장공수관리 Pro v4.1 UI 로드 완료");
 
 (function(){
 "use strict";
@@ -706,7 +931,7 @@ function saveSettlementPng(){
     ctx.fillStyle=i===4?"#fff":"#718096";ctx.font=i===4?"bold 17px sans-serif":"15px sans-serif";ctx.fillText(items[i][0],gx+20,iy+31);
     ctx.textAlign="right";ctx.fillStyle=i===4?"#fff":"#142033";ctx.font=i===4?"bold 22px sans-serif":"bold 18px sans-serif";ctx.fillText(items[i][1],gx+gw-20,iy+31);ctx.textAlign="left"
   }
-  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("현장 공수관리 Pro v4.0 Stable",65,H-45);
+  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("현장 공수관리 Pro v4.1 UI",65,H-45);
 
   var fileName="달력형_공수정산서_"+r.period.replace(/ /g,"_")+"_"+r.company+".png";
   var dataUrl;
