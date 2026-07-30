@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#f3f6fb">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="현장공수관리">
-<title>현장 공수관리 Pro v3.8.3 안정판</title>
+<title>현장 공수관리 Pro v3.9.1 안정판</title>
 <style>
 :root{
   --bg:#f3f6fb;--card:#fff;--text:#142033;--muted:#77849a;--line:#dce5ef;
@@ -119,16 +119,29 @@ textarea.control{min-height:78px;resize:vertical}
 .year-total .box{padding:12px;border:1px solid var(--line);border-radius:13px;background:#fafbfd}
 .year-total span{display:block;color:var(--muted);font-size:11px}
 .year-total strong{display:block;margin-top:4px;font-size:17px}
+
+/* v3.9.1 stability */
+.stability-panel{display:none;margin:10px 0;padding:12px;border:1px solid #f0c36d;background:#fff8e8;border-radius:12px;color:#7a5413;font-size:12px;line-height:1.55}
+.stability-panel.show{display:block}
+.stability-panel strong{display:block;margin-bottom:4px;color:#8b5b00}
+.stability-panel button{margin-top:8px}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-  <div class="brand"><h1>현장 공수관리 Pro <em>v3.8.3</em></h1><p>공수 체크와 업체별 정산 관리</p></div>
+  <div class="brand"><h1>현장 공수관리 Pro <em>v3.9.1</em></h1><p>공수 체크와 업체별 정산 관리</p></div>
   <button id="backupTop" class="icon-btn" title="백업">⇩</button>
 </header>
 
 <main>
+<div id="stabilityPanel" class="stability-panel">
+  <strong>기능 점검 알림</strong>
+  <span id="stabilityMessage">오류 내용이 여기에 표시됩니다.</span>
+  <button id="copyErrorBtn" class="btn soft" type="button">오류내용 복사</button>
+</div>
+
 <section id="home" class="page active">
   <div class="card month-card">
     <div class="month-top">
@@ -157,8 +170,8 @@ textarea.control{min-height:78px;resize:vertical}
 
 <section id="records" class="page">
   <div class="export-actions">
-    <button id="savePng" class="btn primary">PNG 정산서 저장</button>
-    <button id="printPdf" class="btn soft">PDF 인쇄</button>
+    <button id="savePng" class="btn primary" type="button">PNG 정산서 저장</button>
+    <button id="printPdf" class="btn soft" type="button">PDF 인쇄</button>
   </div>
   <div class="card payment-card">
     <div class="payment-head">
@@ -229,7 +242,7 @@ textarea.control{min-height:78px;resize:vertical}
       <div class="box"><span>연간 실수령</span><strong id="yearNet">0원</strong></div>
     </div>
   </div>
-  <p class="version">현장 공수관리 Pro v3.8.3</p>
+  <p class="version">현장 공수관리 Pro v3.9.1</p>
 </section>
 </main>
 </div>
@@ -300,6 +313,48 @@ textarea.control{min-height:78px;resize:vertical}
 </template>
 
 <script>
+var lastAppError="";
+function showAppError(message,err){
+  lastAppError=message+(err&&err.message?"\n"+err.message:"");
+  try{
+    var panel=document.getElementById("stabilityPanel");
+    var msg=document.getElementById("stabilityMessage");
+    if(panel&&msg){
+      msg.textContent=lastAppError;
+      panel.classList.add("show")
+    }
+  }catch(e){}
+  try{console.error(message,err||"")}catch(e){}
+}
+window.addEventListener("error",function(e){
+  showAppError("실행 오류가 발생했습니다.",e.error||new Error(e.message||"알 수 없는 오류"))
+});
+window.addEventListener("unhandledrejection",function(e){
+  showAppError("처리되지 않은 오류가 발생했습니다.",e.reason instanceof Error?e.reason:new Error(String(e.reason)))
+});
+function safeAssign(selector,eventName,handler){
+  var node=document.querySelector(selector);
+  if(!node){showAppError(selector+" 버튼을 찾지 못했습니다.");return false}
+  node[eventName]=function(ev){
+    try{return handler.call(this,ev)}
+    catch(err){showAppError(selector+" 실행 중 오류가 발생했습니다.",err)}
+  };
+  return true
+}
+function runSelfCheck(){
+  var checks=[
+    ["PNG 버튼","#savePng"],
+    ["PDF 버튼","#printPdf"],
+    ["백업 버튼","#backupTop"]
+  ];
+  var missing=[];
+  checks.forEach(function(c){if(!document.querySelector(c[1]))missing.push(c[0])});
+  if(typeof saveSettlementPng!=="function")missing.push("PNG 함수");
+  if(typeof printSettlementPdf!=="function")missing.push("PDF 함수");
+  if(typeof exportBackup!=="function")missing.push("백업 함수");
+  if(missing.length)showAppError("기능 점검 실패: "+missing.join(", "));
+}
+
 (function(){
 "use strict";
 
@@ -668,7 +723,7 @@ function saveSettlementPng(){
     ctx.fillStyle=i===4?"#fff":"#718096";ctx.font=i===4?"bold 17px sans-serif":"15px sans-serif";ctx.fillText(items[i][0],gx+20,iy+31);
     ctx.textAlign="right";ctx.fillStyle=i===4?"#fff":"#142033";ctx.font=i===4?"bold 22px sans-serif":"bold 18px sans-serif";ctx.fillText(items[i][1],gx+gw-20,iy+31);ctx.textAlign="left"
   }
-  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("현장 공수관리 Pro v3.8.3",65,H-45);
+  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("현장 공수관리 Pro v3.9.1",65,H-45);
 
   var fileName="달력형_공수정산서_"+r.period.replace(/ /g,"_")+"_"+r.company+".png";
   var dataUrl;
@@ -774,6 +829,19 @@ function companyProfile(cid){
   }
 }
 function printSettlementPdf(){
+  var w=window.open("","_blank");
+  if(!w){
+    alert("PDF 인쇄 창을 열지 못했습니다. Safari 설정에서 팝업 차단을 잠시 꺼 주세요.");
+    return;
+  }
+  try{
+    w.document.open();
+    w.document.open();
+  w.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>PDF 준비 중</title></head><body style="font-family:-apple-system,sans-serif;padding:24px">정산서를 준비하고 있습니다...</body></html>');
+    w.document.close();
+  }catch(openErr){}
+  try{
+
   var r=reportCalendarData(),cid=selectedCompanyId(),profile=companyProfile(cid),
       names=["일","월","화","수","목","금","토"],htmlCal="",i,row,col,d,date,e,
       weeks=Math.ceil((r.first+r.last)/7),w,key=paymentKey(cid,monthKey()),p=state.payments[key]||{},
@@ -808,8 +876,6 @@ function printSettlementPdf(){
   var actualPaid=(p.amount!==undefined&&p.amount!==null&&p.amount!=="")?won(Number(p.amount)||0):"-";
   var payMemo=p.memo||"";
 
-  w=window.open("","_blank");
-  if(!w){alert("팝업 차단을 해제해 주세요.");return}
 
   w.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>월간 정산서</title><style>'+
   'body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",Arial,sans-serif;color:#142033;padding:18px;background:white}'+
@@ -846,12 +912,18 @@ function printSettlementPdf(){
   '</div>'+
   '<div class="memo"><strong>메모</strong><br><br>'+escapeHtml(payMemo||profile.memo||"")+'</div>'+
   '<div class="sign"><div class="signbox">작성자 서명</div><div class="signbox">확인자 서명</div></div>'+
-  '<div class="foot">현장 공수관리 Pro v3.8.3</div>'+
+  '<div class="foot">현장 공수관리 Pro v3.9.1</div>'+
   '</div><script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>');
   w.document.close();
+
+  }catch(err){
+    try{w.close()}catch(closeErr){}
+    showAppError("PDF 인쇄 실행 중 오류가 발생했습니다.",err);
+    alert("PDF 인쇄 중 오류가 발생했습니다. 화면의 오류내용을 확인해 주세요.");
+  }
 }
 function bind(){
-  el("#prevMonth").onclick=function(){viewDate.setMonth(viewDate.getMonth()-1);renderAll()};
+  el("#prevMonth").onclick=function(){viewDate.setMonth(viewDate.getMonth()-1);renderAll();setTimeout(runSelfCheck,300)};
   el("#nextMonth").onclick=function(){viewDate.setMonth(viewDate.getMonth()+1);renderAll()};
   el("#todayBtn").onclick=function(){viewDate=new Date();viewDate.setDate(1);renderAll()};
   el("#companyFilter").onchange=renderAll;
@@ -863,7 +935,7 @@ function bind(){
   els("[data-close]").forEach(function(b){b.onclick=function(){hide(b.getAttribute("data-close"))}});
   els(".modal").forEach(function(m){m.onclick=function(e){if(e.target===m)hide(m.id)}});
   els(".nav").forEach(function(n){n.onclick=function(){changePage(n.getAttribute("data-page"))}});
-  el("#backupBtn").onclick=exportBackup;el("#backupTop").onclick=exportBackup;el("#savePng").onclick=saveSettlementPng;el("#printPdf").onclick=printSettlementPdf;
+  safeAssign("#backupBtn","onclick",exportBackup);safeAssign("#backupTop","onclick",exportBackup);safeAssign("#savePng","onclick",saveSettlementPng);el("#printPdf").onclick=function(e){if(e)e.preventDefault();printSettlementPdf()};
   el("#markPaid").onclick=function(){savePayment(true)};el("#markUnpaid").onclick=function(){savePayment(false)};
   el("#prevYear").onclick=function(){summaryYear--;renderYearSummary()};
   el("#nextYear").onclick=function(){summaryYear++;renderYearSummary()};
@@ -875,6 +947,17 @@ function bind(){
   }
 }
 function boot(){
+  try{
+    var copyBtn=document.getElementById("copyErrorBtn");
+    if(copyBtn)copyBtn.onclick=function(){
+      if(!lastAppError)return;
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(lastAppError).then(function(){alert("오류내용을 복사했습니다.")})
+      }else{
+        prompt("아래 내용을 복사해 주세요.",lastAppError)
+      }
+    };
+  }catch(e){}
   try{state=loadState();bind();renderAll()}
   catch(err){
     var box=document.createElement("div");
