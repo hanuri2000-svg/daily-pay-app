@@ -98,9 +98,20 @@ textarea.control{min-height:80px;resize:vertical}.control:focus{border-color:#82
 </style>
 </head>
 <body>
+<div id="localPreviewNotice" style="display:none;position:fixed;inset:0;z-index:9999;background:#f4f6f9;padding:40px 22px;font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif">
+  <div style="max-width:520px;margin:80px auto 0;background:#fff;border:1px solid #e3e8ef;border-radius:22px;padding:24px;box-shadow:0 12px 34px rgba(20,45,75,.1)">
+    <h2 style="margin:0 0 12px;font-size:22px">파일 미리보기 화면입니다</h2>
+    <p style="margin:0;line-height:1.65;color:#667085">아이폰 파일 앱에서 index.html을 직접 열면 앱 기능이 정상 실행되지 않습니다.<br><br>GitHub에 업로드한 뒤 Safari에서 GitHub Pages 주소로 실행해 주세요.</p>
+  </div>
+</div>
+<script>
+// One-time cleanup of older GitHub Pages service-worker caches.
+if("serviceWorker" in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{});}
+if("caches" in window){caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))).catch(()=>{});}
+</script>
 <div class="app">
 <header>
-  <div><h1>현장 공수관리 Pro</h1><p>공수 체크와 업체별 정산 관리</p></div>
+  <div><h1>현장 공수관리 Pro <small style="font-size:10px;color:#1688f4;vertical-align:middle">v2.2</small></h1><p>공수 체크와 업체별 정산 관리</p></div>
   <button id="backupTop" class="icon" title="백업">⇩</button>
 </header>
 
@@ -241,6 +252,7 @@ textarea.control{min-height:80px;resize:vertical}.control:focus{border-color:#82
 <script>
 (() => {
 "use strict";
+if(location.protocol==="file:"){const n=document.getElementById("localPreviewNotice");if(n)n.style.display="block";}
 const KEY="work-ledger-pro-v1";
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const won=n=>`${Math.round(Number(n)||0).toLocaleString("ko-KR")}원`;
@@ -333,9 +345,11 @@ function rowHtml(date,e){
 }
 function renderLists(){
   const all=Object.entries(state.entries).filter(([,e])=>e.companyId===selectedCompany()).sort((a,b)=>b[0].localeCompare(a[0]));
-  $("#recentList").innerHTML=all.slice(0,7).map(([d,e])=>rowHtml(d,e)).join("")||'<div class="empty">아직 등록된 기록이 없습니다.</div>';
+  const recent=$("#recentList");
+  if(recent) recent.innerHTML=all.slice(0,7).map(([d,e])=>rowHtml(d,e)).join("")||'<div class="empty">아직 등록된 기록이 없습니다.</div>';
   const month=monthEntries().slice().reverse();
-  $("#monthList").innerHTML=month.map(([d,e])=>rowHtml(d,e)).join("")||'<div class="empty">이번 달 기록이 없습니다.</div>';
+  const monthList=$("#monthList");
+  if(monthList) monthList.innerHTML=month.map(([d,e])=>rowHtml(d,e)).join("")||'<div class="empty">이번 달 기록이 없습니다.</div>';
   $$("[data-date]").forEach(b=>b.onclick=()=>openEntry(b.dataset.date));
 }
 function renderCompanies(){
