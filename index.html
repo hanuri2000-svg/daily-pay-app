@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#f3f6fb">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="현장공수관리">
-<title>현장 공수관리 Pro v3.6</title>
+<title>현장 공수관리 Pro v3.7</title>
 <style>
 :root{
   --bg:#f3f6fb;--card:#fff;--text:#142033;--muted:#77849a;--line:#dce5ef;
@@ -120,7 +120,7 @@ textarea.control{min-height:78px;resize:vertical}
 .year-total span{display:block;color:var(--muted);font-size:11px}
 .year-total strong{display:block;margin-top:4px;font-size:17px}
 
-/* v3.6 UI refinement */
+/* v3.7 UI refinement */
 .card,.section,.summary-box,.payment-card{box-shadow:0 8px 24px rgba(30,57,89,.055)}
 .btn{transition:transform .12s ease,opacity .12s ease}.btn:active{transform:scale(.985);opacity:.9}
 .payment-state.unpaid{background:#fff0f0;color:#c83f3f}
@@ -133,13 +133,24 @@ textarea.control{min-height:78px;resize:vertical}
   .export-actions .btn{min-height:50px}
 }
 
+
+/* v3.7 backup & restore */
+.backup-panel{display:grid;gap:10px}
+.backup-status{padding:12px;border-radius:12px;background:#f7f9fc;border:1px solid #e1e8f0}
+.backup-status strong{display:block;color:#19375f;font-size:15px}
+.backup-status span{display:block;color:#718096;font-size:12px;margin-top:4px}
+.backup-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.backup-actions .wide{grid-column:1/-1}
+.backup-help{font-size:12px;line-height:1.55;color:#66758a;background:#fff9eb;border:1px solid #f2dfad;border-radius:12px;padding:11px}
+@media(max-width:430px){.backup-actions{grid-template-columns:1fr}.backup-actions .wide{grid-column:auto}}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-  <div class="brand"><h1>현장 공수관리 Pro <em>v3.6</em></h1><p>공수 체크와 업체별 정산 관리</p></div>
-  <button id="backupTop" class="icon-btn" title="백업">⇩</button>
+  <div class="brand"><h1>현장 공수관리 Pro <em>v3.7</em></h1><p>공수 체크와 업체별 정산 관리</p></div>
+  <button id="backupTop" class="icon-btn" title="백업 공유">⇩</button>
 </header>
 
 <main>
@@ -213,11 +224,18 @@ textarea.control{min-height:78px;resize:vertical}
 <section id="settings" class="page">
   <div class="card section">
     <div class="section-head"><div><h2>데이터 관리</h2><p>정기적으로 백업해 주세요.</p></div></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      <button id="backupBtn" class="btn primary">백업 저장</button>
-      <label class="btn soft file">백업 복원<input id="restoreInput" type="file" accept=".json,application/json"></label>
+    <div class="backup-panel">
+      <div class="backup-status">
+        <strong id="backupStatus">아직 백업 기록이 없습니다.</strong>
+        <span id="backupSummary">업체·작업내역·정산·입금정보를 한 파일로 저장합니다.</span>
+      </div>
+      <div class="backup-actions">
+        <button id="backupBtn" class="btn primary">백업 파일 만들기</button>
+        <button id="shareBackupBtn" class="btn soft">공유·파일에 저장</button>
+        <label class="btn soft file wide">백업 파일 복원<input id="restoreInput" type="file" accept=".json,application/json"></label>
+      </div>
+      <div class="backup-help">아이폰에서는 <b>공유·파일에 저장</b>을 누른 뒤 ‘파일에 저장’을 선택하는 방식이 가장 안정적입니다. 복원 전 현재 데이터는 자동으로 안전 백업됩니다.</div>
     </div>
-    <div class="notice">데이터는 현재 아이폰 Safari에 저장됩니다. Safari 웹사이트 데이터를 삭제하면 기록도 사라질 수 있습니다.</div>
   </div>
   <div class="card section">
     <div class="section-head"><div><h2>미수금 현황</h2><p>청구금액이 있고 아직 입금되지 않은 월</p></div></div>
@@ -243,7 +261,7 @@ textarea.control{min-height:78px;resize:vertical}
       <div class="box"><span>연간 실수령</span><strong id="yearNet">0원</strong></div>
     </div>
   </div>
-  <p class="version">현장 공수관리 Pro v3.6</p>
+  <p class="version">현장 공수관리 Pro v3.7</p>
 </section>
 </main>
 </div>
@@ -600,10 +618,79 @@ function deleteCompany(){
   if(!confirm("이 업체를 삭제할까요?"))return;
   state.companies=state.companies.filter(function(c){return c.id!==editingCompanyId});saveState();hide("companyModal");renderAll()
 }
-function exportBackup(){
-  var blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");
-  a.href=url;a.download="현장공수관리_백업_"+today()+".json";a.click();setTimeout(function(){URL.revokeObjectURL(url)},1000)
+function backupPayload(){
+  return {
+    app:"현장 공수관리 Pro",
+    version:"3.7",
+    exportedAt:new Date().toISOString(),
+    data:state
+  }
 }
+function backupFileName(){
+  var d=new Date();
+  return "현장공수관리_백업_"+d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate())+"_"+pad2(d.getHours())+pad2(d.getMinutes())+".json"
+}
+function markBackupDone(){
+  var now=new Date().toISOString();
+  try{localStorage.setItem("work-ledger-pro-last-backup",now)}catch(err){}
+  renderBackupStatus()
+}
+function downloadBlob(blob,name){
+  var url=URL.createObjectURL(blob),a=document.createElement("a");
+  a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(function(){URL.revokeObjectURL(url)},1500)
+}
+function exportBackup(){
+  var blob=new Blob([JSON.stringify(backupPayload(),null,2)],{type:"application/json"});
+  downloadBlob(blob,backupFileName());markBackupDone()
+}
+async function shareBackup(){
+  var blob=new Blob([JSON.stringify(backupPayload(),null,2)],{type:"application/json"});
+  var name=backupFileName();
+  try{
+    var file=new File([blob],name,{type:"application/json"});
+    if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
+      await navigator.share({files:[file],title:"현장 공수관리 백업"});
+      markBackupDone()
+    }else{
+      downloadBlob(blob,name);markBackupDone();
+      alert("공유 기능을 지원하지 않아 백업 파일로 저장했습니다.")
+    }
+  }catch(err){
+    if(err && err.name==="AbortError")return;
+    downloadBlob(blob,name);markBackupDone();
+    alert("공유하지 못해 백업 파일로 저장했습니다.")
+  }
+}
+function renderBackupStatus(){
+  var raw=null;
+  try{raw=localStorage.getItem("work-ledger-pro-last-backup")}catch(err){}
+  var status=el("#backupStatus"),summary=el("#backupSummary");
+  if(!status||!summary)return;
+  if(!raw){
+    status.textContent="아직 백업 기록이 없습니다.";
+  }else{
+    var d=new Date(raw);
+    status.textContent="최근 백업 : "+d.getFullYear()+"."+pad2(d.getMonth()+1)+"."+pad2(d.getDate())+" "+pad2(d.getHours())+":"+pad2(d.getMinutes());
+  }
+  summary.textContent="업체 "+state.companies.length+"개 · 작업기록 "+Object.keys(state.entries||{}).length+"개 · 입금정보 "+Object.keys(state.payments||{}).length+"개"
+}
+function parseBackup(text){
+  var parsed=JSON.parse(text),data;
+  if(parsed && parsed.app==="현장 공수관리 Pro" && parsed.data)data=parsed.data;
+  else data=parsed;
+  if(!data || !Array.isArray(data.companies) || typeof data.entries!=="object")throw new Error("invalid");
+  return normalize(data)
+}
+function safetyBackupBeforeRestore(){
+  try{
+    localStorage.setItem("work-ledger-pro-safety-backup",JSON.stringify({
+      savedAt:new Date().toISOString(),
+      data:state
+    }))
+  }catch(err){}
+}
+
 function changePage(id){
   els(".page").forEach(function(p){p.classList.toggle("active",p.id===id)});
   els(".nav").forEach(function(n){n.classList.toggle("active",n.getAttribute("data-page")===id)});
@@ -709,7 +796,7 @@ function saveSettlementPng(){
     ctx.fillStyle=last?"#dce9f7":"#718096";ctx.font="13px sans-serif";ctx.fillText(cards[i][0],cx+16,cy+23);
     ctx.fillStyle=last?"#fff":"#142033";ctx.font=last?"bold 21px sans-serif":"bold 18px sans-serif";ctx.textAlign="right";ctx.fillText(cards[i][1],cx+cardW-16,cy+43);ctx.textAlign="left"
   }
-  ctx.fillStyle="#9aa5b1";ctx.font="12px sans-serif";ctx.fillText("현장 공수관리 Pro v3.6",65,H-38);
+  ctx.fillStyle="#9aa5b1";ctx.font="12px sans-serif";ctx.fillText("현장 공수관리 Pro v3.7",65,H-38);
 
   var fileName="월간정산서_"+r.year+"-"+pad2(r.month+1)+"_"+r.company+".png";
   var dataUrl;
@@ -888,7 +975,7 @@ function printSettlementPdf(){
   '</div>'+
   '<div class="memo"><strong>메모</strong><br><br>'+escapeHtml(payMemo||profile.memo||"")+'</div>'+
   '<div class="sign"><div class="signbox">작성자 서명</div><div class="signbox">확인자 서명</div></div>'+
-  '<div class="foot">현장 공수관리 Pro v3.6</div>'+
+  '<div class="foot">현장 공수관리 Pro v3.7</div>'+
   '</div><script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>');
   w.document.close();
 }
@@ -905,19 +992,31 @@ function bind(){
   els("[data-close]").forEach(function(b){b.onclick=function(){hide(b.getAttribute("data-close"))}});
   els(".modal").forEach(function(m){m.onclick=function(e){if(e.target===m)hide(m.id)}});
   els(".nav").forEach(function(n){n.onclick=function(){changePage(n.getAttribute("data-page"))}});
-  el("#backupBtn").onclick=exportBackup;el("#backupTop").onclick=exportBackup;el("#savePng").onclick=saveSettlementPng;el("#printPdf").onclick=printSettlementPdf;
+  el("#backupBtn").onclick=exportBackup;el("#backupTop").onclick=shareBackup;el("#shareBackupBtn").onclick=shareBackup;el("#savePng").onclick=saveSettlementPng;el("#printPdf").onclick=printSettlementPdf;
   el("#markPaid").onclick=function(){savePayment(true)};el("#markUnpaid").onclick=function(){savePayment(false)};
   el("#prevYear").onclick=function(){summaryYear--;renderYearSummary()};
   el("#nextYear").onclick=function(){summaryYear++;renderYearSummary()};
   el("#restoreInput").onchange=function(e){
     var file=e.target.files&&e.target.files[0],reader;
-    if(!file)return;reader=new FileReader();
-    reader.onload=function(){try{state=normalize(JSON.parse(reader.result));saveState();renderAll();alert("복원했습니다.")}catch(err){alert("백업 파일을 읽지 못했습니다.")}};
+    if(!file)return;
+    if(!confirm("현재 데이터를 백업 파일 내용으로 교체할까요?\n복원 전 현재 데이터는 자동으로 안전 백업됩니다.")){e.target.value="";return}
+    reader=new FileReader();
+    reader.onload=function(){
+      try{
+        var restored=parseBackup(reader.result);
+        safetyBackupBeforeRestore();
+        state=restored;saveState();renderAll();renderBackupStatus();
+        alert("복원이 완료됐습니다.\n업체 "+state.companies.length+"개, 작업기록 "+Object.keys(state.entries||{}).length+"개를 불러왔습니다.")
+      }catch(err){
+        alert("올바른 현장 공수관리 백업 파일이 아닙니다.")
+      }
+    };
+    reader.onerror=function(){alert("백업 파일을 읽지 못했습니다.")};
     reader.readAsText(file);e.target.value=""
   }
 }
 function boot(){
-  try{state=loadState();bind();renderAll()}
+  try{state=loadState();bind();renderAll();renderBackupStatus()}
   catch(err){
     var box=document.createElement("div");
     box.style.cssText="position:fixed;left:12px;right:12px;top:90px;z-index:9999;background:#fff3f3;border:1px solid #efb8b8;border-radius:16px;padding:16px;color:#9c2222;font-size:13px;line-height:1.5";
