@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#f3f6fb">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="현장공수관리">
-<title>현장 공수관리 Pro v3.2</title>
+<title>현장 공수관리 Pro v3.3</title>
 <style>
 :root{
   --bg:#f3f6fb;--card:#fff;--text:#142033;--muted:#77849a;--line:#dce5ef;
@@ -108,7 +108,7 @@ textarea.control{min-height:78px;resize:vertical}
 <body>
 <div class="app">
 <header>
-  <div class="brand"><h1>현장 공수관리 Pro <em>v3.2</em></h1><p>공수 체크와 업체별 정산 관리</p></div>
+  <div class="brand"><h1>현장 공수관리 Pro <em>v3.3</em></h1><p>공수 체크와 업체별 정산 관리</p></div>
   <button id="backupTop" class="icon-btn" title="백업">⇩</button>
 </header>
 
@@ -193,7 +193,7 @@ textarea.control{min-height:78px;resize:vertical}
     <div class="section-head"><div><h2>미수금 현황</h2><p>청구금액이 있고 아직 입금되지 않은 월</p></div></div>
     <div id="receivableList" class="receivable-list"></div>
   </div>
-  <p class="version">현장 공수관리 Pro v3.2</p>
+  <p class="version">현장 공수관리 Pro v3.3</p>
 </section>
 </main>
 </div>
@@ -543,30 +543,107 @@ function renderExpenseBreakdown(rows){
   el("#expenseBreakdown").innerHTML=html
 }
 function reportData(){var x=calculate();return {period:viewDate.getFullYear()+"년 "+(viewDate.getMonth()+1)+"월",company:x.company.name,rows:x.rows,units:x.units,labor:x.labor,deduction:x.deduction,expenses:x.expenses,final:x.final}}
+
+function reportCalendarData(){
+  var r=reportData(),y=viewDate.getFullYear(),m=viewDate.getMonth(),first=new Date(y,m,1).getDay(),last=new Date(y,m+1,0).getDate();
+  var byDate={},i;
+  for(i=0;i<r.rows.length;i++)byDate[r.rows[i][0]]=r.rows[i][1];
+  r.year=y;r.month=m;r.first=first;r.last=last;r.byDate=byDate;
+  return r
+}
 function saveSettlementPng(){
-  var r=reportData(),W=900,S=2,rowH=52,H=430+Math.max(1,r.rows.length)*rowH+80,c=document.createElement("canvas"),ctx,i,y;
-  c.width=W*S;c.height=H*S;ctx=c.getContext("2d");ctx.scale(S,S);
-  ctx.fillStyle="#f4f6f9";ctx.fillRect(0,0,W,H);ctx.fillStyle="#fff";ctx.fillRect(35,30,W-70,H-60);
-  ctx.fillStyle="#142033";ctx.font="bold 30px sans-serif";ctx.fillText("현장 공수 정산서",65,82);
-  ctx.fillStyle="#718096";ctx.font="16px sans-serif";ctx.fillText(r.period+" · "+r.company,65,112);
-  var cards=[["총 공수",(Math.round(r.units*10)/10)+"공수"],["노무비",won(r.labor)],["공제액",won(r.deduction)],["경비",won(r.expenses)]];
-  for(i=0;i<4;i++){var x=65+(i%2)*385,cy=145+Math.floor(i/2)*82;ctx.fillStyle="#f7f9fc";ctx.fillRect(x,cy,355,64);ctx.fillStyle="#718096";ctx.font="13px sans-serif";ctx.fillText(cards[i][0],x+16,cy+23);ctx.fillStyle="#142033";ctx.font="bold 21px sans-serif";ctx.fillText(cards[i][1],x+16,cy+50)}
-  ctx.fillStyle="#19375f";ctx.fillRect(65,320,W-130,58);ctx.fillStyle="#fff";ctx.font="bold 18px sans-serif";ctx.fillText("최종 청구금액",85,356);ctx.textAlign="right";ctx.font="bold 24px sans-serif";ctx.fillText(won(r.final),W-85,356);ctx.textAlign="left";
-  y=405;ctx.fillStyle="#edf4fb";ctx.fillRect(65,y,W-130,36);ctx.fillStyle="#19375f";ctx.font="bold 12px sans-serif";
-  ctx.fillText("날짜",80,y+23);ctx.fillText("작업 내용",190,y+23);ctx.fillText("공수",510,y+23);ctx.fillText("노무비",590,y+23);ctx.fillText("경비",735,y+23);y+=36;
-  if(!r.rows.length){ctx.fillStyle="#718096";ctx.font="14px sans-serif";ctx.fillText("이번 달 기록이 없습니다.",80,y+32)}
-  else for(i=0;i<r.rows.length;i++){var d=r.rows[i][0],e=r.rows[i][1],pay=(Number(e.units)||0)*(Number(e.rate)||0);ctx.fillStyle=i%2?"#fafbfd":"#fff";ctx.fillRect(65,y,W-130,rowH);ctx.fillStyle="#142033";ctx.font="13px sans-serif";ctx.fillText(d.slice(5),80,y+31);ctx.fillText((e.type||"작업 내용 없음").slice(0,22),190,y+31);ctx.fillText(String(Number(e.units)||0),510,y+31);ctx.fillText(won(pay),590,y+31);ctx.fillText(won(expenseSum(e)),735,y+31);y+=rowH}
-  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("현장 공수관리 Pro v3.2",65,H-42);
-  var a=document.createElement("a");a.download="공수정산서_"+r.period.replace(/ /g,"_")+"_"+r.company+".png";a.href=c.toDataURL("image/png");a.click()
+  var r=reportCalendarData(),S=2,W=980,H=1320,c=document.createElement("canvas"),ctx=c.getContext("2d");
+  c.width=W*S;c.height=H*S;ctx.scale(S,S);
+  ctx.fillStyle="#f4f6f9";ctx.fillRect(0,0,W,H);
+  ctx.fillStyle="#fff";ctx.fillRect(35,30,W-70,H-60);
+
+  ctx.fillStyle="#142033";ctx.font="bold 32px sans-serif";ctx.fillText("현장 공수 정산서",65,82);
+  ctx.fillStyle="#718096";ctx.font="16px sans-serif";ctx.fillText(r.period+" · "+r.company,65,114);
+
+  var gx=65,gy=155,gw=850,cellW=gw/7,headH=38,cellH=112;
+  var names=["일","월","화","수","목","금","토"],i,d,row,col,date,e;
+  ctx.fillStyle="#edf4fb";ctx.fillRect(gx,gy,gw,headH);
+  ctx.strokeStyle="#dce5ef";ctx.lineWidth=1;
+  for(i=0;i<7;i++){
+    ctx.strokeRect(gx+i*cellW,gy,cellW,headH);
+    ctx.fillStyle=i===0?"#d84d4d":(i===6?"#2b68ad":"#536273");
+    ctx.font="bold 14px sans-serif";ctx.textAlign="center";ctx.fillText(names[i],gx+i*cellW+cellW/2,gy+25)
+  }
+  ctx.textAlign="left";
+  var weeks=Math.ceil((r.first+r.last)/7);
+  for(row=0;row<weeks;row++){
+    for(col=0;col<7;col++){
+      d=row*7+col-r.first+1;
+      var x=gx+col*cellW,y=gy+headH+row*cellH;
+      ctx.fillStyle="#fff";ctx.fillRect(x,y,cellW,cellH);ctx.strokeStyle="#dce5ef";ctx.strokeRect(x,y,cellW,cellH);
+      if(d<1||d>r.last)continue;
+      date=r.year+"-"+String(r.month+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");e=r.byDate[date];
+      ctx.fillStyle=col===0?"#d84d4d":(col===6?"#2b68ad":"#1688f4");ctx.font="bold 14px sans-serif";ctx.fillText(String(d),x+9,y+20);
+      if(e){
+        ctx.fillStyle="#a879f7";ctx.fillRect(x+8,y+34,cellW-16,27);
+        ctx.fillStyle="#fff";ctx.font="bold 13px sans-serif";ctx.textAlign="center";ctx.fillText((Number(e.units)||0)+"공수",x+cellW/2,y+52);ctx.textAlign="left";
+        if(e.businessTrip){ctx.fillStyle="#eea23e";ctx.beginPath();ctx.arc(x+cellW-12,y+14,4,0,Math.PI*2);ctx.fill()}
+        if(expenseSum(e)>0){ctx.fillStyle="#20a579";ctx.font="11px sans-serif";ctx.fillText("경비 "+won(expenseSum(e)),x+8,y+82)}
+      }
+    }
+  }
+
+  var sumY=gy+headH+weeks*cellH+34;
+  var items=[
+    ["총 공수",(Math.round(r.units*10)/10)+"공수"],
+    ["총금액",won(r.labor)],
+    ["공제액",won(r.deduction)],
+    ["경비",won(r.expenses)],
+    ["실수령",won(r.final)]
+  ];
+  for(i=0;i<items.length;i++){
+    var iy=sumY+i*58;
+    ctx.fillStyle=i===4?"#19375f":"#f7f9fc";ctx.fillRect(gx,iy,gw,48);
+    ctx.fillStyle=i===4?"#fff":"#718096";ctx.font=i===4?"bold 17px sans-serif":"15px sans-serif";ctx.fillText(items[i][0],gx+20,iy+31);
+    ctx.textAlign="right";ctx.fillStyle=i===4?"#fff":"#142033";ctx.font=i===4?"bold 22px sans-serif":"bold 18px sans-serif";ctx.fillText(items[i][1],gx+gw-20,iy+31);ctx.textAlign="left"
+  }
+  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("현장 공수관리 Pro v3.3",65,H-45);
+
+  var a=document.createElement("a");
+  a.download="달력형_공수정산서_"+r.period.replace(/ /g,"_")+"_"+r.company+".png";
+  a.href=c.toDataURL("image/png");a.click()
 }
 function printSettlementPdf(){
-  var r=reportData(),rows="",i,w;
-  for(i=0;i<r.rows.length;i++){var d=r.rows[i][0],e=r.rows[i][1],pay=(Number(e.units)||0)*(Number(e.rate)||0);rows+="<tr><td>"+escapeHtml(d)+"</td><td>"+escapeHtml(e.type||"작업 내용 없음")+"</td><td>"+(Number(e.units)||0)+"</td><td>"+won(pay)+"</td><td>"+won(expenseSum(e))+"</td></tr>"}
-  if(!rows)rows='<tr><td colspan="5">이번 달 기록이 없습니다.</td></tr>';
-  w=window.open("","_blank");if(!w){alert("팝업 차단을 해제해 주세요.");return}
-  w.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>공수정산서</title><style>body{font-family:sans-serif;color:#142033;padding:28px}p{color:#718096}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0}.box{border:1px solid #dce5ef;border-radius:10px;padding:13px}.box span{display:block;color:#718096;font-size:12px}.box strong{font-size:19px}.final{background:#19375f;color:#fff;padding:16px;border-radius:10px;display:flex;justify-content:space-between;font-size:19px;font-weight:bold}table{width:100%;border-collapse:collapse;margin-top:20px;font-size:12px}th,td{border:1px solid #dce5ef;padding:8px}th{background:#edf4fb}@page{size:A4;margin:15mm}@media print{body{padding:0}}</style></head><body><h1>현장 공수 정산서</h1><p>'+escapeHtml(r.period)+' · '+escapeHtml(r.company)+'</p><div class="grid"><div class="box"><span>총 공수</span><strong>'+(Math.round(r.units*10)/10)+'공수</strong></div><div class="box"><span>노무비</span><strong>'+won(r.labor)+'</strong></div><div class="box"><span>공제액</span><strong>'+won(r.deduction)+'</strong></div><div class="box"><span>경비</span><strong>'+won(r.expenses)+'</strong></div></div><div class="final"><span>최종 청구금액</span><span>'+won(r.final)+'</span></div><table><thead><tr><th>날짜</th><th>작업 내용</th><th>공수</th><th>노무비</th><th>경비</th></tr></thead><tbody>'+rows+'</tbody></table><script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>');w.document.close()
-}
+  var r=reportCalendarData(),names=["일","월","화","수","목","금","토"],html="",i,row,col,d,date,e,weeks=Math.ceil((r.first+r.last)/7),w;
+  html+='<table class="calendar"><thead><tr>';
+  for(i=0;i<7;i++)html+='<th class="'+(i===0?"sun":i===6?"sat":"")+'">'+names[i]+'</th>';
+  html+='</tr></thead><tbody>';
+  for(row=0;row<weeks;row++){
+    html+='<tr>';
+    for(col=0;col<7;col++){
+      d=row*7+col-r.first+1;
+      if(d<1||d>r.last){html+='<td class="blank"></td>';continue}
+      date=r.year+"-"+String(r.month+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");e=r.byDate[date];
+      html+='<td class="'+(col===0?"sun ":col===6?"sat ":"")+'"><div class="num">'+d+'</div>';
+      if(e){
+        html+='<div class="unit">'+(Number(e.units)||0)+'공수</div>';
+        if(e.businessTrip)html+='<div class="trip">출장</div>';
+        if(expenseSum(e)>0)html+='<div class="expense">경비 '+won(expenseSum(e))+'</div>'
+      }
+      html+='</td>'
+    }
+    html+='</tr>'
+  }
+  html+='</tbody></table>';
 
+  w=window.open("","_blank");
+  if(!w){alert("팝업 차단을 해제해 주세요.");return}
+  w.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>달력형 공수정산서</title><style>'+
+  'body{font-family:-apple-system,Arial,sans-serif;color:#142033;padding:22px}h1{margin:0;font-size:25px}p{color:#718096;margin:7px 0 18px}.calendar{width:100%;border-collapse:collapse;table-layout:fixed}.calendar th{background:#edf4fb;height:34px;border:1px solid #dce5ef;font-size:12px}.calendar td{height:92px;border:1px solid #dce5ef;vertical-align:top;padding:7px}.num{font-weight:bold;color:#1688f4;font-size:12px}.sun .num,.sun{color:#d84d4d}.sat .num,.sat{color:#2b68ad}.unit{margin-top:15px;background:#a879f7;color:white;border-radius:20px;text-align:center;padding:5px 2px;font-size:11px;font-weight:bold}.trip{font-size:9px;color:#a26719;margin-top:5px}.expense{font-size:9px;color:#167254;margin-top:4px}.summary{margin-top:18px;border:1px solid #dce5ef;border-radius:12px;overflow:hidden}.line{display:flex;justify-content:space-between;padding:11px 14px;border-bottom:1px solid #dce5ef}.line:last-child{border-bottom:0}.line span{color:#718096}.line strong{font-size:15px}.final{background:#19375f;color:white}.final span,.final strong{color:white;font-weight:bold}@page{size:A4 portrait;margin:12mm}@media print{body{padding:0}}'+
+  '</style></head><body><h1>현장 공수 정산서</h1><p>'+escapeHtml(r.period)+' · '+escapeHtml(r.company)+'</p>'+html+
+  '<div class="summary"><div class="line"><span>총 공수</span><strong>'+(Math.round(r.units*10)/10)+'공수</strong></div>'+
+  '<div class="line"><span>총금액</span><strong>'+won(r.labor)+'</strong></div>'+
+  '<div class="line"><span>공제액</span><strong>'+won(r.deduction)+'</strong></div>'+
+  '<div class="line"><span>경비</span><strong>'+won(r.expenses)+'</strong></div>'+
+  '<div class="line final"><span>실수령</span><strong>'+won(r.final)+'</strong></div></div>'+
+  '<script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>');
+  w.document.close()
+}
 function bind(){
   el("#prevMonth").onclick=function(){viewDate.setMonth(viewDate.getMonth()-1);renderAll()};
   el("#nextMonth").onclick=function(){viewDate.setMonth(viewDate.getMonth()+1);renderAll()};
