@@ -6,7 +6,10 @@
 <meta name="theme-color" content="#f3f6fb">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="현장공수관리">
-<title>현장 공수관리 Pro v3.8</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>현장 공수관리 Pro v3.8.1.1</title>
 <style>
 :root{
   --bg:#f3f6fb;--card:#fff;--text:#142033;--muted:#77849a;--line:#dce5ef;
@@ -286,7 +289,7 @@ textarea.control{min-height:78px;resize:vertical}
       <div class="box"><span>연간 실수령</span><strong id="yearNet">0원</strong></div>
     </div>
   </div>
-  <p class="version">현장 공수관리 Pro v3.8</p>
+  <p class="version">현장 공수관리 Pro v3.8.1</p>
 </section>
 </main>
 </div>
@@ -850,7 +853,7 @@ function saveSettlementPng(){
   }
 
   ctx.fillStyle="#9aa5b1";ctx.font="12px sans-serif";
-  ctx.fillText("현장 공수관리 Pro v3.8",65,H-38);
+  ctx.fillText("현장 공수관리 Pro v3.8.1",65,H-38);
 
   var fileName="월간정산서_"+r.year+"-"+String(r.month+1).padStart(2,"0")+"_"+r.company+".png";
   var dataUrl;
@@ -1022,7 +1025,7 @@ function buildSettlementHtml(){
   '<div class="payitem"><span>실제 입금액</span><strong>'+actualPaid+'</strong></div></div>'+
   '<div class="memo"><strong>메모</strong><br><br>'+escapeHtml(payMemo||profile.memo||"")+'</div>'+
   '<div class="sign"><div class="signbox">작성자 서명</div><div class="signbox">확인자 서명</div></div>'+
-  '<div class="foot">현장 공수관리 Pro v3.8</div></div></body></html>'
+  '<div class="foot">현장 공수관리 Pro v3.8.1</div></div></body></html>'
 }
 function openExportViewer(){
   try{
@@ -1115,7 +1118,7 @@ function printSettlementPdf(){
   '<div class="payitem"><span>실제 입금액</span><strong>'+actualPaid+'</strong></div></div>'+
   '<div class="memo"><strong>메모</strong><br><br>'+escapeHtml(payMemo||profile.memo||"")+'</div>'+
   '<div class="sign"><div class="signbox">작성자 서명</div><div class="signbox">확인자 서명</div></div>'+
-  '<div class="foot">현장 공수관리 Pro v3.8</div></div></body></html>');
+  '<div class="foot">현장 공수관리 Pro v3.8.1</div></div></body></html>');
   w.document.close();w.focus();setTimeout(function(){w.print()},400)
 }
 function printViewerPdf(){
