@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#f3f6fb">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="현장공수관리">
-<title>현장 공수관리 Pro v3.9.3 안정판</title>
+<title>현장 공수관리 Pro v3.9.4 안정판</title>
 <style>
 :root{
   --bg:#f3f6fb;--card:#fff;--text:#142033;--muted:#77849a;--line:#dce5ef;
@@ -120,7 +120,7 @@ textarea.control{min-height:78px;resize:vertical}
 .year-total span{display:block;color:var(--muted);font-size:11px}
 .year-total strong{display:block;margin-top:4px;font-size:17px}
 
-/* v3.9.3 stability */
+/* v3.9.4 stability */
 .stability-panel{display:none;margin:10px 0;padding:12px;border:1px solid #f0c36d;background:#fff8e8;border-radius:12px;color:#7a5413;font-size:12px;line-height:1.55}
 .stability-panel.show{display:block}
 .stability-panel strong{display:block;margin-bottom:4px;color:#8b5b00}
@@ -131,17 +131,11 @@ textarea.control{min-height:78px;resize:vertical}
 <body>
 <div class="app">
 <header>
-  <div class="brand"><h1>현장 공수관리 Pro <em>v3.9.3</em></h1><p>공수 체크와 업체별 정산 관리</p></div>
+  <div class="brand"><h1>현장 공수관리 Pro <em>v3.9.4</em></h1><p>공수 체크와 업체별 정산 관리</p></div>
   <button id="backupTop" class="icon-btn" title="백업">⇩</button>
 </header>
 
 <main>
-<div id="stabilityPanel" class="stability-panel">
-  <strong>기능 점검 알림</strong>
-  <span id="stabilityMessage">오류 내용이 여기에 표시됩니다.</span>
-  <button id="copyErrorBtn" class="btn soft" type="button">오류내용 복사</button>
-</div>
-
 <section id="home" class="page active">
   <div class="card month-card">
     <div class="month-top">
@@ -241,7 +235,7 @@ textarea.control{min-height:78px;resize:vertical}
       <div class="box"><span>연간 실수령</span><strong id="yearNet">0원</strong></div>
     </div>
   </div>
-  <p class="version">현장 공수관리 Pro v3.9.3</p>
+  <p class="version">현장 공수관리 Pro v3.9.4</p>
 </section>
 </main>
 </div>
@@ -312,6 +306,8 @@ textarea.control{min-height:78px;resize:vertical}
 </template>
 
 <script>
+console.log("현장공수관리 Pro v3.9.4 로드 완료");
+
 var lastAppError="";
 function showAppError(message,err){
   lastAppError=message+(err&&err.message?"\n"+err.message:"");
@@ -339,17 +335,6 @@ function safeAssign(selector,eventName,handler){
     catch(err){showAppError(selector+" 실행 중 오류가 발생했습니다.",err)}
   };
   return true
-}
-function runSelfCheck(){
-  var checks=[
-    ["PNG 버튼","#savePng"],
-    ["백업 버튼","#backupTop"]
-  ];
-  var missing=[];
-  checks.forEach(function(c){if(!document.querySelector(c[1]))missing.push(c[0])});
-  if(typeof saveSettlementPng!=="function")missing.push("PNG 함수");
-  if(typeof exportBackup!=="function")missing.push("백업 함수");
-  if(missing.length)showAppError("기능 점검 실패: "+missing.join(", "));
 }
 
 (function(){
@@ -719,7 +704,7 @@ function saveSettlementPng(){
     ctx.fillStyle=i===4?"#fff":"#718096";ctx.font=i===4?"bold 17px sans-serif":"15px sans-serif";ctx.fillText(items[i][0],gx+20,iy+31);
     ctx.textAlign="right";ctx.fillStyle=i===4?"#fff":"#142033";ctx.font=i===4?"bold 22px sans-serif":"bold 18px sans-serif";ctx.fillText(items[i][1],gx+gw-20,iy+31);ctx.textAlign="left"
   }
-  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("현장 공수관리 Pro v3.9.3",65,H-45);
+  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("현장 공수관리 Pro v3.9.4",65,H-45);
 
   var fileName="달력형_공수정산서_"+r.period.replace(/ /g,"_")+"_"+r.company+".png";
   var dataUrl;
@@ -826,7 +811,7 @@ function companyProfile(cid){
 }
 
 function bind(){
-  el("#prevMonth").onclick=function(){viewDate.setMonth(viewDate.getMonth()-1);renderAll();setTimeout(runSelfCheck,300)};
+  el("#prevMonth").onclick=function(){viewDate.setMonth(viewDate.getMonth()-1);renderAll()};
   el("#nextMonth").onclick=function(){viewDate.setMonth(viewDate.getMonth()+1);renderAll()};
   el("#todayBtn").onclick=function(){viewDate=new Date();viewDate.setDate(1);renderAll()};
   el("#companyFilter").onchange=renderAll;
@@ -838,7 +823,9 @@ function bind(){
   els("[data-close]").forEach(function(b){b.onclick=function(){hide(b.getAttribute("data-close"))}});
   els(".modal").forEach(function(m){m.onclick=function(e){if(e.target===m)hide(m.id)}});
   els(".nav").forEach(function(n){n.onclick=function(){changePage(n.getAttribute("data-page"))}});
-  safeAssign("#backupBtn","onclick",exportBackup);safeAssign("#backupTop","onclick",exportBackup);safeAssign("#savePng","onclick",saveSettlementPng);
+  el("#backupBtn").onclick=exportBackup;
+  el("#backupTop").onclick=exportBackup;
+  el("#savePng").onclick=saveSettlementPng;
   el("#markPaid").onclick=function(){savePayment(true)};el("#markUnpaid").onclick=function(){savePayment(false)};
   el("#prevYear").onclick=function(){summaryYear--;renderYearSummary()};
   el("#nextYear").onclick=function(){summaryYear++;renderYearSummary()};
@@ -850,17 +837,6 @@ function bind(){
   }
 }
 function boot(){
-  try{
-    var copyBtn=document.getElementById("copyErrorBtn");
-    if(copyBtn)copyBtn.onclick=function(){
-      if(!lastAppError)return;
-      if(navigator.clipboard&&navigator.clipboard.writeText){
-        navigator.clipboard.writeText(lastAppError).then(function(){alert("오류내용을 복사했습니다.")})
-      }else{
-        prompt("아래 내용을 복사해 주세요.",lastAppError)
-      }
-    };
-  }catch(e){}
   try{state=loadState();bind();renderAll()}
   catch(err){
     var box=document.createElement("div");
