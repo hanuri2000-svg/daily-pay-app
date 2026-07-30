@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#f3f6fb">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="현장공수관리">
-<title>현장 공수관리 Pro v3.5.1</title>
+<title>현장 공수관리 Pro v3.6</title>
 <style>
 :root{
   --bg:#f3f6fb;--card:#fff;--text:#142033;--muted:#77849a;--line:#dce5ef;
@@ -119,12 +119,26 @@ textarea.control{min-height:78px;resize:vertical}
 .year-total .box{padding:12px;border:1px solid var(--line);border-radius:13px;background:#fafbfd}
 .year-total span{display:block;color:var(--muted);font-size:11px}
 .year-total strong{display:block;margin-top:4px;font-size:17px}
+
+/* v3.6 UI refinement */
+.card,.section,.summary-box,.payment-card{box-shadow:0 8px 24px rgba(30,57,89,.055)}
+.btn{transition:transform .12s ease,opacity .12s ease}.btn:active{transform:scale(.985);opacity:.9}
+.payment-state.unpaid{background:#fff0f0;color:#c83f3f}
+.payment-state.partial{background:#fff4df;color:#a26719}
+.payment-state.paid{background:#e8f6f0;color:#167254}
+.summary-line.final{background:linear-gradient(135deg,#19375f,#25558c);color:#fff}
+.summary-line.final span,.summary-line.final strong{color:#fff}
+@media(max-width:430px){
+  .export-actions{grid-template-columns:1fr}
+  .export-actions .btn{min-height:50px}
+}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-  <div class="brand"><h1>현장 공수관리 Pro <em>v3.5.1</em></h1><p>공수 체크와 업체별 정산 관리</p></div>
+  <div class="brand"><h1>현장 공수관리 Pro <em>v3.6</em></h1><p>공수 체크와 업체별 정산 관리</p></div>
   <button id="backupTop" class="icon-btn" title="백업">⇩</button>
 </header>
 
@@ -220,7 +234,7 @@ textarea.control{min-height:78px;resize:vertical}
     </div>
     <div class="year-table-wrap">
       <table class="year-table">
-        <thead><tr><th>월</th><th>공수</th><th>총금액</th><th>공제액</th><th>경비</th><th>실수령</th><th>입금</th></tr></thead>
+        <thead><tr><th>월</th><th>공수</th><th>총금액</th><th>공제액</th><th>경비</th><th>실수령 예상액</th><th>입금</th></tr></thead>
         <tbody id="yearTableBody"></tbody>
       </table>
     </div>
@@ -229,7 +243,7 @@ textarea.control{min-height:78px;resize:vertical}
       <div class="box"><span>연간 실수령</span><strong id="yearNet">0원</strong></div>
     </div>
   </div>
-  <p class="version">현장 공수관리 Pro v3.5.1</p>
+  <p class="version">현장 공수관리 Pro v3.6</p>
 </section>
 </main>
 </div>
@@ -450,7 +464,7 @@ function paymentKey(companyId,prefix){return companyId+"|"+prefix}
 function currentPayment(){var key=paymentKey(selectedCompanyId(),monthPrefix());return state.payments[key]||{paid:false,date:"",amount:0,memo:""}}
 function renderPayment(){
   var p=currentPayment(),x=calculate(),s=el("#paymentState");
-  s.textContent=p.paid?"입금 완료":"미입금";s.classList.toggle("paid",!!p.paid);
+  var ps=paymentStatusInfo(p,x.final);s.textContent=ps.label;s.className="payment-state "+ps.key;
   el("#paymentDate").value=p.date||"";el("#paymentAmount").value=p.amount||Math.round(x.final)||"";el("#paymentMemo").value=p.memo||""
 }
 function savePayment(paid){
@@ -610,6 +624,19 @@ function renderExpenseBreakdown(rows){
 }
 function reportData(){var x=calculate();return {period:viewDate.getFullYear()+"년 "+(viewDate.getMonth()+1)+"월",company:x.company.name,rows:x.rows,units:x.units,labor:x.labor,deduction:x.deduction,expenses:x.expenses,final:x.final}}
 
+
+function pad2(n){return String(n).padStart(2,"0")}
+function settlementPeriodText(y,m){
+  var last=new Date(y,m+1,0).getDate();
+  return y+"."+pad2(m+1)+".01 ~ "+y+"."+pad2(m+1)+"."+pad2(last)
+}
+function paymentStatusInfo(payment,total){
+  payment=payment||{};
+  var amount=Number(payment.amount)||0;
+  if(payment.paid || (total>0 && amount>=total))return {key:"paid",label:"지급 완료"};
+  if(amount>0)return {key:"partial",label:"부분 지급"};
+  return {key:"unpaid",label:"미수금"}
+}
 function reportCalendarData(){
   var r=reportData(),y=viewDate.getFullYear(),m=viewDate.getMonth(),first=new Date(y,m,1).getDay(),last=new Date(y,m+1,0).getDate();
   var byDate={},i;
@@ -618,15 +645,27 @@ function reportCalendarData(){
   return r
 }
 function saveSettlementPng(){
-  var r=reportCalendarData(),S=2,W=980,H=1320,c=document.createElement("canvas"),ctx=c.getContext("2d");
+  var r=reportCalendarData(),S=2,W=980,H=1400,c=document.createElement("canvas"),ctx=c.getContext("2d");
+  var cid=selectedCompanyId(),p=state.payments[paymentKey(cid,monthKey())]||{},ps=paymentStatusInfo(p,r.final);
+  var period=settlementPeriodText(r.year,r.month);
   c.width=W*S;c.height=H*S;ctx.scale(S,S);
-  ctx.fillStyle="#f4f6f9";ctx.fillRect(0,0,W,H);
-  ctx.fillStyle="#fff";ctx.fillRect(35,30,W-70,H-60);
+  ctx.fillStyle="#eef3f8";ctx.fillRect(0,0,W,H);
+  ctx.fillStyle="#fff";ctx.fillRect(35,28,W-70,H-56);
 
-  ctx.fillStyle="#142033";ctx.font="bold 32px sans-serif";ctx.fillText("현장 공수 정산서",65,82);
-  ctx.fillStyle="#718096";ctx.font="16px sans-serif";ctx.fillText(r.period+" · "+r.company,65,114);
+  ctx.fillStyle="#19375f";ctx.fillRect(35,28,W-70,124);
+  ctx.fillStyle="#fff";ctx.font="bold 34px sans-serif";ctx.textAlign="center";ctx.fillText("월간 정산서",W/2,80);
+  ctx.fillStyle="#dce9f7";ctx.font="16px sans-serif";ctx.fillText("작업기간 : "+period,W/2,116);
+  ctx.textAlign="left";
 
-  var gx=65,gy=155,gw=850,cellW=gw/7,headH=38,cellH=112;
+  ctx.fillStyle="#f7f9fc";ctx.fillRect(65,172,850,54);
+  ctx.fillStyle="#718096";ctx.font="14px sans-serif";ctx.fillText("업체명",85,204);
+  ctx.fillStyle="#142033";ctx.font="bold 17px sans-serif";ctx.fillText(r.company,155,204);
+  ctx.textAlign="right";
+  ctx.fillStyle=ps.key==="paid"?"#167254":(ps.key==="partial"?"#a26719":"#c83f3f");
+  ctx.font="bold 15px sans-serif";ctx.fillText(ps.label,895,204);
+  ctx.textAlign="left";
+
+  var gx=65,gy=248,gw=850,cellW=gw/7,headH=38,cellH=108;
   var names=["일","월","화","수","목","금","토"],i,d,row,col,date,e;
   ctx.fillStyle="#edf4fb";ctx.fillRect(gx,gy,gw,headH);
   ctx.strokeStyle="#dce5ef";ctx.lineWidth=1;
@@ -643,80 +682,124 @@ function saveSettlementPng(){
       var x=gx+col*cellW,y=gy+headH+row*cellH;
       ctx.fillStyle="#fff";ctx.fillRect(x,y,cellW,cellH);ctx.strokeStyle="#dce5ef";ctx.strokeRect(x,y,cellW,cellH);
       if(d<1||d>r.last)continue;
-      date=r.year+"-"+String(r.month+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");e=r.byDate[date];
+      date=r.year+"-"+pad2(r.month+1)+"-"+pad2(d);e=r.byDate[date];
       ctx.fillStyle=col===0?"#d84d4d":(col===6?"#2b68ad":"#1688f4");ctx.font="bold 14px sans-serif";ctx.fillText(String(d),x+9,y+20);
       if(e){
-        ctx.fillStyle="#a879f7";ctx.fillRect(x+8,y+34,cellW-16,27);
-        ctx.fillStyle="#fff";ctx.font="bold 13px sans-serif";ctx.textAlign="center";ctx.fillText((Number(e.units)||0)+"공수",x+cellW/2,y+52);ctx.textAlign="left";
+        ctx.fillStyle="#5c78c8";ctx.fillRect(x+8,y+33,cellW-16,27);
+        ctx.fillStyle="#fff";ctx.font="bold 13px sans-serif";ctx.textAlign="center";ctx.fillText((Number(e.units)||0)+"공수",x+cellW/2,y+51);ctx.textAlign="left";
         if(e.businessTrip){ctx.fillStyle="#eea23e";ctx.beginPath();ctx.arc(x+cellW-12,y+14,4,0,Math.PI*2);ctx.fill()}
-        if(expenseSum(e)>0){ctx.fillStyle="#20a579";ctx.font="11px sans-serif";ctx.fillText("경비 "+won(expenseSum(e)),x+8,y+82)}
+        if(expenseSum(e)>0){ctx.fillStyle="#167254";ctx.font="10px sans-serif";ctx.fillText("경비 "+won(expenseSum(e)),x+8,y+82)}
       }
     }
   }
 
-  var sumY=gy+headH+weeks*cellH+34;
-  var items=[
+  var sumY=gy+headH+weeks*cellH+28;
+  var cards=[
+    ["작업일수",r.days+"일"],
     ["총 공수",(Math.round(r.units*10)/10)+"공수"],
     ["총금액",won(r.labor)],
     ["공제액",won(r.deduction)],
     ["경비",won(r.expenses)],
-    ["실수령",won(r.final)]
+    ["실수령 예상액",won(r.final)]
   ];
-  for(i=0;i<items.length;i++){
-    var iy=sumY+i*58;
-    ctx.fillStyle=i===4?"#19375f":"#f7f9fc";ctx.fillRect(gx,iy,gw,48);
-    ctx.fillStyle=i===4?"#fff":"#718096";ctx.font=i===4?"bold 17px sans-serif":"15px sans-serif";ctx.fillText(items[i][0],gx+20,iy+31);
-    ctx.textAlign="right";ctx.fillStyle=i===4?"#fff":"#142033";ctx.font=i===4?"bold 22px sans-serif":"bold 18px sans-serif";ctx.fillText(items[i][1],gx+gw-20,iy+31);ctx.textAlign="left"
+  var cardGap=10,cardW=(gw-cardGap)/2,cardH=62;
+  for(i=0;i<cards.length;i++){
+    var cx=gx+(i%2)*(cardW+cardGap),cy=sumY+Math.floor(i/2)*(cardH+10),last=i===5;
+    ctx.fillStyle=last?"#19375f":"#f7f9fc";ctx.fillRect(cx,cy,cardW,cardH);
+    ctx.fillStyle=last?"#dce9f7":"#718096";ctx.font="13px sans-serif";ctx.fillText(cards[i][0],cx+16,cy+23);
+    ctx.fillStyle=last?"#fff":"#142033";ctx.font=last?"bold 21px sans-serif":"bold 18px sans-serif";ctx.textAlign="right";ctx.fillText(cards[i][1],cx+cardW-16,cy+43);ctx.textAlign="left"
   }
-  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("현장 공수관리 Pro v3.5.1",65,H-45);
+  ctx.fillStyle="#9aa5b1";ctx.font="12px sans-serif";ctx.fillText("현장 공수관리 Pro v3.6",65,H-38);
 
-  var fileName="달력형_공수정산서_"+r.period.replace(/ /g,"_")+"_"+r.company+".png";
-  c.toBlob(function(blob){
-    if(!blob){alert("이미지를 만들지 못했습니다.");return}
-    var url=URL.createObjectURL(blob);
-    var old=document.getElementById("pngPreviewLayer");
-    if(old)old.remove();
+  var fileName="월간정산서_"+r.year+"-"+pad2(r.month+1)+"_"+r.company+".png";
+  var dataUrl;
+  try{
+    dataUrl=c.toDataURL("image/png",1);
+  }catch(err){
+    alert("정산서 이미지를 만들지 못했습니다. Safari를 새로고침한 뒤 다시 시도해 주세요.");
+    return
+  }
 
-    var layer=document.createElement("div");
-    layer.id="pngPreviewLayer";
-    layer.style.cssText="position:fixed;inset:0;z-index:99999;background:rgba(13,24,39,.88);display:flex;flex-direction:column;align-items:center;overflow:auto;padding:18px 12px 28px;box-sizing:border-box;-webkit-overflow-scrolling:touch";
-    layer.innerHTML=
-      '<div style="width:min(100%,720px);background:#fff;border-radius:18px;padding:14px;box-shadow:0 18px 50px rgba(0,0,0,.35)">'+
-        '<div style="font-size:18px;font-weight:900;color:#142033;margin:2px 2px 6px">정산서 이미지가 완성됐어요</div>'+
-        '<div style="font-size:13px;line-height:1.55;color:#66758a;margin:0 2px 12px">아이폰에서는 아래 <b>공유·저장</b>을 누른 뒤 <b>이미지 저장</b> 또는 <b>파일에 저장</b>을 선택하세요. 이미지 자체를 길게 눌러도 저장할 수 있어요.</div>'+
-        '<img id="pngPreviewImage" src="'+url+'" alt="공수 정산서" style="display:block;width:100%;height:auto;border:1px solid #dce5ef;border-radius:12px;background:#f4f6f9;touch-action:auto;-webkit-user-select:auto;user-select:auto">'+
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">'+
-          '<button id="pngShareBtn" style="border:0;border-radius:12px;padding:13px 8px;background:#1688f4;color:#fff;font-size:15px;font-weight:900">공유·저장</button>'+
-          '<button id="pngOpenBtn" style="border:1px solid #cfd9e5;border-radius:12px;padding:13px 8px;background:#fff;color:#19375f;font-size:15px;font-weight:900">새 화면으로 열기</button>'+
-        '</div>'+
-        '<button id="pngCloseBtn" style="width:100%;margin-top:8px;border:0;border-radius:12px;padding:12px;background:#edf2f7;color:#34465a;font-size:14px;font-weight:800">닫기</button>'+
-      '</div>';
+  var old=document.getElementById("pngPreviewLayer");
+  if(old)old.remove();
 
-    document.body.appendChild(layer);
+  var layer=document.createElement("div");
+  layer.id="pngPreviewLayer";
+  layer.setAttribute("role","dialog");
+  layer.setAttribute("aria-modal","true");
+  layer.style.cssText="position:fixed!important;left:0!important;top:0!important;width:100vw!important;height:100vh!important;z-index:2147483647!important;background:#101925!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;padding:14px 10px 34px!important;box-sizing:border-box!important;display:block!important";
 
-    document.getElementById("pngCloseBtn").onclick=function(){
-      URL.revokeObjectURL(url);layer.remove()
-    };
-    document.getElementById("pngOpenBtn").onclick=function(){
-      var opened=window.open(url,"_blank");
-      if(!opened)alert("Safari의 팝업 차단을 해제해 주세요.")
-    };
-    document.getElementById("pngShareBtn").onclick=async function(){
-      try{
-        var file=new File([blob],fileName,{type:"image/png"});
-        if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
-          await navigator.share({files:[file],title:"현장 공수 정산서"});
-        }else{
-          var opened=window.open(url,"_blank");
-          if(!opened)alert("이미지를 길게 눌러 ‘사진에 저장’을 선택해 주세요.")
-        }
-      }catch(err){
-        if(err && err.name==="AbortError")return;
-        var opened=window.open(url,"_blank");
-        if(!opened)alert("이미지를 길게 눌러 ‘사진에 저장’을 선택해 주세요.")
+  var panel=document.createElement("div");
+  panel.style.cssText="width:100%!important;max-width:760px!important;margin:0 auto!important;background:#fff!important;border-radius:16px!important;padding:13px!important;box-sizing:border-box!important";
+
+  var title=document.createElement("div");
+  title.textContent="정산서 이미지";
+  title.style.cssText="font-size:19px;font-weight:900;color:#142033;margin:2px 2px 5px";
+
+  var guide=document.createElement("div");
+  guide.innerHTML="아래 이미지를 <b>길게 눌러 사진에 저장</b>하거나, 하단의 <b>공유·저장</b> 버튼을 이용하세요.";
+  guide.style.cssText="font-size:13px;line-height:1.55;color:#66758a;margin:0 2px 11px";
+
+  var img=document.createElement("img");
+  img.id="pngPreviewImage";
+  img.src=dataUrl;
+  img.alt="월간 정산서 이미지";
+  img.style.cssText="display:block!important;width:100%!important;height:auto!important;max-height:none!important;border:1px solid #dce5ef!important;border-radius:10px!important;background:#f4f6f9!important;-webkit-touch-callout:default!important;-webkit-user-select:auto!important;user-select:auto!important";
+
+  var btnRow=document.createElement("div");
+  btnRow.style.cssText="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px";
+
+  var shareBtn=document.createElement("button");
+  shareBtn.type="button";
+  shareBtn.textContent="공유·저장";
+  shareBtn.style.cssText="border:0;border-radius:12px;padding:14px 8px;background:#1688f4;color:#fff;font-size:15px;font-weight:900";
+
+  var openBtn=document.createElement("button");
+  openBtn.type="button";
+  openBtn.textContent="이미지만 열기";
+  openBtn.style.cssText="border:1px solid #cfd9e5;border-radius:12px;padding:14px 8px;background:#fff;color:#19375f;font-size:15px;font-weight:900";
+
+  var closeBtn=document.createElement("button");
+  closeBtn.type="button";
+  closeBtn.textContent="닫기";
+  closeBtn.style.cssText="width:100%;margin-top:8px;border:0;border-radius:12px;padding:13px;background:#edf2f7;color:#34465a;font-size:14px;font-weight:800";
+
+  btnRow.appendChild(shareBtn);btnRow.appendChild(openBtn);
+  panel.appendChild(title);panel.appendChild(guide);panel.appendChild(img);panel.appendChild(btnRow);panel.appendChild(closeBtn);
+  layer.appendChild(panel);
+  document.body.appendChild(layer);
+  document.documentElement.style.overflow="hidden";
+  document.body.style.overflow="hidden";
+  layer.scrollTop=0;
+
+  closeBtn.onclick=function(){
+    layer.remove();
+    document.documentElement.style.overflow="";
+    document.body.style.overflow=""
+  };
+
+  openBtn.onclick=function(){
+    var win=window.open();
+    if(!win){alert("Safari 설정에서 팝업 차단을 잠시 꺼 주세요.");return}
+    win.document.write('<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>정산서 이미지</title><style>html,body{margin:0;background:#111}img{display:block;width:100%;height:auto}</style></head><body><img src="'+dataUrl+'"></body></html>');
+    win.document.close()
+  };
+
+  shareBtn.onclick=async function(){
+    try{
+      var blob=await (await fetch(dataUrl)).blob();
+      var file=new File([blob],fileName,{type:"image/png"});
+      if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
+        await navigator.share({files:[file],title:"월간 정산서"})
+      }else{
+        openBtn.click()
       }
-    };
-  },"image/png",1)
+    }catch(err){
+      if(err && err.name==="AbortError")return;
+      openBtn.click()
+    }
+  }
+
 }
 
 function companyProfile(cid){
@@ -735,7 +818,8 @@ function printSettlementPdf(){
   var r=reportCalendarData(),cid=selectedCompanyId(),profile=companyProfile(cid),
       names=["일","월","화","수","목","금","토"],htmlCal="",i,row,col,d,date,e,
       weeks=Math.ceil((r.first+r.last)/7),w,key=paymentKey(cid,monthKey()),p=state.payments[key]||{},
-      dailyRate=(r.units>0?Math.round(r.labor/r.units):0);
+      dailyRate=(r.units>0?Math.round(r.labor/r.units):0),period=settlementPeriodText(r.year,r.month),
+      ps=paymentStatusInfo(p,r.final);
 
   htmlCal+='<table class="calendar"><thead><tr>';
   for(i=0;i<7;i++)htmlCal+='<th class="'+(i===0?"sun":i===6?"sat":"")+'">'+names[i]+'</th>';
@@ -761,7 +845,7 @@ function printSettlementPdf(){
   }
   htmlCal+='</tbody></table>';
 
-  var paidText=p.paid?"입금완료":"미입금";
+  var paidText=ps.label;
   var paidDate=p.paidDate||p.date||"";
   var actualPaid=(p.amount!==undefined&&p.amount!==null&&p.amount!=="")?won(Number(p.amount)||0):"-";
   var payMemo=p.memo||"";
@@ -769,22 +853,22 @@ function printSettlementPdf(){
   w=window.open("","_blank");
   if(!w){alert("팝업 차단을 해제해 주세요.");return}
 
-  w.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>현장 공수 정산서</title><style>'+
+  w.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>월간 정산서</title><style>'+
   'body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",Arial,sans-serif;color:#142033;padding:18px;background:white}'+
-  '.sheet{max-width:820px;margin:0 auto}.head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #19375f;padding-bottom:14px;margin-bottom:14px}'+
-  '.head h1{margin:0;font-size:27px}.sub{color:#718096;margin-top:5px;font-size:13px}.stamp{border:1px solid #19375f;padding:8px 13px;border-radius:8px;font-weight:800;color:#19375f}'+
+  '.sheet{max-width:820px;margin:0 auto}.head{text-align:center;background:#19375f;color:white;border-radius:12px;padding:17px 14px;margin-bottom:14px}'+
+  '.head h1{margin:0;font-size:29px}.sub{color:#dce9f7;margin-top:7px;font-size:13px}.stamp{display:none}'+
   '.info{display:grid;grid-template-columns:1fr 1fr;gap:7px 18px;border:1px solid #dce5ef;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px}'+
   '.info div{display:flex;gap:8px}.label{color:#718096;min-width:72px}.value{font-weight:700;word-break:break-all}'+
   '.calendar{width:100%;border-collapse:collapse;table-layout:fixed}.calendar th{background:#edf4fb;height:30px;border:1px solid #dce5ef;font-size:11px}.calendar td{height:82px;border:1px solid #dce5ef;vertical-align:top;padding:5px;position:relative}.num{font-weight:bold;color:#1688f4;font-size:11px}.sun .num,.sun{color:#d84d4d}.sat .num,.sat{color:#2b68ad}'+
   '.unit{margin-top:9px;background:#a879f7;color:white;border-radius:16px;text-align:center;padding:4px 2px;font-size:10px;font-weight:bold}.daypay{font-size:9px;text-align:center;color:#44546a;margin-top:3px}.trip{font-size:8px;color:#a26719;margin-top:3px}.expense{font-size:8px;color:#167254;margin-top:2px}'+
   '.summary{margin-top:14px;border:1px solid #dce5ef;border-radius:10px;overflow:hidden}.line{display:flex;justify-content:space-between;padding:9px 13px;border-bottom:1px solid #dce5ef;font-size:12px}.line:last-child{border-bottom:0}.line span{color:#718096}.line strong{font-size:14px}.final{background:#19375f;color:white}.final span,.final strong{color:white;font-weight:bold;font-size:16px}'+
-  '.paybox{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}.payitem{border:1px solid #dce5ef;border-radius:9px;padding:10px}.payitem span{display:block;color:#718096;font-size:10px}.payitem strong{display:block;margin-top:4px;font-size:12px}.memo{margin-top:10px;border:1px solid #dce5ef;border-radius:9px;padding:10px;min-height:42px;font-size:11px}.sign{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}.signbox{border-top:1px solid #8d99a8;padding-top:8px;text-align:center;color:#718096;font-size:11px}.foot{text-align:right;color:#9aa5b1;font-size:9px;margin-top:10px}'+
+  '.paybox{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}.payitem{border:1px solid #dce5ef;border-radius:9px;padding:10px}.payitem span{display:block;color:#718096;font-size:10px}.payitem strong{display:block;margin-top:4px;font-size:12px}.payitem strong.paid{color:#167254}.payitem strong.partial{color:#a26719}.payitem strong.unpaid{color:#c83f3f}.memo{margin-top:10px;border:1px solid #dce5ef;border-radius:9px;padding:10px;min-height:42px;font-size:11px}.sign{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}.signbox{border-top:1px solid #8d99a8;padding-top:8px;text-align:center;color:#718096;font-size:11px}.foot{text-align:right;color:#9aa5b1;font-size:9px;margin-top:10px}'+
   '@page{size:A4 portrait;margin:9mm}@media print{body{padding:0}.sheet{max-width:none}}'+
   '</style></head><body><div class="sheet">'+
-  '<div class="head"><div><h1>현장 공수 정산서</h1><div class="sub">'+escapeHtml(r.period)+' · '+escapeHtml(r.company)+'</div></div><div class="stamp">정산 명세</div></div>'+
+  '<div class="head"><h1>월간 정산서</h1><div class="sub">작업기간 : '+escapeHtml(period)+'</div></div>'+
   '<div class="info">'+
   '<div><span class="label">업체명</span><span class="value">'+escapeHtml(r.company)+'</span></div>'+
-  '<div><span class="label">정산기간</span><span class="value">'+escapeHtml(r.period)+'</span></div>'+
+  '<div><span class="label">작업기간</span><span class="value">'+escapeHtml(period)+'</span></div>'+
   '<div><span class="label">담당자</span><span class="value">'+escapeHtml(profile.manager||"-")+'</span></div>'+
   '<div><span class="label">연락처</span><span class="value">'+escapeHtml(profile.phone||"-")+'</span></div>'+
   '<div><span class="label">주소</span><span class="value">'+escapeHtml(profile.address||"-")+'</span></div>'+
@@ -796,15 +880,15 @@ function printSettlementPdf(){
   '<div class="line"><span>총금액</span><strong>'+won(r.labor)+'</strong></div>'+
   '<div class="line"><span>공제액</span><strong>'+won(r.deduction)+'</strong></div>'+
   '<div class="line"><span>경비</span><strong>'+won(r.expenses)+'</strong></div>'+
-  '<div class="line final"><span>실수령</span><strong>'+won(r.final)+'</strong></div></div>'+
+  '<div class="line final"><span>실수령 예상액</span><strong>'+won(r.final)+'</strong></div></div>'+
   '<div class="paybox">'+
-  '<div class="payitem"><span>입금상태</span><strong>'+paidText+'</strong></div>'+
+  '<div class="payitem"><span>지급상태</span><strong class="'+ps.key+'">'+paidText+'</strong></div>'+
   '<div class="payitem"><span>입금일</span><strong>'+escapeHtml(paidDate||"-")+'</strong></div>'+
   '<div class="payitem"><span>실제 입금액</span><strong>'+actualPaid+'</strong></div>'+
   '</div>'+
   '<div class="memo"><strong>메모</strong><br><br>'+escapeHtml(payMemo||profile.memo||"")+'</div>'+
   '<div class="sign"><div class="signbox">작성자 서명</div><div class="signbox">확인자 서명</div></div>'+
-  '<div class="foot">현장 공수관리 Pro v3.5.1</div>'+
+  '<div class="foot">현장 공수관리 Pro v3.6</div>'+
   '</div><script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>');
   w.document.close();
 }
