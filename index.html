@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#f3f6fb">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="현장공수관리">
-<title>현장 공수관리 Pro v4.1 UI</title>
+<title>현장 공수관리 Pro v4.2 편의기능</title>
 <style>
 :root{
   --bg:#f3f6fb;--card:#fff;--text:#142033;--muted:#77849a;--line:#dce5ef;
@@ -120,7 +120,7 @@ textarea.control{min-height:78px;resize:vertical}
 .year-total span{display:block;color:var(--muted);font-size:11px}
 .year-total strong{display:block;margin-top:4px;font-size:17px}
 
-/* v4.1 UI 개선 - 기능 로직 변경 없음 */
+/* v4.2 편의기능 개선 - 기능 로직 변경 없음 */
 :root{
   --bg:#eef3f8;
   --card:#ffffff;
@@ -339,12 +339,65 @@ header{
   .stat strong{font-size:22px}
 }
 
+
+/* v4.2 편의 기능 */
+.month-bottom{
+  grid-template-columns:minmax(0,1.35fr) minmax(132px,.9fr) auto;
+}
+.month-jump{min-width:0}
+.convenience-toolbar{
+  display:grid;
+  grid-template-columns:minmax(0,1.5fr) minmax(140px,.7fr);
+  gap:9px;
+  margin:12px 0 5px;
+}
+.company-toolbar{grid-template-columns:1fr}
+.result-count{
+  min-height:23px;
+  margin:2px 2px 6px;
+  font-size:12px;
+  color:var(--muted);
+}
+.recent-work-box{
+  margin-top:-2px;
+}
+.recent-work-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  min-height:36px;
+  padding-top:6px;
+}
+.recent-work-chip{
+  border:1px solid #d8e4ef;
+  border-radius:999px;
+  padding:8px 11px;
+  background:#f4f8fc;
+  color:var(--navy);
+  font-size:12px;
+  font-weight:800;
+}
+.recent-work-chip:active{transform:scale(.97)}
+.recent-work-empty{
+  padding:8px 0;
+  color:var(--muted);
+  font-size:12px;
+}
+@media(max-width:560px){
+  .month-bottom{
+    grid-template-columns:1fr auto;
+  }
+  .month-bottom #companyFilter{grid-column:1/-1}
+  .month-jump{width:100%}
+  .convenience-toolbar{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-  <div class="brand"><h1>현장 공수관리 Pro <em>v4.1 UI</em></h1><p>공수 체크와 업체별 정산 관리</p></div>
+  <div class="brand"><h1>현장 공수관리 Pro <em>v4.2 편의기능</em></h1><p>공수 체크와 업체별 정산 관리</p></div>
   <button id="backupTop" class="icon-btn" title="백업">⇩</button>
 </header>
 
@@ -358,6 +411,7 @@ header{
     </div>
     <div class="month-bottom">
       <select id="companyFilter" class="control"></select>
+      <input id="monthJump" class="control month-jump" type="month" aria-label="조회 월 바로 선택">
       <button id="todayBtn" class="btn soft">오늘</button>
     </div>
   </div>
@@ -408,7 +462,17 @@ header{
     <div id="expenseBreakdown" class="expense-breakdown"></div>
   </div>
   <div class="card section">
-    <div class="section-head"><div><h2>상세 작업 내역</h2><p>날짜를 누르면 해당 기록을 수정할 수 있습니다.</p></div></div>
+    <div class="section-head"><div><h2>상세 작업 내역</h2><p>검색하거나 날짜순으로 정렬할 수 있습니다.</p></div></div>
+    <div class="convenience-toolbar">
+      <input id="recordSearch" class="control" placeholder="날짜·작업 내용·메모 검색">
+      <select id="recordSort" class="control">
+        <option value="newest">최신 날짜순</option>
+        <option value="oldest">오래된 날짜순</option>
+        <option value="units">공수 많은 순</option>
+        <option value="amount">금액 높은 순</option>
+      </select>
+    </div>
+    <div id="recordResultCount" class="result-count"></div>
     <div id="recordList" class="list"></div>
   </div>
 </section>
@@ -416,6 +480,10 @@ header{
 <section id="companies" class="page">
   <div class="card section">
     <div class="section-head"><div><h2>업체 관리</h2><p>기본 일당과 공제율을 저장합니다.</p></div><button id="addCompany" class="btn primary">＋ 추가</button></div>
+    <div class="convenience-toolbar company-toolbar">
+      <input id="companySearch" class="control" placeholder="업체명·담당자·연락처 검색">
+    </div>
+    <div id="companyResultCount" class="result-count"></div>
     <div id="companyList" class="list"></div>
   </div>
 </section>
@@ -453,7 +521,7 @@ header{
       <div class="box"><span>연간 실수령</span><strong id="yearNet">0원</strong></div>
     </div>
   </div>
-  <p class="version">현장 공수관리 Pro v4.1 UI</p>
+  <p class="version">현장 공수관리 Pro v4.2 편의기능</p>
 </section>
 </main>
 </div>
@@ -478,6 +546,10 @@ header{
     <div class="field"><label>공수</label><input id="entryUnits" class="control" type="number" min="0" step="0.1" inputmode="decimal"></div>
     <div class="field"><label>일당</label><input id="entryRate" class="control" type="number" min="0" step="1000" inputmode="numeric"></div>
     <div class="field full"><label>작업 내용</label><input id="entryWork" class="control" placeholder="예: 판넬 배선"></div>
+    <div class="field full recent-work-box">
+      <label>최근 작업 빠른 입력</label>
+      <div id="recentWorkList" class="recent-work-list"></div>
+    </div>
     <div class="field full switch-card">
       <div><strong>출장</strong><p>경비 청구 없이 출장만 체크할 수도 있습니다.</p></div>
       <label class="switch"><input id="entryTrip" type="checkbox"><span></span></label>
@@ -524,7 +596,7 @@ header{
 </template>
 
 <script>
-console.log("현장공수관리 Pro v4.1 UI 로드 완료");
+console.log("현장공수관리 Pro v4.2 편의기능 로드 완료");
 
 (function(){
 "use strict";
@@ -536,6 +608,9 @@ var summaryYear=viewDate.getFullYear();
 viewDate.setDate(1);
 var editingDate=null;
 var editingCompanyId=null;
+var recordQuery="";
+var recordSort="newest";
+var companyQuery="";
 
 function el(s){return document.querySelector(s)}
 function els(s){return Array.prototype.slice.call(document.querySelectorAll(s))}
@@ -653,22 +728,44 @@ function rowHtml(date,e){
   (Number(e.units)||0)+'공수 · 노무비 '+won(pay)+(ex?' · 경비 '+won(ex):'')+'</p></div><b>›</b></button>'
 }
 function renderRecords(){
-  var x=calculate(),html="",i;
+  var x=calculate(),html="",i,rows=x.rows.slice(),q=recordQuery.trim().toLowerCase(),label;
   el("#sumUnits").textContent=(Math.round(x.units*10)/10)+"공수";
   el("#sumLabor").textContent=won(x.labor);el("#sumDeduction").textContent=won(x.deduction);
   el("#sumExpenses").textContent=won(x.expenses);el("#sumFinal").textContent=won(x.final);renderExpenseBreakdown(x.rows);
-  for(i=x.rows.length-1;i>=0;i--)html+=rowHtml(x.rows[i][0],x.rows[i][1]);
-  el("#recordList").innerHTML=html||'<div class="empty">이번 달 기록이 없습니다.</div>';
+
+  if(q){
+    rows=rows.filter(function(r){
+      var e=r[1],text=[r[0],e.type,e.memo,(Number(e.units)||0)+"공수",won((Number(e.units)||0)*(Number(e.rate)||0))].join(" ").toLowerCase();
+      return text.indexOf(q)>=0
+    })
+  }
+  rows.sort(function(a,b){
+    if(recordSort==="oldest")return a[0].localeCompare(b[0]);
+    if(recordSort==="units")return (Number(b[1].units)||0)-(Number(a[1].units)||0)||b[0].localeCompare(a[0]);
+    if(recordSort==="amount")return ((Number(b[1].units)||0)*(Number(b[1].rate)||0))-((Number(a[1].units)||0)*(Number(a[1].rate)||0))||b[0].localeCompare(a[0]);
+    return b[0].localeCompare(a[0])
+  });
+  for(i=0;i<rows.length;i++)html+=rowHtml(rows[i][0],rows[i][1]);
+  label=q?"검색 결과 "+rows.length+"건":"전체 "+rows.length+"건";
+  el("#recordResultCount").textContent=label;
+  el("#recordList").innerHTML=html||'<div class="empty">'+(q?"검색 결과가 없습니다.":"이번 달 기록이 없습니다.")+'</div>';
   els("[data-record-date]").forEach(function(b){b.onclick=function(){openEntry(b.getAttribute("data-record-date"))}})
 }
 function renderCompanies(){
-  var html="",i,c,count,k;
-  for(i=0;i<state.companies.length;i++){
-    c=state.companies[i];count=0;
+  var html="",i,c,count,k,q=companyQuery.trim().toLowerCase(),items=state.companies.slice();
+  if(q){
+    items=items.filter(function(c){
+      return [c.name,c.manager,c.phone,c.memo].join(" ").toLowerCase().indexOf(q)>=0
+    })
+  }
+  items.sort(function(a,b){return a.name.localeCompare(b.name,"ko")});
+  for(i=0;i<items.length;i++){
+    c=items[i];count=0;
     for(k in state.entries)if(Object.prototype.hasOwnProperty.call(state.entries,k)&&state.entries[k].companyId===c.id)count++;
     html+='<button class="row" data-company="'+escapeHtml(c.id)+'"><div class="row-main"><strong>'+escapeHtml(c.name)+'</strong><p>일당 '+won(c.rate)+' · 공제 '+c.tax+'% · 기록 '+count+'건</p></div><b>›</b></button>'
   }
-  el("#companyList").innerHTML=html;
+  el("#companyResultCount").textContent=q?"검색 결과 "+items.length+"개":"전체 "+items.length+"개";
+  el("#companyList").innerHTML=html||'<div class="empty">검색 결과가 없습니다.</div>';
   els("[data-company]").forEach(function(b){b.onclick=function(){openCompany(b.getAttribute("data-company"))}})
 }
 
@@ -734,6 +831,7 @@ function renderAll(){
   renderSelects();
   x=calculate();
   el("#monthTitle").textContent=viewDate.getFullYear()+"년 "+(viewDate.getMonth()+1)+"월";
+  el("#monthJump").value=monthPrefix();
   el("#workDays").textContent=x.rows.filter(function(r){return Number(r[1].units)>0}).length+"일";
   el("#totalUnits").textContent=(Math.round(x.units*10)/10)+"공수";
   el("#grossTotal").textContent=won(x.labor);
@@ -766,12 +864,39 @@ function readExpenses(){
   });
   return arr
 }
+
+function recentWorkItems(companyId){
+  var items=[],seen={},keys=Object.keys(state.entries).sort().reverse(),i,e,name;
+  for(i=0;i<keys.length;i++){
+    e=state.entries[keys[i]];
+    if(e.companyId!==companyId)continue;
+    name=String(e.type||"").trim();
+    if(!name||seen[name])continue;
+    seen[name]=true;items.push(name);
+    if(items.length>=6)break
+  }
+  return items
+}
+function renderRecentWork(companyId){
+  var items=recentWorkItems(companyId),html="",i;
+  if(!items.length){
+    el("#recentWorkList").innerHTML='<div class="recent-work-empty">최근에 입력한 작업 내용이 없습니다.</div>';
+    return
+  }
+  for(i=0;i<items.length;i++)html+='<button type="button" class="recent-work-chip" data-recent-work="'+escapeHtml(items[i])+'">'+escapeHtml(items[i])+'</button>';
+  el("#recentWorkList").innerHTML=html;
+  els("[data-recent-work]").forEach(function(b){
+    b.onclick=function(){el("#entryWork").value=b.getAttribute("data-recent-work")}
+  })
+}
+
 function openEntry(date){
   var e,c,cid,i;
   editingDate=date||today();e=state.entries[editingDate];cid=e?e.companyId:selectedCompanyId();c=getCompany(cid);
   el("#entryTitle").textContent=e?"공수 기록 수정":"공수 기록 입력";
   el("#entryDate").value=editingDate;el("#entryCompany").value=cid;el("#entryUnits").value=e?e.units:1;el("#entryRate").value=e?e.rate:c.rate;
   el("#entryWork").value=e?e.type:"";el("#entryMemo").value=e?e.memo:"";el("#entryTrip").checked=e?!!e.businessTrip:false;
+  renderRecentWork(cid);
   el("#expenseList").innerHTML="";
   if(e&&e.expenses)for(i=0;i<e.expenses.length;i++)addExpense(e.expenses[i]);
   updateExpenseTotal();updateUnitButtons();el("#deleteEntry").style.display=e?"block":"none";show("entryModal")
@@ -931,7 +1056,7 @@ function saveSettlementPng(){
     ctx.fillStyle=i===4?"#fff":"#718096";ctx.font=i===4?"bold 17px sans-serif":"15px sans-serif";ctx.fillText(items[i][0],gx+20,iy+31);
     ctx.textAlign="right";ctx.fillStyle=i===4?"#fff":"#142033";ctx.font=i===4?"bold 22px sans-serif":"bold 18px sans-serif";ctx.fillText(items[i][1],gx+gw-20,iy+31);ctx.textAlign="left"
   }
-  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("현장 공수관리 Pro v4.1 UI",65,H-45);
+  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("현장 공수관리 Pro v4.2 편의기능",65,H-45);
 
   var fileName="달력형_공수정산서_"+r.period.replace(/ /g,"_")+"_"+r.company+".png";
   var dataUrl;
@@ -1042,9 +1167,20 @@ function bind(){
   el("#nextMonth").onclick=function(){viewDate.setMonth(viewDate.getMonth()+1);renderAll()};
   el("#todayBtn").onclick=function(){viewDate=new Date();viewDate.setDate(1);renderAll()};
   el("#companyFilter").onchange=renderAll;
+  el("#monthJump").onchange=function(){
+    var v=this.value,parts;
+    if(!v)return;parts=v.split("-");
+    viewDate=new Date(Number(parts[0]),Number(parts[1])-1,1);summaryYear=viewDate.getFullYear();renderAll()
+  };
+  el("#recordSearch").oninput=function(){recordQuery=this.value;renderRecords()};
+  el("#recordSort").onchange=function(){recordSort=this.value;renderRecords()};
+  el("#companySearch").oninput=function(){companyQuery=this.value;renderCompanies()};
   el("#addExpense").onclick=function(){addExpense()};
   el("#saveEntry").onclick=saveEntry;el("#deleteEntry").onclick=deleteEntry;el("#entryUnits").oninput=updateUnitButtons;
-  el("#entryCompany").onchange=function(){el("#entryRate").value=getCompany(el("#entryCompany").value).rate};
+  el("#entryCompany").onchange=function(){
+    el("#entryRate").value=getCompany(el("#entryCompany").value).rate;
+    renderRecentWork(el("#entryCompany").value)
+  };
   els(".unit").forEach(function(b){b.onclick=function(){el("#entryUnits").value=b.getAttribute("data-unit");updateUnitButtons()}});
   el("#addCompany").onclick=function(){openCompany(null)};el("#saveCompany").onclick=saveCompany;el("#deleteCompany").onclick=deleteCompany;
   els("[data-close]").forEach(function(b){b.onclick=function(){hide(b.getAttribute("data-close"))}});
