@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#f3f6fb">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="현장공수관리">
-<title>현장 공수관리 Pro v3.1</title>
+<title>현장 공수관리 Pro v3.2</title>
 <style>
 :root{
   --bg:#f3f6fb;--card:#fff;--text:#142033;--muted:#77849a;--line:#dce5ef;
@@ -90,12 +90,25 @@ textarea.control{min-height:78px;resize:vertical}
 .expense-breakdown h3{font-size:13px;margin:0 0 8px}
 .expense-mini{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed var(--line);font-size:12px}
 .expense-mini:last-child{border-bottom:0}
+
+.payment-card{padding:15px;margin-bottom:10px}
+.payment-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.payment-head h3{font-size:16px;margin:0}.payment-head p{font-size:11px;color:var(--muted);margin:4px 0 0}
+.payment-state{font-size:11px;font-weight:900;padding:6px 10px;border-radius:999px;background:#fff3df;color:#a26719}
+.payment-state.paid{background:#e8f6f0;color:#167254}
+.payment-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.payment-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.receivable-list{display:grid;gap:8px}
+.receivable-row{border:1px solid var(--line);border-radius:15px;padding:13px;background:#fff}
+.receivable-top{display:flex;justify-content:space-between;gap:10px}.receivable-top strong{font-size:14px}.receivable-top span{font-size:11px;color:var(--muted)}
+.receivable-money{font-size:20px;font-weight:900;margin-top:8px}
+.receivable-meta{font-size:11px;color:var(--muted);margin-top:5px}
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-  <div class="brand"><h1>현장 공수관리 Pro <em>v3.1</em></h1><p>공수 체크와 업체별 정산 관리</p></div>
+  <div class="brand"><h1>현장 공수관리 Pro <em>v3.2</em></h1><p>공수 체크와 업체별 정산 관리</p></div>
   <button id="backupTop" class="icon-btn" title="백업">⇩</button>
 </header>
 
@@ -131,6 +144,21 @@ textarea.control{min-height:78px;resize:vertical}
     <button id="savePng" class="btn primary">PNG 정산서 저장</button>
     <button id="printPdf" class="btn soft">PDF 인쇄</button>
   </div>
+  <div class="card payment-card">
+    <div class="payment-head">
+      <div><h3>입금 상태</h3><p>업체와 월별로 입금 여부를 저장합니다.</p></div>
+      <span id="paymentState" class="payment-state">미입금</span>
+    </div>
+    <div class="payment-grid">
+      <div class="field"><label>입금일</label><input id="paymentDate" class="control" type="date"></div>
+      <div class="field"><label>입금액</label><input id="paymentAmount" class="control" type="number" min="0" inputmode="numeric"></div>
+      <div class="field full"><label>입금 메모</label><input id="paymentMemo" class="control" placeholder="예: 8월분 정산 완료"></div>
+    </div>
+    <div class="payment-actions">
+      <button id="markUnpaid" class="btn soft">미입금 처리</button>
+      <button id="markPaid" class="btn primary">입금 완료</button>
+    </div>
+  </div>
   <div class="card summary-box">
     <div class="summary-line"><span>총 공수</span><strong id="sumUnits">0공수</strong></div>
     <div class="summary-line"><span>노무비</span><strong id="sumLabor">0원</strong></div>
@@ -161,7 +189,11 @@ textarea.control{min-height:78px;resize:vertical}
     </div>
     <div class="notice">데이터는 현재 아이폰 Safari에 저장됩니다. Safari 웹사이트 데이터를 삭제하면 기록도 사라질 수 있습니다.</div>
   </div>
-  <p class="version">현장 공수관리 Pro v3.1</p>
+  <div class="card section">
+    <div class="section-head"><div><h2>미수금 현황</h2><p>청구금액이 있고 아직 입금되지 않은 월</p></div></div>
+    <div id="receivableList" class="receivable-list"></div>
+  </div>
+  <p class="version">현장 공수관리 Pro v3.2</p>
 </section>
 </main>
 </div>
@@ -255,6 +287,7 @@ function defaultState(){
     version:5,
     companies:[{id:"default",name:"기본 업체",rate:180000,tax:3.3,fixed:0,color:"#2d6fbb",manager:"",phone:"",memo:""}],
     entries:{},
+    payments:{},
     settings:{}
   }
 }
@@ -272,6 +305,7 @@ function normalize(raw){
       })
     }
   }
+  if(raw.payments&&typeof raw.payments==="object")base.payments=raw.payments;
   if(raw.entries&&typeof raw.entries==="object"){
     for(k in raw.entries){
       if(!Object.prototype.hasOwnProperty.call(raw.entries,k))continue;
@@ -374,6 +408,35 @@ function renderCompanies(){
   el("#companyList").innerHTML=html;
   els("[data-company]").forEach(function(b){b.onclick=function(){openCompany(b.getAttribute("data-company"))}})
 }
+
+function paymentKey(companyId,prefix){return companyId+"|"+prefix}
+function currentPayment(){var key=paymentKey(selectedCompanyId(),monthPrefix());return state.payments[key]||{paid:false,date:"",amount:0,memo:""}}
+function renderPayment(){
+  var p=currentPayment(),x=calculate(),s=el("#paymentState");
+  s.textContent=p.paid?"입금 완료":"미입금";s.classList.toggle("paid",!!p.paid);
+  el("#paymentDate").value=p.date||"";el("#paymentAmount").value=p.amount||Math.round(x.final)||"";el("#paymentMemo").value=p.memo||""
+}
+function savePayment(paid){
+  var key=paymentKey(selectedCompanyId(),monthPrefix()),x=calculate();
+  state.payments[key]={paid:!!paid,date:paid?(el("#paymentDate").value||today()):"",amount:paid?Math.max(0,Number(el("#paymentAmount").value)||Math.round(x.final)||0):0,memo:el("#paymentMemo").value.trim()};
+  saveState();renderPayment();renderReceivables()
+}
+function calcFor(companyId,prefix){
+  var rows=[],k,e,c=getCompany(companyId),units=0,labor=0,expenses=0,i,deduction;
+  for(k in state.entries){if(!Object.prototype.hasOwnProperty.call(state.entries,k))continue;e=state.entries[k];if(k.indexOf(prefix+"-")===0&&e.companyId===companyId)rows.push([k,e])}
+  for(i=0;i<rows.length;i++){e=rows[i][1];units+=Number(e.units)||0;labor+=(Number(e.units)||0)*(Number(e.rate)||0);expenses+=expenseSum(e)}
+  deduction=Math.max(0,labor*(Number(c.tax)||0)/100+(Number(c.fixed)||0));
+  return {rows:rows,units:units,labor:labor,expenses:expenses,deduction:deduction,final:labor-deduction+expenses}
+}
+function renderReceivables(){
+  var months={},k,e,parts,prefix,cid,x,p,items=[],html="",i;
+  for(k in state.entries){if(!Object.prototype.hasOwnProperty.call(state.entries,k))continue;e=state.entries[k];prefix=k.slice(0,7);cid=e.companyId;months[cid+"|"+prefix]=true}
+  for(k in months){parts=k.split("|");cid=parts[0];prefix=parts[1];x=calcFor(cid,prefix);p=state.payments[k]||{paid:false};if(x.final>0&&!p.paid)items.push({cid:cid,prefix:prefix,final:x.final,units:x.units})}
+  items.sort(function(a,b){return b.prefix.localeCompare(a.prefix)});
+  for(i=0;i<items.length;i++){var it=items[i],c=getCompany(it.cid),label=it.prefix.slice(0,4)+"년 "+Number(it.prefix.slice(5,7))+"월";html+='<div class="receivable-row"><div class="receivable-top"><strong>'+escapeHtml(c.name)+'</strong><span>'+label+'</span></div><div class="receivable-money">'+won(it.final)+'</div><div class="receivable-meta">'+(Math.round(it.units*10)/10)+'공수 · 미입금</div></div>'}
+  el("#receivableList").innerHTML=html||'<div class="empty">현재 미수금이 없습니다.</div>'
+}
+
 function renderAll(){
   var x;
   renderSelects();
@@ -383,7 +446,7 @@ function renderAll(){
   el("#totalUnits").textContent=(Math.round(x.units*10)/10)+"공수";
   el("#grossTotal").textContent=won(x.labor);
   el("#netTotal").textContent=won(x.labor-x.deduction);
-  renderCalendar();renderRecords();renderCompanies()
+  renderCalendar();renderRecords();renderCompanies();renderPayment();renderReceivables()
 }
 function show(id){el("#"+id).classList.add("show")}
 function hide(id){el("#"+id).classList.remove("show")}
@@ -493,7 +556,7 @@ function saveSettlementPng(){
   ctx.fillText("날짜",80,y+23);ctx.fillText("작업 내용",190,y+23);ctx.fillText("공수",510,y+23);ctx.fillText("노무비",590,y+23);ctx.fillText("경비",735,y+23);y+=36;
   if(!r.rows.length){ctx.fillStyle="#718096";ctx.font="14px sans-serif";ctx.fillText("이번 달 기록이 없습니다.",80,y+32)}
   else for(i=0;i<r.rows.length;i++){var d=r.rows[i][0],e=r.rows[i][1],pay=(Number(e.units)||0)*(Number(e.rate)||0);ctx.fillStyle=i%2?"#fafbfd":"#fff";ctx.fillRect(65,y,W-130,rowH);ctx.fillStyle="#142033";ctx.font="13px sans-serif";ctx.fillText(d.slice(5),80,y+31);ctx.fillText((e.type||"작업 내용 없음").slice(0,22),190,y+31);ctx.fillText(String(Number(e.units)||0),510,y+31);ctx.fillText(won(pay),590,y+31);ctx.fillText(won(expenseSum(e)),735,y+31);y+=rowH}
-  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("현장 공수관리 Pro v3.1",65,H-42);
+  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("현장 공수관리 Pro v3.2",65,H-42);
   var a=document.createElement("a");a.download="공수정산서_"+r.period.replace(/ /g,"_")+"_"+r.company+".png";a.href=c.toDataURL("image/png");a.click()
 }
 function printSettlementPdf(){
@@ -518,6 +581,7 @@ function bind(){
   els(".modal").forEach(function(m){m.onclick=function(e){if(e.target===m)hide(m.id)}});
   els(".nav").forEach(function(n){n.onclick=function(){changePage(n.getAttribute("data-page"))}});
   el("#backupBtn").onclick=exportBackup;el("#backupTop").onclick=exportBackup;el("#savePng").onclick=saveSettlementPng;el("#printPdf").onclick=printSettlementPdf;
+  el("#markPaid").onclick=function(){savePayment(true)};el("#markUnpaid").onclick=function(){savePayment(false)};
   el("#restoreInput").onchange=function(e){
     var file=e.target.files&&e.target.files[0],reader;
     if(!file)return;reader=new FileReader();
