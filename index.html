@@ -6,6 +6,72 @@
 <style>
 :root{--bg:#f4f7fb;--card:#fff;--text:#18212f;--muted:#6f7b8c;--primary:#173b6d;--line:#dde5ef;--danger:#c93636;--shadow:0 8px 25px rgba(20,45,80,.08)}*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",sans-serif;background:var(--bg);color:var(--text)}button,input,select,textarea{font:inherit}button{cursor:pointer}.app{max-width:980px;margin:auto;padding:16px 14px 92px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.top h1{margin:0;font-size:24px}.top p{margin:4px 0 0;color:var(--muted);font-size:13px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:16px}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.group{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.btn{border:0;border-radius:12px;padding:11px 14px;font-weight:800}.primary{background:var(--primary);color:#fff}.soft{background:#edf3fb;color:var(--primary)}.ghost{background:#fff;border:1px solid var(--line)}.danger{background:#fff0f0;color:var(--danger)}select,input,textarea{width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;padding:12px;outline:none}select:focus,input:focus,textarea:focus{border-color:#7da4d7;box-shadow:0 0 0 3px rgba(36,93,168,.1)}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:14px 0}.metric span{display:block;color:var(--muted);font-size:13px;margin-bottom:7px}.metric strong{font-size:23px}.cal-head,.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.cal-head div{text-align:center;color:var(--muted);font-size:12px;padding:8px 0}.day{min-height:98px;border:1px solid var(--line);background:#fff;border-radius:14px;padding:8px;text-align:left}.day.empty{background:transparent;border-color:transparent}.day.today{outline:2px solid #eeb94d}.num{font-weight:800;font-size:13px}.sun .num{color:#c94b4b}.sat .num{color:#2b63a9}.badge{margin-top:8px;border-radius:10px;padding:7px;color:#fff;font-size:12px}.badge small{display:block;opacity:.9;margin-top:2px}.page{display:none}.page.active{display:block}.bottom{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(980px,100%);display:grid;grid-template-columns:repeat(4,1fr);background:rgba(255,255,255,.97);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:8px 8px calc(8px + env(safe-area-inset-bottom));z-index:30}.nav{border:0;background:transparent;color:var(--muted);padding:9px;font-size:12px}.nav.active{color:var(--primary);font-weight:800}.modal{position:fixed;inset:0;background:rgba(15,25,40,.48);display:none;align-items:flex-end;justify-content:center;z-index:50;padding:16px}.modal.show{display:flex}.sheet{width:min(620px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:22px;padding:20px}.sheethead{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.sheethead h2{margin:0}.form{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}.full{grid-column:1/-1}.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}.list{display:grid;gap:10px}.row{display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid var(--line);border-radius:14px;padding:13px}.dot{width:14px;height:14px;border-radius:50%;display:inline-block;margin-right:8px}.muted{color:var(--muted)}.small{font-size:12px}.reportwrap{overflow:auto}.report{min-width:720px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:20px 0}.summary div{background:#f4f7fb;border-radius:12px;padding:14px}.summary span{display:block;color:var(--muted);font-size:12px}.summary strong{display:block;margin-top:5px;font-size:18px}table{width:100%;border-collapse:collapse}th,td{padding:10px 8px;border-bottom:1px solid var(--line);font-size:13px;text-align:right}th:first-child,td:first-child{text-align:left}.notice{background:#fff8df;border:1px solid #f0db87;border-radius:12px;padding:12px;color:#6f5814}.right{text-align:right}@media(max-width:760px){.metrics{grid-template-columns:repeat(2,1fr)}.day{min-height:76px;padding:6px}.badge{padding:5px;font-size:10px}.badge small{display:none}.form{grid-template-columns:1fr}.full{grid-column:auto}.top h1{font-size:21px}}
 </style>
+
+<style id="iphone-v11-fix">
+html,body{width:100%;max-width:100%;overflow-x:hidden;-webkit-text-size-adjust:100%}
+button,select,input,textarea{min-width:0}
+.cal-head,.cal{grid-template-columns:repeat(7,minmax(0,1fr));width:100%}
+.day{width:100%;min-width:0;overflow:hidden}
+.reportwrap{overflow-x:hidden}
+@media(max-width:760px){
+  .app{width:100%;max-width:100%;padding:10px 10px 96px}
+  .top{align-items:flex-start;margin-bottom:10px}
+  .top p{display:none}
+  .top h1{font-size:20px;line-height:1.2}
+  .top>.btn,.top>button{padding:9px 11px;font-size:12px;white-space:nowrap}
+  .card{padding:12px;border-radius:15px}
+  .toolbar{display:grid;grid-template-columns:1fr;width:100%;gap:9px}
+  .toolbar>.group{width:100%;display:grid;grid-template-columns:auto 1fr auto;gap:7px}
+  .toolbar>.group:last-child{grid-template-columns:1fr auto}
+  .toolbar select{width:100%;min-width:0!important}
+  .btn{padding:10px 11px}
+  .metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0}
+  .metric{padding:12px 10px;min-width:0}
+  .metric span{font-size:11px;margin-bottom:5px}
+  .metric strong{font-size:18px;line-height:1.15;white-space:nowrap;letter-spacing:-.5px}
+  .cal-head,.cal{gap:3px}
+  .cal-head div{padding:5px 0;font-size:11px}
+  .day{min-height:66px;border-radius:10px;padding:5px 4px}
+  .num{font-size:12px}
+  .badge{margin-top:5px;border-radius:7px;padding:4px 2px;font-size:9px;line-height:1.2;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .badge small{display:none}
+  .bottom{width:100%;padding:6px 5px calc(6px + env(safe-area-inset-bottom))}
+  .nav{padding:8px 2px;font-size:11px;min-width:0}
+  .modal{padding:0;align-items:flex-end}
+  .sheet{width:100%;max-width:100%;border-radius:22px 22px 0 0;padding:16px 14px calc(18px + env(safe-area-inset-bottom));max-height:92vh}
+  .sheethead h2{font-size:18px}
+  .form{grid-template-columns:1fr;gap:10px}
+  .full{grid-column:auto}
+  .actions{position:sticky;bottom:0;background:#fff;padding-top:10px;margin-top:10px}
+  .actions .btn{flex:1}
+  .row{padding:11px;min-width:0}
+  .row>div{min-width:0}
+  .row strong,.row .small{overflow-wrap:anywhere}
+  .reportwrap{padding:8px!important;overflow:hidden}
+  .report{min-width:0!important;width:100%;max-width:100%;padding:14px 10px;border-radius:12px;overflow:hidden}
+  .report>div:first-child{gap:8px!important}
+  .report h2{font-size:18px;overflow-wrap:anywhere}
+  .report .summary,.summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:12px 0}
+  .summary div{padding:10px 8px;min-width:0}
+  .summary span{font-size:10px}.summary strong{font-size:15px;white-space:nowrap}
+  .report table{table-layout:fixed;width:100%}
+  .report th,.report td{padding:7px 3px;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .report th:nth-child(5),.report td:nth-child(5){display:none}
+  .report th:nth-child(1),.report td:nth-child(1){width:31%}
+  .report th:nth-child(2),.report td:nth-child(2){width:13%}
+  .report th:nth-child(3),.report td:nth-child(3){width:27%}
+  .report th:nth-child(4),.report td:nth-child(4){width:29%}
+  .report [style*="width:360px"]{width:100%!important;max-width:100%!important}
+  .report [style*="grid-template-columns:repeat(7,1fr)"]{grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:2px!important}
+  .report [style*="min-height:54px"]{min-height:42px!important;padding:3px!important;font-size:9px!important}
+  .report [style*="margin-top:5px"]{font-size:8px!important;padding:3px 1px!important;white-space:nowrap;overflow:hidden}
+}
+@media(max-width:390px){
+  .metric strong{font-size:16px}
+  .day{min-height:61px}
+  .badge{font-size:8px}
+}
+</style>
 </head>
 <body>
 <div class="app">
@@ -35,7 +101,73 @@ function settings(){$('#workerName').value=state.settings.workerName||'';$('#wor
 function show(id){$('#'+id).classList.add('show')}function hide(id){$('#'+id).classList.remove('show')}
 function openEntry(date){selected=date;const e=state.entries[date];$('#entryTitle').textContent=date+' 근무 입력';$('#entryCompany').value=e?.companyId||cid();$('#entryUnits').value=String(e?.units??1);$('#entryRate').value=e?.rate??company($('#entryCompany').value)?.rate??0;$('#entryType').value=e?.type||'normal';$('#entryMemo').value=e?.memo||'';$('#deleteEntry').style.visibility=e?'visible':'hidden';show('entryModal')}
 function openCompany(id=null){editCid=id;const c=id?company(id):null;$('#companyTitle').textContent=c?'업체 수정':'업체 추가';$('#cName').value=c?.name||'';$('#cRate').value=c?.rate||180000;$('#cColor').value=c?.color||'#245da8';$('#cTax').value=c?.tax??3.3;$('#cManager').value=c?.manager||'';$('#cPhone').value=c?.phone||'';$('#cFixed').value=c?.fixed||0;$('#cMemo').value=c?.memo||'';$('#deleteCompany').style.visibility=c?'visible':'hidden';show('companyModal')}
-$('#prev').onclick=()=>{view.setMonth(view.getMonth()-1);render()};$('#next').onclick=()=>{view.setMonth(view.getMonth()+1);render()};$('#today').onclick=()=>{view=new Date();view.setDate(1);render()};$('#companySelect').onchange=()=>{calendar();metrics();report()};$('#entryCompany').onchange=()=>{$('#entryRate').value=company($('#entryCompany').value)?.rate||0};$('#saveEntry').onclick=()=>{state.entries[selected]={companyId:$('#entryCompany').value,units:Number($('#entryUnits').value),rate:Number($('#entryRate').value),type:$('#entryType').value,memo:$('#entryMemo').value.trim()};save();hide('entryModal');render()};$('#deleteEntry').onclick=()=>{if(confirm('이 근무 기록을 삭제할까요?')){delete state.entries[selected];save();hide('entryModal');render()}};$('#addCompany').onclick=()=>openCompany();$('#saveCompany').onclick=()=>{const name=$('#cName').value.trim();if(!name)return alert('업체명을 입력하세요.');const o={id:editCid||uid(),name,rate:Number($('#cRate').value),color:$('#cColor').value,tax:Number($('#cTax').value),fixed:Number($('#cFixed').value),manager:$('#cManager').value.trim(),phone:$('#cPhone').value.trim(),memo:$('#cMemo').value.trim()};if(editCid)state.companies[state.companies.findIndex(c=>c.id===editCid)]=o;else state.companies.push(o);save();hide('companyModal');render()};$('#deleteCompany').onclick=()=>{if(Object.values(state.entries).some(e=>e.companyId===editCid))return alert('이 업체에 연결된 근무 기록이 있어 삭제할 수 없습니다.');if(state.companies.length<=1)return alert('업체는 최소 1개가 필요합니다.');if(confirm('업체를 삭제할까요?')){state.companies=state.companies.filter(c=>c.id!==editCid);save();hide('companyModal');render()}};$('#saveSettings').onclick=()=>{state.settings={workerName:$('#workerName').value.trim(),workerPhone:$('#workerPhone').value.trim(),reportMemo:$('#reportMemo').value.trim()};save();report();alert('저장되었습니다.')};function exportData(){const b=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`공수관리_백업_${todayISO()}.json`;a.click();URL.revokeObjectURL(a.href)}$('#export').onclick=exportData;$('#quickBackup').onclick=exportData;$('#importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!d.companies||!d.entries)throw 0;state=d;save();render();alert('복원이 완료되었습니다.')}catch{alert('올바른 백업 파일이 아닙니다.')}e.target.value=''};$('#reset').onclick=()=>{if(confirm('모든 데이터를 삭제할까요?')){state=clone(base);save();render()}};$$('[data-close]').forEach(b=>b.onclick=()=>hide(b.dataset.close));$$('.modal').forEach(m=>m.onclick=e=>{if(e.target===m)m.classList.remove('show')});$$('.nav').forEach(b=>b.onclick=()=>{$$('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');$$('.page').forEach(x=>x.classList.remove('active'));$('#'+b.dataset.page).classList.add('active');if(b.dataset.page==='reportPage')report()});$('#print').onclick=()=>{const w=window.open('','_blank');w.document.write(`<html><head><meta charset="utf-8"><title>공수 정산서</title><style>body{font-family:Arial,"Noto Sans KR",sans-serif;padding:24px}table{width:100%;border-collapse:collapse}th,td{padding:8px;border-bottom:1px solid #ddd;text-align:right}th:first-child,td:first-child{text-align:left}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:18px 0}.summary div{background:#f4f7fb;padding:12px}.muted{color:#777}.small{font-size:12px}.right{text-align:right}.notice{padding:10px;background:#fff8df;border:1px solid #ead98a}</style></head><body>${$('#report').outerHTML}<script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close()};
+$('#prev').onclick=()=>{view.setMonth(view.getMonth()-1);render()};$('#next').onclick=()=>{view.setMonth(view.getMonth()+1);render()};$('#today').onclick=()=>{view=new Date();view.setDate(1);render()};$('#companySelect').onchange=()=>{calendar();metrics();report()};$('#entryCompany').onchange=()=>{$('#entryRate').value=company($('#entryCompany').value)?.rate||0};$('#saveEntry').onclick=()=>{state.entries[selected]={companyId:$('#entryCompany').value,units:Number($('#entryUnits').value),rate:Number($('#entryRate').value),type:$('#entryType').value,memo:$('#entryMemo').value.trim()};save();hide('entryModal');render()};$('#deleteEntry').onclick=()=>{if(confirm('이 근무 기록을 삭제할까요?')){delete state.entries[selected];save();hide('entryModal');render()}};$('#addCompany').onclick=()=>openCompany();$('#saveCompany').onclick=()=>{const name=$('#cName').value.trim();if(!name)return alert('업체명을 입력하세요.');const o={id:editCid||uid(),name,rate:Number($('#cRate').value),color:$('#cColor').value,tax:Number($('#cTax').value),fixed:Number($('#cFixed').value),manager:$('#cManager').value.trim(),phone:$('#cPhone').value.trim(),memo:$('#cMemo').value.trim()};if(editCid)state.companies[state.companies.findIndex(c=>c.id===editCid)]=o;else state.companies.push(o);save();hide('companyModal');render()};$('#deleteCompany').onclick=()=>{if(Object.values(state.entries).some(e=>e.companyId===editCid))return alert('이 업체에 연결된 근무 기록이 있어 삭제할 수 없습니다.');if(state.companies.length<=1)return alert('업체는 최소 1개가 필요합니다.');if(confirm('업체를 삭제할까요?')){state.companies=state.companies.filter(c=>c.id!==editCid);save();hide('companyModal');render()}};$('#saveSettings').onclick=()=>{state.settings={workerName:$('#workerName').value.trim(),workerPhone:$('#workerPhone').value.trim(),reportMemo:$('#reportMemo').value.trim()};save();report();alert('저장되었습니다.')};function exportData(){const b=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`공수관리_백업_${todayISO()}.json`;a.click();URL.revokeObjectURL(a.href)}$('#export').onclick=exportData;$('#quickBackup').onclick=exportData;$('#importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!d.companies||!d.entries)throw 0;state=d;save();render();alert('복원이 완료되었습니다.')}catch{alert('올바른 백업 파일이 아닙니다.')}e.target.value=''};$('#reset').onclick=()=>{if(confirm('모든 데이터를 삭제할까요?')){state=clone(base);save();render()}};$$('[data-close]').forEach(b=>b.onclick=()=>hide(b.dataset.close));$$('.modal').forEach(m=>m.onclick=e=>{if(e.target===m)m.classList.remove('show')});$$('.nav').forEach(b=>b.onclick=()=>{$$('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');$$('.page').forEach(x=>x.classList.remove('active'));$('#'+b.dataset.page).classList.add('active');if(b.dataset.page==='reportPage')report()});$('#print').onclick=()=>{const w=window.open('','_blank');w.document.write(`<html><head><meta charset="utf-8"><title>공수 정산서</title><style>body{font-family:Arial,"Noto Sans KR",sans-serif;padding:24px}table{width:100%;border-collapse:collapse}th,td{padding:8px;border-bottom:1px solid #ddd;text-align:right}th:first-child,td:first-child{text-align:left}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:18px 0}.summary div{background:#f4f7fb;padding:12px}.muted{color:#777}.small{font-size:12px}.right{text-align:right}.notice{padding:10px;background:#fff8df;border:1px solid #ead98a}</style>
+<style id="iphone-v11-fix">
+html,body{width:100%;max-width:100%;overflow-x:hidden;-webkit-text-size-adjust:100%}
+button,select,input,textarea{min-width:0}
+.cal-head,.cal{grid-template-columns:repeat(7,minmax(0,1fr));width:100%}
+.day{width:100%;min-width:0;overflow:hidden}
+.reportwrap{overflow-x:hidden}
+@media(max-width:760px){
+  .app{width:100%;max-width:100%;padding:10px 10px 96px}
+  .top{align-items:flex-start;margin-bottom:10px}
+  .top p{display:none}
+  .top h1{font-size:20px;line-height:1.2}
+  .top>.btn,.top>button{padding:9px 11px;font-size:12px;white-space:nowrap}
+  .card{padding:12px;border-radius:15px}
+  .toolbar{display:grid;grid-template-columns:1fr;width:100%;gap:9px}
+  .toolbar>.group{width:100%;display:grid;grid-template-columns:auto 1fr auto;gap:7px}
+  .toolbar>.group:last-child{grid-template-columns:1fr auto}
+  .toolbar select{width:100%;min-width:0!important}
+  .btn{padding:10px 11px}
+  .metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0}
+  .metric{padding:12px 10px;min-width:0}
+  .metric span{font-size:11px;margin-bottom:5px}
+  .metric strong{font-size:18px;line-height:1.15;white-space:nowrap;letter-spacing:-.5px}
+  .cal-head,.cal{gap:3px}
+  .cal-head div{padding:5px 0;font-size:11px}
+  .day{min-height:66px;border-radius:10px;padding:5px 4px}
+  .num{font-size:12px}
+  .badge{margin-top:5px;border-radius:7px;padding:4px 2px;font-size:9px;line-height:1.2;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .badge small{display:none}
+  .bottom{width:100%;padding:6px 5px calc(6px + env(safe-area-inset-bottom))}
+  .nav{padding:8px 2px;font-size:11px;min-width:0}
+  .modal{padding:0;align-items:flex-end}
+  .sheet{width:100%;max-width:100%;border-radius:22px 22px 0 0;padding:16px 14px calc(18px + env(safe-area-inset-bottom));max-height:92vh}
+  .sheethead h2{font-size:18px}
+  .form{grid-template-columns:1fr;gap:10px}
+  .full{grid-column:auto}
+  .actions{position:sticky;bottom:0;background:#fff;padding-top:10px;margin-top:10px}
+  .actions .btn{flex:1}
+  .row{padding:11px;min-width:0}
+  .row>div{min-width:0}
+  .row strong,.row .small{overflow-wrap:anywhere}
+  .reportwrap{padding:8px!important;overflow:hidden}
+  .report{min-width:0!important;width:100%;max-width:100%;padding:14px 10px;border-radius:12px;overflow:hidden}
+  .report>div:first-child{gap:8px!important}
+  .report h2{font-size:18px;overflow-wrap:anywhere}
+  .report .summary,.summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:12px 0}
+  .summary div{padding:10px 8px;min-width:0}
+  .summary span{font-size:10px}.summary strong{font-size:15px;white-space:nowrap}
+  .report table{table-layout:fixed;width:100%}
+  .report th,.report td{padding:7px 3px;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .report th:nth-child(5),.report td:nth-child(5){display:none}
+  .report th:nth-child(1),.report td:nth-child(1){width:31%}
+  .report th:nth-child(2),.report td:nth-child(2){width:13%}
+  .report th:nth-child(3),.report td:nth-child(3){width:27%}
+  .report th:nth-child(4),.report td:nth-child(4){width:29%}
+  .report [style*="width:360px"]{width:100%!important;max-width:100%!important}
+  .report [style*="grid-template-columns:repeat(7,1fr)"]{grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:2px!important}
+  .report [style*="min-height:54px"]{min-height:42px!important;padding:3px!important;font-size:9px!important}
+  .report [style*="margin-top:5px"]{font-size:8px!important;padding:3px 1px!important;white-space:nowrap;overflow:hidden}
+}
+@media(max-width:390px){
+  .metric strong{font-size:16px}
+  .day{min-height:61px}
+  .badge{font-size:8px}
+}
+</style>
+</head><body>${$('#report').outerHTML}<script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close()};
 $('#png').onclick=()=>{const id=cid(),c=company(id),x=calc(id),y=view.getFullYear(),m=view.getMonth(),W=1200,p=70,rowH=44,first=new Date(y,m,1).getDay(),last=new Date(y,m+1,0).getDate(),calRows=Math.ceil((first+last)/7),H=p*2+140+(60+calRows*95)+150+(90+Math.max(1,x.list.length)*rowH)+230,cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,W,H);g.fillStyle='#18212f';g.font='bold 38px sans-serif';g.fillText(`${c.name} 공수 정산서`,p,80);g.font='24px sans-serif';g.fillStyle='#6f7b8c';g.fillText(`${y}년 ${m+1}월`,p,120);g.textAlign='right';g.fillStyle='#18212f';g.font='bold 26px sans-serif';g.fillText(state.settings.workerName||'근무자 미입력',W-p,80);g.font='18px sans-serif';g.fillStyle='#6f7b8c';g.fillText(state.settings.workerPhone||'',W-p,112);g.textAlign='left';let top=160,cell=(W-p*2)/7;g.font='bold 17px sans-serif';['일','월','화','수','목','금','토'].forEach((t,i)=>{g.fillStyle='#6f7b8c';g.textAlign='center';g.fillText(t,p+cell*i+cell/2,top+25)});top+=40;for(let i=0;i<first+last;i++){const col=i%7,row=Math.floor(i/7),x0=p+col*cell,y0=top+row*95;g.strokeStyle='#dde5ef';g.strokeRect(x0+3,y0+3,cell-6,89);if(i>=first){const d=i-first+1,iso=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`,e=state.entries[iso];g.textAlign='left';g.fillStyle='#18212f';g.font='bold 16px sans-serif';g.fillText(String(d),x0+12,y0+24);if(e&&e.companyId===id){g.fillStyle=c.color;g.fillRect(x0+10,y0+36,cell-20,40);g.fillStyle='#fff';g.textAlign='center';g.font='bold 16px sans-serif';g.fillText(`${e.units}공수`,x0+cell/2,y0+62)}}}top+=calRows*95+26;const boxes=[['출근일수',x.days+'일'],['총 공수',x.units+'공수'],['총액',won(x.gross)],['실수령',won(x.net)]],bw=(W-p*2-30)/4;boxes.forEach((b,i)=>{const x0=p+i*(bw+10);g.fillStyle='#f4f7fb';g.fillRect(x0,top,bw,100);g.fillStyle='#6f7b8c';g.font='16px sans-serif';g.textAlign='left';g.fillText(b[0],x0+15,top+30);g.fillStyle='#18212f';g.font='bold 24px sans-serif';g.fillText(b[1],x0+15,top+70)});top+=130;const heads=['날짜','공수','일당','금액','메모'],xs=[p,p+220,p+350,p+560,p+790];g.fillStyle='#173b6d';g.fillRect(p,top,W-p*2,48);g.fillStyle='#fff';g.font='bold 17px sans-serif';heads.forEach((h,i)=>g.fillText(h,xs[i]+10,top+31));top+=48;(x.list.length?x.list:[['-',{units:'-',rate:0,memo:''}]]).forEach(([d,e],i)=>{g.fillStyle=i%2?'#fafbfd':'#fff';g.fillRect(p,top,W-p*2,rowH);g.fillStyle='#18212f';g.font='16px sans-serif';[d,String(e.units),won(e.rate),won((Number(e.units)||0)*(Number(e.rate)||0)),e.memo||''].forEach((v,j)=>g.fillText(String(v).slice(0,25),xs[j]+10,top+29));top+=rowH});top+=25;g.textAlign='right';g.font='20px sans-serif';g.fillStyle='#18212f';g.fillText(`총액  ${won(x.gross)}`,W-p,top);top+=38;g.fillText(`공제 ${c.tax||0}%  - ${won(x.percent)}`,W-p,top);top+=38;g.fillText(`고정 공제  - ${won(x.fixed)}`,W-p,top);top+=55;g.font='bold 32px sans-serif';g.fillText(`실수령액  ${won(x.net)}`,W-p,top);top+=55;g.font='16px sans-serif';g.fillStyle='#6f7b8c';if(state.settings.reportMemo){g.textAlign='left';g.fillText(state.settings.reportMemo.slice(0,80),p,top)}g.textAlign='right';g.fillText(`생성일 ${todayISO()}`,W-p,top);const a=document.createElement('a');a.download=`${c.name}_${y}년_${m+1}월_정산서.png`;a.href=cv.toDataURL('image/png');a.click()};render()})();
 </script>
 </body></html>
