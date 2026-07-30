@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#f3f6fb">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="현장공수관리">
-<title>현장 공수관리 Pro v4.4 모바일·최적화</title>
+<title>현장 공수관리 Pro v4.5 엑셀 연동</title>
 <style>
 :root{
   --bg:#f3f6fb;--card:#fff;--text:#142033;--muted:#77849a;--line:#dce5ef;
@@ -120,7 +120,7 @@ textarea.control{min-height:78px;resize:vertical}
 .year-total span{display:block;color:var(--muted);font-size:11px}
 .year-total strong{display:block;margin-top:4px;font-size:17px}
 
-/* v4.4 모바일·최적화 개선 - 기능 로직 변경 없음 */
+/* v4.5 엑셀 연동 개선 - 기능 로직 변경 없음 */
 :root{
   --bg:#eef3f8;
   --card:#ffffff;
@@ -393,7 +393,7 @@ header{
 }
 
 
-/* v4.4 모바일·최적화 */
+/* v4.5 엑셀 연동 */
 .dashboard-card{margin-top:12px}
 .money-dashboard{
   display:grid;
@@ -607,12 +607,21 @@ textarea.control{
   }
 }
 
+
+/* v4.5 엑셀 연동 */
+.excel-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.excel-status{display:none;margin-top:10px;padding:11px 12px;border-radius:12px;background:#f4f8fc;color:#42566d;font-size:12px;line-height:1.5}
+.excel-status.show{display:block}
+.excel-status.ok{background:#edf9f4;color:#28745b}
+.excel-status.error{background:#fff1f1;color:#b33939}
+@media(max-width:390px){.excel-actions{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-  <div class="brand"><h1>현장 공수관리 Pro <em>v4.4 모바일·최적화</em></h1><p>공수 체크와 업체별 정산 관리</p></div>
+  <div class="brand"><h1>현장 공수관리 Pro <em>v4.5 엑셀 연동</em></h1><p>공수 체크와 업체별 정산 관리</p></div>
   <button id="backupTop" class="icon-btn" title="백업">⇩</button>
 </header>
 
@@ -732,6 +741,17 @@ textarea.control{
     <div class="notice">데이터는 현재 아이폰 Safari에 저장됩니다. Safari 웹사이트 데이터를 삭제하면 기록도 사라질 수 있습니다.</div>
   </div>
   <div class="card section">
+    <div class="section-head">
+      <div><h2>엑셀 가져오기·내보내기</h2><p>업체·작업·경비·지급 내역을 엑셀 파일로 관리합니다.</p></div>
+    </div>
+    <div class="excel-actions">
+      <button id="excelExportBtn" class="btn primary">엑셀 내보내기</button>
+      <label class="btn soft file">엑셀 가져오기<input id="excelImportInput" type="file" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"></label>
+    </div>
+    <div class="notice">가져오기는 이 앱에서 내보낸 엑셀 형식에 맞춰 동작합니다. 가져오기 전에 현재 데이터가 자동으로 임시 백업됩니다.</div>
+    <div id="excelStatus" class="excel-status" aria-live="polite"></div>
+  </div>
+  <div class="card section">
     <div class="section-head"><div><h2>미수금 현황</h2><p>청구금액이 있고 아직 입금되지 않은 월</p></div></div>
     <div id="receivableList" class="receivable-list"></div>
   </div>
@@ -755,7 +775,7 @@ textarea.control{
       <div class="box"><span>연간 실수령</span><strong id="yearNet">0원</strong></div>
     </div>
   </div>
-  <p class="version">현장 공수관리 Pro v4.4 모바일·최적화</p>
+  <p class="version">현장 공수관리 Pro v4.5 엑셀 연동</p>
 </section>
 </main>
 </div>
@@ -833,8 +853,9 @@ textarea.control{
   </div>
 </template>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
-console.log("현장공수관리 Pro v4.4 모바일·최적화 로드 완료");
+console.log("현장공수관리 Pro v4.5 엑셀 연동 로드 완료");
 
 (function(){
 "use strict";
@@ -1262,6 +1283,127 @@ function deleteCompany(){
 }
 
 
+
+function excelStatus(message,type){
+  var box=el("#excelStatus");
+  if(!box)return;
+  box.textContent=message||"";
+  box.className="excel-status"+(message?" show":"")+(type?" "+type:"")
+}
+function ensureXlsx(){
+  if(window.XLSX)return true;
+  alert("엑셀 기능을 불러오지 못했습니다. 인터넷 연결을 확인한 뒤 앱을 새로고침해 주세요.");
+  return false
+}
+function excelDate(value){
+  if(!value)return "";
+  if(value instanceof Date&&!isNaN(value.getTime()))return value.getFullYear()+"-"+String(value.getMonth()+1).padStart(2,"0")+"-"+String(value.getDate()).padStart(2,"0");
+  var s=String(value).trim(),m;
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;
+  m=s.match(/^(\d{4})[.\/-](\d{1,2})[.\/-](\d{1,2})/);
+  return m?m[1]+"-"+String(Number(m[2])).padStart(2,"0")+"-"+String(Number(m[3])).padStart(2,"0"):""
+}
+function companyNameById(id){var c=getCompany(id);return c?c.name:""}
+function exportExcel(){
+  if(!ensureXlsx())return;
+  try{
+    excelStatus("엑셀 파일을 만드는 중입니다.");
+    var wb=XLSX.utils.book_new(),companies=[],entries=[],expenses=[],payments=[],monthly=[],i,c,e,j,x,pay,parts,cid,prefix,calc;
+    for(i=0;i<state.companies.length;i++){
+      c=state.companies[i];
+      companies.push({"업체ID":c.id,"업체명":c.name,"기본 일당":Number(c.rate)||0,"공제율(%)":Number(c.tax)||0,"고정 공제액":Number(c.fixed)||0,"담당자":c.manager||"","연락처":c.phone||"","즐겨찾기":c.favorite?"Y":"N","메모":c.memo||""})
+    }
+    Object.keys(state.entries).sort().forEach(function(date){
+      e=state.entries[date];
+      entries.push({"날짜":date,"업체ID":e.companyId,"업체명":companyNameById(e.companyId),"작업내용":e.type||"","공수":Number(e.units)||0,"적용 일당":Number(e.rate)||0,"노무비":(Number(e.units)||0)*(Number(e.rate)||0),"출장":e.businessTrip?"Y":"N","메모":e.memo||"","경비 합계":expenseSum(e)});
+      for(j=0;j<(e.expenses||[]).length;j++){
+        x=e.expenses[j];
+        expenses.push({"날짜":date,"업체ID":e.companyId,"업체명":companyNameById(e.companyId),"경비ID":x.id||"","경비 구분":expenseLabels[x.type]||x.type||"기타","경비 코드":x.type||"other","금액":Number(x.amount)||0,"메모":x.memo||""})
+      }
+    });
+    Object.keys(state.payments||{}).sort().forEach(function(key){
+      pay=state.payments[key]||{};parts=key.split("|");cid=parts[0]||"";prefix=parts[1]||"";
+      payments.push({"업체ID":cid,"업체명":companyNameById(cid),"정산월":prefix,"입금완료":pay.paid?"Y":"N","입금액":Number(pay.amount)||0,"입금일":pay.date||"","메모":pay.memo||""})
+    });
+    for(i=0;i<state.companies.length;i++){
+      c=state.companies[i];
+      var months={};
+      Object.keys(state.entries).forEach(function(date){e=state.entries[date];if(e.companyId===c.id)months[date.slice(0,7)]=true});
+      Object.keys(months).sort().forEach(function(month){
+        calc=calcCompanyMonth(c.id,month);pay=state.payments[paymentKey(c.id,month)]||{paid:false,amount:0};
+        monthly.push({"정산월":month,"업체명":c.name,"총 공수":Math.round(calc.units*100)/100,"노무비":calc.labor,"공제액":calc.deduction,"경비":calc.expenses,"최종 청구금액":calc.final,"입금완료":pay.paid?"Y":"N","입금액":pay.paid?(Number(pay.amount)||calc.final):0,"미수금":pay.paid?Math.max(0,calc.final-(Number(pay.amount)||calc.final)):calc.final})
+      })
+    }
+    function addSheet(name,data,headers){
+      var ws=XLSX.utils.json_to_sheet(data,{header:headers});
+      ws["!autofilter"]={ref:ws["!ref"]||"A1:A1"};
+      ws["!cols"]=headers.map(function(h){var max=h.length+2,r;for(r=0;r<data.length;r++)max=Math.max(max,String(data[r][h]===undefined?"":data[r][h]).length+2);return {wch:Math.min(Math.max(max,10),32)}});
+      XLSX.utils.book_append_sheet(wb,ws,name)
+    }
+    addSheet("업체목록",companies,["업체ID","업체명","기본 일당","공제율(%)","고정 공제액","담당자","연락처","즐겨찾기","메모"]);
+    addSheet("작업내역",entries,["날짜","업체ID","업체명","작업내용","공수","적용 일당","노무비","출장","메모","경비 합계"]);
+    addSheet("경비내역",expenses,["날짜","업체ID","업체명","경비ID","경비 구분","경비 코드","금액","메모"]);
+    addSheet("지급현황",payments,["업체ID","업체명","정산월","입금완료","입금액","입금일","메모"]);
+    addSheet("월별정산",monthly,["정산월","업체명","총 공수","노무비","공제액","경비","최종 청구금액","입금완료","입금액","미수금"]);
+    XLSX.writeFile(wb,"현장공수관리_엑셀_"+today()+".xlsx",{compression:true});
+    excelStatus("엑셀 파일을 저장했습니다. 업체·작업·경비·지급·월별정산 시트가 포함되어 있습니다.","ok")
+  }catch(err){
+    console.error(err);excelStatus("엑셀 파일을 만들지 못했습니다: "+(err&&err.message?err.message:"알 수 없는 오류"),"error")
+  }
+}
+function sheetRows(workbook,name){
+  var ws=workbook.Sheets[name];
+  return ws?XLSX.utils.sheet_to_json(ws,{defval:"",raw:false,dateNF:"yyyy-mm-dd"}):[]
+}
+function yn(value){
+  var s=String(value||"").trim().toLowerCase();
+  return s==="y"||s==="yes"||s==="true"||s==="1"||s==="완료"||s==="입금완료"
+}
+async function importExcelFile(file){
+  if(!ensureXlsx())return;
+  excelStatus("엑셀 파일을 확인하는 중입니다.");
+  try{
+    var data=await file.arrayBuffer(),wb=XLSX.read(data,{type:"array",cellDates:true});
+    var companyRows=sheetRows(wb,"업체목록"),entryRows=sheetRows(wb,"작업내역"),expenseRows=sheetRows(wb,"경비내역"),paymentRows=sheetRows(wb,"지급현황");
+    if(!companyRows.length&&!entryRows.length&&!expenseRows.length&&!paymentRows.length)throw new Error("지원되는 시트가 없습니다. 이 앱에서 내보낸 엑셀 파일인지 확인해 주세요.");
+    var mode=confirm("엑셀 내용을 가져옵니다.\n\n확인: 기존 데이터에 추가·갱신\n취소: 다음 단계에서 전체 교체 여부 선택\n\n업체 "+companyRows.length+"개 · 작업 "+entryRows.length+"건 · 경비 "+expenseRows.length+"건 · 지급 "+paymentRows.length+"건")?"merge":(confirm("현재 데이터를 모두 지우고 엑셀 데이터로 교체할까요?")?"replace":"cancel");
+    if(mode==="cancel"){excelStatus("엑셀 가져오기를 취소했습니다.");return}
+    try{localStorage.setItem(STORE_KEY+"_before_excel",JSON.stringify(state))}catch(ignore){}
+    var target=mode==="replace"?{companies:[],entries:{},payments:{}}:normalize(JSON.parse(JSON.stringify(state)));
+    var byId={},byName={},i,row,id,name,c,date,entry,code,pkey,prefix;
+    target.companies.forEach(function(item){byId[item.id]=item;byName[item.name]=item});
+    for(i=0;i<companyRows.length;i++){
+      row=companyRows[i];id=String(row["업체ID"]||"").trim();name=String(row["업체명"]||"").trim();if(!name)continue;
+      c=(id&&byId[id])||byName[name];
+      if(!c){c={id:id||uid(),name:name,rate:0,tax:0,fixed:0,color:"#2d6fbb",manager:"",phone:"",memo:"",favorite:false};target.companies.push(c)}
+      c.name=name;c.rate=Math.max(0,Number(String(row["기본 일당"]||0).replace(/,/g,""))||0);c.tax=Math.max(0,Number(String(row["공제율(%)"]||0).replace(/,/g,""))||0);c.fixed=Math.max(0,Number(String(row["고정 공제액"]||0).replace(/,/g,""))||0);c.manager=String(row["담당자"]||"");c.phone=String(row["연락처"]||"");c.favorite=yn(row["즐겨찾기"]);c.memo=String(row["메모"]||"");byId[c.id]=c;byName[c.name]=c
+    }
+    if(!target.companies.length)target.companies=defaultState().companies;
+    for(i=0;i<entryRows.length;i++){
+      row=entryRows[i];date=excelDate(row["날짜"]);if(!date)continue;id=String(row["업체ID"]||"").trim();name=String(row["업체명"]||"").trim();c=byId[id]||byName[name]||target.companies[0];
+      target.entries[date]={companyId:c.id,units:Math.max(0,Number(String(row["공수"]||0).replace(/,/g,""))||0),rate:Math.max(0,Number(String(row["적용 일당"]||c.rate||0).replace(/,/g,""))||0),type:String(row["작업내용"]||""),memo:String(row["메모"]||""),businessTrip:yn(row["출장"]),expenses:[]}
+    }
+    for(i=0;i<expenseRows.length;i++){
+      row=expenseRows[i];date=excelDate(row["날짜"]);if(!date)continue;entry=target.entries[date];
+      if(!entry){id=String(row["업체ID"]||"").trim();name=String(row["업체명"]||"").trim();c=byId[id]||byName[name]||target.companies[0];entry=target.entries[date]={companyId:c.id,units:0,rate:c.rate||0,type:"",memo:"",businessTrip:false,expenses:[]}}
+      code=String(row["경비 코드"]||"").trim();
+      if(!expenseLabels[code]){var label=String(row["경비 구분"]||"").trim();code=Object.keys(expenseLabels).filter(function(k){return expenseLabels[k]===label})[0]||"other"}
+      var amount=Math.max(0,Number(String(row["금액"]||0).replace(/,/g,""))||0);
+      if(amount>0)entry.expenses.push({id:String(row["경비ID"]||uid()),type:code,amount:amount,memo:String(row["메모"]||"")})
+    }
+    for(i=0;i<paymentRows.length;i++){
+      row=paymentRows[i];id=String(row["업체ID"]||"").trim();name=String(row["업체명"]||"").trim();c=byId[id]||byName[name];prefix=String(row["정산월"]||"").trim();
+      if(!c||!/^\d{4}-\d{2}$/.test(prefix))continue;pkey=paymentKey(c.id,prefix);
+      target.payments[pkey]={paid:yn(row["입금완료"]),amount:Math.max(0,Number(String(row["입금액"]||0).replace(/,/g,""))||0),date:excelDate(row["입금일"]),memo:String(row["메모"]||"")}
+    }
+    state=normalize(target);saveState();renderAll();
+    excelStatus("엑셀 가져오기 완료: 업체 "+companyRows.length+"개 · 작업 "+entryRows.length+"건 · 경비 "+expenseRows.length+"건 · 지급 "+paymentRows.length+"건","ok");
+    alert("엑셀 데이터를 가져왔습니다.")
+  }catch(err){
+    console.error(err);excelStatus("엑셀 가져오기에 실패했습니다: "+(err&&err.message?err.message:"파일을 확인해 주세요."),"error")
+  }
+}
+
 async function exportBackup(){
   var fileName="현장공수관리_백업_"+today()+".json";
   var json=JSON.stringify(state,null,2);
@@ -1441,7 +1583,7 @@ function saveSettlementPng(){
     }
   }
 
-  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("현장 공수관리 Pro v4.4 모바일·최적화",65,H-45);
+  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("현장 공수관리 Pro v4.5 엑셀 연동",65,H-45);
 
   var fileName="월간정산서_"+r.period.replace(/ /g,"_")+"_"+r.company+".png";
   var dataUrl;
@@ -1582,6 +1724,8 @@ function bind(){
   els(".modal").forEach(function(m){m.onclick=function(e){if(e.target===m)hide(m.id)}});
   els(".nav").forEach(function(n){n.onclick=function(){changePage(n.getAttribute("data-page"))}});
   el("#backupBtn").onclick=exportBackup;el("#backupTop").onclick=exportBackup;el("#savePng").onclick=saveSettlementPng;
+  el("#excelExportBtn").onclick=exportExcel;
+  el("#excelImportInput").onchange=function(e){var file=e.target.files&&e.target.files[0];if(file)importExcelFile(file);e.target.value=""};
   el("#markPaid").onclick=function(){savePayment(true)};el("#markUnpaid").onclick=function(){savePayment(false)};
   el("#prevYear").onclick=function(){summaryYear--;renderYearSummary()};
   el("#nextYear").onclick=function(){summaryYear++;renderYearSummary()};
