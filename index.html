@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#f3f6fb">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="현장공수관리">
-<title>현장 공수관리 Pro v3.9.2 안정판</title>
+<title>현장 공수관리 Pro v3.9.3 안정판</title>
 <style>
 :root{
   --bg:#f3f6fb;--card:#fff;--text:#142033;--muted:#77849a;--line:#dce5ef;
@@ -120,7 +120,7 @@ textarea.control{min-height:78px;resize:vertical}
 .year-total span{display:block;color:var(--muted);font-size:11px}
 .year-total strong{display:block;margin-top:4px;font-size:17px}
 
-/* v3.9.2 stability */
+/* v3.9.3 stability */
 .stability-panel{display:none;margin:10px 0;padding:12px;border:1px solid #f0c36d;background:#fff8e8;border-radius:12px;color:#7a5413;font-size:12px;line-height:1.55}
 .stability-panel.show{display:block}
 .stability-panel strong{display:block;margin-bottom:4px;color:#8b5b00}
@@ -131,7 +131,7 @@ textarea.control{min-height:78px;resize:vertical}
 <body>
 <div class="app">
 <header>
-  <div class="brand"><h1>현장 공수관리 Pro <em>v3.9.2</em></h1><p>공수 체크와 업체별 정산 관리</p></div>
+  <div class="brand"><h1>현장 공수관리 Pro <em>v3.9.3</em></h1><p>공수 체크와 업체별 정산 관리</p></div>
   <button id="backupTop" class="icon-btn" title="백업">⇩</button>
 </header>
 
@@ -171,7 +171,6 @@ textarea.control{min-height:78px;resize:vertical}
 <section id="records" class="page">
   <div class="export-actions">
     <button id="savePng" class="btn primary" type="button">PNG 정산서 저장</button>
-    <button id="printPdf" class="btn soft" type="button">PDF 인쇄</button>
   </div>
   <div class="card payment-card">
     <div class="payment-head">
@@ -242,7 +241,7 @@ textarea.control{min-height:78px;resize:vertical}
       <div class="box"><span>연간 실수령</span><strong id="yearNet">0원</strong></div>
     </div>
   </div>
-  <p class="version">현장 공수관리 Pro v3.9.2</p>
+  <p class="version">현장 공수관리 Pro v3.9.3</p>
 </section>
 </main>
 </div>
@@ -344,13 +343,11 @@ function safeAssign(selector,eventName,handler){
 function runSelfCheck(){
   var checks=[
     ["PNG 버튼","#savePng"],
-    ["PDF 버튼","#printPdf"],
     ["백업 버튼","#backupTop"]
   ];
   var missing=[];
   checks.forEach(function(c){if(!document.querySelector(c[1]))missing.push(c[0])});
   if(typeof saveSettlementPng!=="function")missing.push("PNG 함수");
-  if(typeof printSettlementPdf!=="function")missing.push("PDF 함수");
   if(typeof exportBackup!=="function")missing.push("백업 함수");
   if(missing.length)showAppError("기능 점검 실패: "+missing.join(", "));
 }
@@ -528,7 +525,6 @@ function renderReceivables(){
   for(i=0;i<items.length;i++){var it=items[i],c=getCompany(it.cid),label=it.prefix.slice(0,4)+"년 "+Number(it.prefix.slice(5,7))+"월";html+='<div class="receivable-row"><div class="receivable-top"><strong>'+escapeHtml(c.name)+'</strong><span>'+label+'</span></div><div class="receivable-money">'+won(it.final)+'</div><div class="receivable-meta">'+(Math.round(it.units*10)/10)+'공수 · 미입금</div></div>'}
   el("#receivableList").innerHTML=html||'<div class="empty">현재 미수금이 없습니다.</div>'
 }
-
 
 function renderYearSummary(){
   var cid=selectedCompanyId(),body="",m,x,p,key,totalUnits=0,totalNet=0;
@@ -723,7 +719,7 @@ function saveSettlementPng(){
     ctx.fillStyle=i===4?"#fff":"#718096";ctx.font=i===4?"bold 17px sans-serif":"15px sans-serif";ctx.fillText(items[i][0],gx+20,iy+31);
     ctx.textAlign="right";ctx.fillStyle=i===4?"#fff":"#142033";ctx.font=i===4?"bold 22px sans-serif":"bold 18px sans-serif";ctx.fillText(items[i][1],gx+gw-20,iy+31);ctx.textAlign="left"
   }
-  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("현장 공수관리 Pro v3.9.2",65,H-45);
+  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("현장 공수관리 Pro v3.9.3",65,H-45);
 
   var fileName="달력형_공수정산서_"+r.period.replace(/ /g,"_")+"_"+r.company+".png";
   var dataUrl;
@@ -828,99 +824,7 @@ function companyProfile(cid){
     memo:c.memo||""
   }
 }
-function printSettlementPdf(){
-  var w=window.open("","_blank");
-  if(!w){
-    alert("PDF 인쇄 창을 열지 못했습니다. Safari 설정에서 팝업 차단을 잠시 꺼 주세요.");
-    return;
-  }
-  try{
-    w.document.open();
-  w.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>PDF 준비 중</title></head><body style="font-family:-apple-system,sans-serif;padding:24px">정산서를 준비하고 있습니다...</body></html>');
-    w.document.close();
-  }catch(openErr){}
-  try{
 
-  var r=reportCalendarData(),cid=selectedCompanyId(),profile=companyProfile(cid),
-      names=["일","월","화","수","목","금","토"],htmlCal="",i,row,col,d,date,e,
-      weeks=Math.ceil((r.first+r.last)/7),w,key=paymentKey(cid,monthPrefix()),p=state.payments[key]||{},
-      dailyRate=(r.units>0?Math.round(r.labor/r.units):0);
-
-  htmlCal+='<table class="calendar"><thead><tr>';
-  for(i=0;i<7;i++)htmlCal+='<th class="'+(i===0?"sun":i===6?"sat":"")+'">'+names[i]+'</th>';
-  htmlCal+='</tr></thead><tbody>';
-
-  for(row=0;row<weeks;row++){
-    htmlCal+='<tr>';
-    for(col=0;col<7;col++){
-      d=row*7+col-r.first+1;
-      if(d<1||d>r.last){htmlCal+='<td class="blank"></td>';continue}
-      date=r.year+"-"+String(r.month+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");e=r.byDate[date];
-      htmlCal+='<td class="'+(col===0?"sun ":col===6?"sat ":"")+'"><div class="num">'+d+'</div>';
-      if(e){
-        var workAmount=Math.round((Number(e.units)||0)*dailyRate);
-        htmlCal+='<div class="unit">'+(Number(e.units)||0)+'공수</div>';
-        htmlCal+='<div class="daypay">'+won(workAmount)+'</div>';
-        if(e.businessTrip)htmlCal+='<div class="trip">출장</div>';
-        if(expenseSum(e)>0)htmlCal+='<div class="expense">경비 '+won(expenseSum(e))+'</div>';
-      }
-      htmlCal+='</td>';
-    }
-    htmlCal+='</tr>';
-  }
-  htmlCal+='</tbody></table>';
-
-  var paidText=p.paid?"입금완료":"미입금";
-  var paidDate=p.paidDate||p.date||"";
-  var actualPaid=(p.amount!==undefined&&p.amount!==null&&p.amount!=="")?won(Number(p.amount)||0):"-";
-  var payMemo=p.memo||"";
-
-
-  w.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>월간 정산서</title><style>'+
-  'body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",Arial,sans-serif;color:#142033;padding:18px;background:white}'+
-  '.sheet{max-width:820px;margin:0 auto}.head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #19375f;padding-bottom:14px;margin-bottom:14px}'+
-  '.head h1{margin:0;font-size:27px}.sub{color:#718096;margin-top:5px;font-size:13px}.stamp{border:1px solid #19375f;padding:8px 13px;border-radius:8px;font-weight:800;color:#19375f}'+
-  '.info{display:grid;grid-template-columns:1fr 1fr;gap:7px 18px;border:1px solid #dce5ef;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px}'+
-  '.info div{display:flex;gap:8px}.label{color:#718096;min-width:72px}.value{font-weight:700;word-break:break-all}'+
-  '.calendar{width:100%;border-collapse:collapse;table-layout:fixed}.calendar th{background:#edf4fb;height:30px;border:1px solid #dce5ef;font-size:11px}.calendar td{height:82px;border:1px solid #dce5ef;vertical-align:top;padding:5px;position:relative}.num{font-weight:bold;color:#1688f4;font-size:11px}.sun .num,.sun{color:#d84d4d}.sat .num,.sat{color:#2b68ad}'+
-  '.unit{margin-top:9px;background:#a879f7;color:white;border-radius:16px;text-align:center;padding:4px 2px;font-size:10px;font-weight:bold}.daypay{font-size:9px;text-align:center;color:#44546a;margin-top:3px}.trip{font-size:8px;color:#a26719;margin-top:3px}.expense{font-size:8px;color:#167254;margin-top:2px}'+
-  '.summary{margin-top:14px;border:1px solid #dce5ef;border-radius:10px;overflow:hidden}.line{display:flex;justify-content:space-between;padding:9px 13px;border-bottom:1px solid #dce5ef;font-size:12px}.line:last-child{border-bottom:0}.line span{color:#718096}.line strong{font-size:14px}.final{background:#19375f;color:white}.final span,.final strong{color:white;font-weight:bold;font-size:16px}'+
-  '.paybox{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}.payitem{border:1px solid #dce5ef;border-radius:9px;padding:10px}.payitem span{display:block;color:#718096;font-size:10px}.payitem strong{display:block;margin-top:4px;font-size:12px}.memo{margin-top:10px;border:1px solid #dce5ef;border-radius:9px;padding:10px;min-height:42px;font-size:11px}.sign{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}.signbox{border-top:1px solid #8d99a8;padding-top:8px;text-align:center;color:#718096;font-size:11px}.foot{text-align:right;color:#9aa5b1;font-size:9px;margin-top:10px}'+
-  '@page{size:A4 portrait;margin:9mm}@media print{body{padding:0}.sheet{max-width:none}}'+
-  '</style></head><body><div class="sheet">'+
-  '<div class="head"><div><h1>월간 정산서</h1><div class="sub">'+escapeHtml(r.period)+' · '+escapeHtml(r.company)+'</div></div><div class="stamp">정산 명세</div></div>'+
-  '<div class="info">'+
-  '<div><span class="label">업체명</span><span class="value">'+escapeHtml(r.company)+'</span></div>'+
-  '<div><span class="label">정산기간</span><span class="value">'+escapeHtml(r.period)+'</span></div>'+
-  '<div><span class="label">담당자</span><span class="value">'+escapeHtml(profile.manager||"-")+'</span></div>'+
-  '<div><span class="label">연락처</span><span class="value">'+escapeHtml(profile.phone||"-")+'</span></div>'+
-  '<div><span class="label">주소</span><span class="value">'+escapeHtml(profile.address||"-")+'</span></div>'+
-  '<div><span class="label">기준 단가</span><span class="value">'+won(dailyRate)+'</span></div>'+
-  '</div>'+htmlCal+
-  '<div class="summary">'+
-  '<div class="line"><span>작업일수</span><strong>'+r.days+'일</strong></div>'+
-  '<div class="line"><span>총 공수</span><strong>'+(Math.round(r.units*10)/10)+'공수</strong></div>'+
-  '<div class="line"><span>총금액</span><strong>'+won(r.labor)+'</strong></div>'+
-  '<div class="line"><span>공제액</span><strong>'+won(r.deduction)+'</strong></div>'+
-  '<div class="line"><span>경비</span><strong>'+won(r.expenses)+'</strong></div>'+
-  '<div class="line final"><span>실수령</span><strong>'+won(r.final)+'</strong></div></div>'+
-  '<div class="paybox">'+
-  '<div class="payitem"><span>입금상태</span><strong>'+paidText+'</strong></div>'+
-  '<div class="payitem"><span>입금일</span><strong>'+escapeHtml(paidDate||"-")+'</strong></div>'+
-  '<div class="payitem"><span>실제 입금액</span><strong>'+actualPaid+'</strong></div>'+
-  '</div>'+
-  '<div class="memo"><strong>메모</strong><br><br>'+escapeHtml(payMemo||profile.memo||"")+'</div>'+
-  '<div class="sign"><div class="signbox">작성자 서명</div><div class="signbox">확인자 서명</div></div>'+
-  '<div class="foot">현장 공수관리 Pro v3.9.2</div>'+
-  '</div><script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>');
-  w.document.close();
-
-  }catch(err){
-    try{w.close()}catch(closeErr){}
-    showAppError("PDF 인쇄 실행 중 오류가 발생했습니다.",err);
-    alert("PDF 인쇄 중 오류가 발생했습니다. 화면의 오류내용을 확인해 주세요.");
-  }
-}
 function bind(){
   el("#prevMonth").onclick=function(){viewDate.setMonth(viewDate.getMonth()-1);renderAll();setTimeout(runSelfCheck,300)};
   el("#nextMonth").onclick=function(){viewDate.setMonth(viewDate.getMonth()+1);renderAll()};
@@ -934,7 +838,7 @@ function bind(){
   els("[data-close]").forEach(function(b){b.onclick=function(){hide(b.getAttribute("data-close"))}});
   els(".modal").forEach(function(m){m.onclick=function(e){if(e.target===m)hide(m.id)}});
   els(".nav").forEach(function(n){n.onclick=function(){changePage(n.getAttribute("data-page"))}});
-  safeAssign("#backupBtn","onclick",exportBackup);safeAssign("#backupTop","onclick",exportBackup);safeAssign("#savePng","onclick",saveSettlementPng);el("#printPdf").onclick=function(e){if(e)e.preventDefault();printSettlementPdf()};
+  safeAssign("#backupBtn","onclick",exportBackup);safeAssign("#backupTop","onclick",exportBackup);safeAssign("#savePng","onclick",saveSettlementPng);
   el("#markPaid").onclick=function(){savePayment(true)};el("#markUnpaid").onclick=function(){savePayment(false)};
   el("#prevYear").onclick=function(){summaryYear--;renderYearSummary()};
   el("#nextYear").onclick=function(){summaryYear++;renderYearSummary()};
