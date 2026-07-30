@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#f3f6fb">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="현장공수관리">
-<title>현장 공수관리 Pro v3.3</title>
+<title>현장 공수관리 Pro v3.4</title>
 <style>
 :root{
   --bg:#f3f6fb;--card:#fff;--text:#142033;--muted:#77849a;--line:#dce5ef;
@@ -103,12 +103,28 @@ textarea.control{min-height:78px;resize:vertical}
 .receivable-top{display:flex;justify-content:space-between;gap:10px}.receivable-top strong{font-size:14px}.receivable-top span{font-size:11px;color:var(--muted)}
 .receivable-money{font-size:20px;font-weight:900;margin-top:8px}
 .receivable-meta{font-size:11px;color:var(--muted);margin-top:5px}
+
+.year-summary{margin-top:10px}
+.year-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.year-toolbar strong{font-size:16px}
+.year-table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px}
+.year-table{width:100%;border-collapse:collapse;min-width:720px;background:#fff;font-size:12px}
+.year-table th,.year-table td{padding:10px 9px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+.year-table th{background:#f5f8fc;color:var(--muted);font-weight:800}
+.year-table th:first-child,.year-table td:first-child{text-align:left}
+.year-table tr:last-child td{border-bottom:0}
+.year-table .paid{color:#167254;font-weight:900}
+.year-table .unpaid{color:#a26719;font-weight:900}
+.year-total{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.year-total .box{padding:12px;border:1px solid var(--line);border-radius:13px;background:#fafbfd}
+.year-total span{display:block;color:var(--muted);font-size:11px}
+.year-total strong{display:block;margin-top:4px;font-size:17px}
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-  <div class="brand"><h1>현장 공수관리 Pro <em>v3.3</em></h1><p>공수 체크와 업체별 정산 관리</p></div>
+  <div class="brand"><h1>현장 공수관리 Pro <em>v3.4</em></h1><p>공수 체크와 업체별 정산 관리</p></div>
   <button id="backupTop" class="icon-btn" title="백업">⇩</button>
 </header>
 
@@ -193,7 +209,27 @@ textarea.control{min-height:78px;resize:vertical}
     <div class="section-head"><div><h2>미수금 현황</h2><p>청구금액이 있고 아직 입금되지 않은 월</p></div></div>
     <div id="receivableList" class="receivable-list"></div>
   </div>
-  <p class="version">현장 공수관리 Pro v3.3</p>
+  <div class="card section year-summary">
+    <div class="section-head">
+      <div><h2>연간 정산 내역</h2><p>선택한 업체의 월별 공수와 정산금액</p></div>
+    </div>
+    <div class="year-toolbar">
+      <button id="prevYear" class="btn soft">이전</button>
+      <strong id="yearLabel">2026년</strong>
+      <button id="nextYear" class="btn soft">다음</button>
+    </div>
+    <div class="year-table-wrap">
+      <table class="year-table">
+        <thead><tr><th>월</th><th>공수</th><th>총금액</th><th>공제액</th><th>경비</th><th>실수령</th><th>입금</th></tr></thead>
+        <tbody id="yearTableBody"></tbody>
+      </table>
+    </div>
+    <div class="year-total">
+      <div class="box"><span>연간 총 공수</span><strong id="yearUnits">0공수</strong></div>
+      <div class="box"><span>연간 실수령</span><strong id="yearNet">0원</strong></div>
+    </div>
+  </div>
+  <p class="version">현장 공수관리 Pro v3.4</p>
 </section>
 </main>
 </div>
@@ -270,6 +306,7 @@ textarea.control{min-height:78px;resize:vertical}
 var STORE_KEY="work-ledger-pro-v1";
 var state;
 var viewDate=new Date();
+var summaryYear=viewDate.getFullYear();
 viewDate.setDate(1);
 var editingDate=null;
 var editingCompanyId=null;
@@ -437,6 +474,35 @@ function renderReceivables(){
   el("#receivableList").innerHTML=html||'<div class="empty">현재 미수금이 없습니다.</div>'
 }
 
+
+function renderYearSummary(){
+  var cid=selectedCompanyId(),body="",m,x,p,key,totalUnits=0,totalNet=0;
+  el("#yearLabel").textContent=summaryYear+"년";
+  for(m=1;m<=12;m++){
+    var prefix=summaryYear+"-"+String(m).padStart(2,"0");
+    x=calcFor(cid,prefix);key=paymentKey(cid,prefix);p=state.payments[key]||{paid:false};
+    totalUnits+=x.units;totalNet+=x.final;
+    body+='<tr data-month="'+m+'"><td>'+m+'월</td>'+
+      '<td>'+(Math.round(x.units*10)/10)+'공수</td>'+
+      '<td>'+won(x.labor)+'</td>'+
+      '<td>'+won(x.deduction)+'</td>'+
+      '<td>'+won(x.expenses)+'</td>'+
+      '<td>'+won(x.final)+'</td>'+
+      '<td class="'+(p.paid?'paid':'unpaid')+'">'+(x.final<=0?'-':(p.paid?'완료':'미입금'))+'</td></tr>'
+  }
+  el("#yearTableBody").innerHTML=body;
+  el("#yearUnits").textContent=(Math.round(totalUnits*10)/10)+"공수";
+  el("#yearNet").textContent=won(totalNet);
+  els("#yearTableBody tr").forEach(function(tr){
+    tr.onclick=function(){
+      var month=Number(tr.getAttribute("data-month"));
+      viewDate=new Date(summaryYear,month-1,1);
+      renderAll();
+      switchPage("home")
+    }
+  })
+}
+
 function renderAll(){
   var x;
   renderSelects();
@@ -446,7 +512,7 @@ function renderAll(){
   el("#totalUnits").textContent=(Math.round(x.units*10)/10)+"공수";
   el("#grossTotal").textContent=won(x.labor);
   el("#netTotal").textContent=won(x.labor-x.deduction);
-  renderCalendar();renderRecords();renderCompanies();renderPayment();renderReceivables()
+  renderCalendar();renderRecords();renderCompanies();renderPayment();renderReceivables();renderYearSummary()
 }
 function show(id){el("#"+id).classList.add("show")}
 function hide(id){el("#"+id).classList.remove("show")}
@@ -602,7 +668,7 @@ function saveSettlementPng(){
     ctx.fillStyle=i===4?"#fff":"#718096";ctx.font=i===4?"bold 17px sans-serif":"15px sans-serif";ctx.fillText(items[i][0],gx+20,iy+31);
     ctx.textAlign="right";ctx.fillStyle=i===4?"#fff":"#142033";ctx.font=i===4?"bold 22px sans-serif":"bold 18px sans-serif";ctx.fillText(items[i][1],gx+gw-20,iy+31);ctx.textAlign="left"
   }
-  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("현장 공수관리 Pro v3.3",65,H-45);
+  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("현장 공수관리 Pro v3.4",65,H-45);
 
   var a=document.createElement("a");
   a.download="달력형_공수정산서_"+r.period.replace(/ /g,"_")+"_"+r.company+".png";
@@ -659,6 +725,8 @@ function bind(){
   els(".nav").forEach(function(n){n.onclick=function(){changePage(n.getAttribute("data-page"))}});
   el("#backupBtn").onclick=exportBackup;el("#backupTop").onclick=exportBackup;el("#savePng").onclick=saveSettlementPng;el("#printPdf").onclick=printSettlementPdf;
   el("#markPaid").onclick=function(){savePayment(true)};el("#markUnpaid").onclick=function(){savePayment(false)};
+  el("#prevYear").onclick=function(){summaryYear--;renderYearSummary()};
+  el("#nextYear").onclick=function(){summaryYear++;renderYearSummary()};
   el("#restoreInput").onchange=function(e){
     var file=e.target.files&&e.target.files[0],reader;
     if(!file)return;reader=new FileReader();
