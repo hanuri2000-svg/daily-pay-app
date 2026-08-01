@@ -618,7 +618,7 @@ textarea.control{
 }
 
 
-/* 라비c공수 Pro v5.2 브랜드 */
+/* 라비c공수 Pro v5.3 브랜드 */
 .brand-wrap{display:flex;align-items:center;gap:11px;min-width:0}
 .brand-logo{
   width:48px;height:48px;border-radius:15px;
@@ -640,7 +640,7 @@ textarea.control{
 }
 
 
-/* v5.2 영수증 첨부 */
+/* v5.3 영수증 첨부 */
 .exp-row{align-items:start}
 .receipt-box{
   grid-column:1/-1;
@@ -739,7 +739,7 @@ textarea.control{
 }
 
 
-/* v5.2 원터치 정산 보내기 */
+/* v5.3 원터치 정산 보내기 */
 .settlement-actions{
   grid-template-columns:1.2fr .8fr;
 }
@@ -784,12 +784,100 @@ textarea.control{
   .settlement-actions{grid-template-columns:1fr}
 }
 
+
+/* v5.3 부분입금 관리 */
+.payment-summary-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+  margin:13px 0;
+}
+.payment-summary-grid>div{
+  min-width:0;
+  padding:12px;
+  border:1px solid #dfe8f1;
+  border-radius:14px;
+  background:#f8fbfe;
+}
+.payment-summary-grid span{
+  display:block;
+  margin-bottom:5px;
+  color:#718096;
+  font-size:10px;
+  font-weight:800;
+}
+.payment-summary-grid strong{
+  display:block;
+  overflow:hidden;
+  color:#19375f;
+  font-size:15px;
+  font-variant-numeric:tabular-nums;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.payment-summary-grid>div:nth-child(2){background:#edf9f4;border-color:#d6eee3}
+.payment-summary-grid>div:nth-child(2) strong{color:#28745b}
+.payment-summary-grid>div:nth-child(3){background:#fff3ef;border-color:#f0ddd5}
+.payment-summary-grid>div:nth-child(3) strong{color:#c44b43}
+.payment-state.partial{background:#fff4dc;color:#a26719}
+.payment-state.unpaid{background:#fff0f0;color:#c83f3f}
+.payment-history-wrap{
+  margin-top:14px;
+  padding-top:12px;
+  border-top:1px solid #e3eaf2;
+}
+.payment-history-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:8px;
+}
+.payment-history-head strong{font-size:14px;color:#19375f}
+.payment-history-head span{font-size:11px;color:#718096}
+.payment-history{display:grid;gap:7px}
+.payment-history-row{
+  display:grid;
+  grid-template-columns:88px minmax(0,1fr) auto 32px;
+  align-items:center;
+  gap:8px;
+  padding:10px;
+  border:1px solid #e0e8f1;
+  border-radius:12px;
+  background:#fbfcfe;
+}
+.payment-history-row time{font-size:11px;color:#66758a}
+.payment-history-row .memo{
+  overflow:hidden;
+  font-size:11px;
+  color:#536273;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.payment-history-row strong{font-size:13px;color:#28745b}
+.payment-history-row button{
+  width:30px;height:30px;border:0;border-radius:50%;
+  background:#fff0f0;color:#c83f3f;font-size:15px
+}
+.payment-history-empty{
+  padding:16px 8px;
+  text-align:center;
+  color:#8a98a8;
+  font-size:12px;
+}
+@media(max-width:480px){
+  .payment-summary-grid{grid-template-columns:1fr}
+  .payment-summary-grid>div{display:flex;align-items:center;justify-content:space-between}
+  .payment-summary-grid span{margin:0}
+  .payment-summary-grid strong{font-size:17px}
+  .payment-history-row{grid-template-columns:78px minmax(0,1fr) auto 30px}
+}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-  <div class="brand-wrap"><img class="brand-logo" src="icon-192.png" alt=""><div class="brand"><h1>라비<span class="sig-c">c</span>공수 Pro <em>v5.2</em></h1><p>내 공수와 정산을 한 번에</p></div></div>
+  <div class="brand-wrap"><img class="brand-logo" src="icon-192.png" alt=""><div class="brand"><h1>라비<span class="sig-c">c</span>공수 Pro <em>v5.3</em></h1><p>내 공수와 정산을 한 번에</p></div></div>
   <button id="backupTop" class="icon-btn" title="백업">⇩</button>
 </header>
 
@@ -853,17 +941,29 @@ textarea.control{
   <div id="settlementSendInfo" class="settlement-send-info"></div>
   <div class="card payment-card">
     <div class="payment-head">
-      <div><h3>입금 상태</h3><p>업체와 월별로 입금 여부를 저장합니다.</p></div>
-      <span id="paymentState" class="payment-state">미입금</span>
+      <div><h3>입금 관리</h3><p>여러 번 나눠 받은 입금도 날짜별로 기록합니다.</p></div>
+      <span id="paymentState" class="payment-state">미수금</span>
     </div>
+
+    <div class="payment-summary-grid">
+      <div><span>청구금액</span><strong id="paymentBill">0원</strong></div>
+      <div><span>총 입금액</span><strong id="paymentReceived">0원</strong></div>
+      <div><span>남은 미수금</span><strong id="paymentRemaining">0원</strong></div>
+    </div>
+
     <div class="payment-grid">
       <div class="field"><label>입금일</label><input id="paymentDate" class="control" type="date"></div>
-      <div class="field"><label>입금액</label><input id="paymentAmount" class="control" type="number" min="0" inputmode="numeric"></div>
-      <div class="field full"><label>입금 메모</label><input id="paymentMemo" class="control" placeholder="예: 8월분 정산 완료"></div>
+      <div class="field"><label>이번 입금액</label><input id="paymentAmount" class="control" type="number" min="0" inputmode="numeric" placeholder="받은 금액"></div>
+      <div class="field full"><label>입금 메모</label><input id="paymentMemo" class="control" placeholder="예: 1차 입금"></div>
     </div>
     <div class="payment-actions">
-      <button id="markUnpaid" class="btn soft">미입금 처리</button>
-      <button id="markPaid" class="btn primary">입금 완료</button>
+      <button id="markUnpaid" class="btn soft">입금내역 초기화</button>
+      <button id="markPaid" class="btn primary">＋ 입금 추가</button>
+    </div>
+
+    <div class="payment-history-wrap">
+      <div class="payment-history-head"><strong>입금 내역</strong><span id="paymentHistoryCount">0건</span></div>
+      <div id="paymentHistory" class="payment-history"></div>
     </div>
   </div>
   <div class="card summary-box">
@@ -934,7 +1034,7 @@ textarea.control{
       <div class="box"><span>연간 실수령</span><strong id="yearNet">0원</strong></div>
     </div>
   </div>
-  <p class="version">라비c공수 Pro v5.2</p>
+  <p class="version">라비c공수 Pro v5.3</p>
 </section>
 </main>
 </div>
@@ -1031,7 +1131,7 @@ textarea.control{
 </template>
 
 <script>
-console.log("라비c공수 Pro v5.2 로드 완료");
+console.log("라비c공수 Pro v5.3 로드 완료");
 
 (function(){
 "use strict";
@@ -1081,7 +1181,12 @@ function normalize(raw){
       })
     }
   }
-  if(raw.payments&&typeof raw.payments==="object")base.payments=raw.payments;
+  if(raw.payments&&typeof raw.payments==="object"){
+    base.payments={};
+    for(k in raw.payments){
+      if(Object.prototype.hasOwnProperty.call(raw.payments,k))base.payments[k]=normalizePaymentRecord(raw.payments[k])
+    }
+  }
   if(raw.entries&&typeof raw.entries==="object"){
     for(k in raw.entries){
       if(!Object.prototype.hasOwnProperty.call(raw.entries,k))continue;
@@ -1220,16 +1325,92 @@ function renderCompanies(){
 }
 
 function paymentKey(companyId,prefix){return companyId+"|"+prefix}
-function currentPayment(){var key=paymentKey(selectedCompanyId(),monthPrefix());return state.payments[key]||{paid:false,date:"",amount:0,memo:""}}
+function normalizePaymentRecord(p){
+  p=p||{};
+  var list=Array.isArray(p.transactions)?p.transactions.slice():[];
+  if(!list.length&&(Number(p.amount)||0)>0){
+    list.push({id:uid(),date:p.date||"",amount:Math.max(0,Number(p.amount)||0),memo:p.memo||""})
+  }
+  list=list.map(function(t){
+    return {id:String(t.id||uid()),date:String(t.date||""),amount:Math.max(0,Number(t.amount)||0),memo:String(t.memo||"")}
+  }).filter(function(t){return t.amount>0});
+  list.sort(function(a,b){return (a.date||"").localeCompare(b.date||"")});
+  return {transactions:list}
+}
+function paymentTotal(p){
+  var list=normalizePaymentRecord(p).transactions,total=0,i;
+  for(i=0;i<list.length;i++)total+=Number(list[i].amount)||0;
+  return total
+}
+function paymentView(p,bill){
+  var normalized=normalizePaymentRecord(p),total=paymentTotal(normalized),remaining=Math.max(0,Math.round(bill-total)),status;
+  if(bill<=0)status="none";
+  else if(total<=0)status="unpaid";
+  else if(remaining>0)status="partial";
+  else status="paid";
+  return {transactions:normalized.transactions,total:total,remaining:remaining,status:status,paid:status==="paid",partial:status==="partial"}
+}
+function paymentStatusLabel(view){
+  if(view.status==="paid")return "지급 완료";
+  if(view.status==="partial")return "부분 지급";
+  if(view.status==="none")return "-";
+  return "미수금"
+}
+function currentPayment(){
+  var key=paymentKey(selectedCompanyId(),monthPrefix());
+  return normalizePaymentRecord(state.payments[key])
+}
+function renderPaymentHistory(view){
+  var html="",list=view.transactions.slice().sort(function(a,b){return (b.date||"").localeCompare(a.date||"")}),i;
+  el("#paymentHistoryCount").textContent=list.length+"건";
+  for(i=0;i<list.length;i++){
+    html+='<div class="payment-history-row"><time>'+escapeHtml(list[i].date||"날짜 없음")+'</time>'+
+      '<span class="memo">'+escapeHtml(list[i].memo||"메모 없음")+'</span>'+
+      '<strong>'+won(list[i].amount)+'</strong>'+
+      '<button type="button" data-payment-delete="'+escapeHtml(list[i].id)+'">×</button></div>'
+  }
+  el("#paymentHistory").innerHTML=html||'<div class="payment-history-empty">아직 등록된 입금 내역이 없습니다.</div>';
+  els("[data-payment-delete]").forEach(function(btn){
+    btn.onclick=function(){
+      var id=btn.getAttribute("data-payment-delete");
+      if(!confirm("이 입금 내역을 삭제할까요?"))return;
+      var key=paymentKey(selectedCompanyId(),monthPrefix()),p=normalizePaymentRecord(state.payments[key]);
+      p.transactions=p.transactions.filter(function(t){return t.id!==id});
+      state.payments[key]=p;saveState();renderPayment();renderReceivables();renderYearSummary();renderDashboard()
+    }
+  })
+}
 function renderPayment(){
-  var p=currentPayment(),x=calculate(),s=el("#paymentState");
-  s.textContent=p.paid?"입금 완료":"미입금";s.classList.toggle("paid",!!p.paid);
-  el("#paymentDate").value=p.date||"";el("#paymentAmount").value=p.amount||Math.round(x.final)||"";el("#paymentMemo").value=p.memo||""
+  var p=currentPayment(),x=calculate(),view=paymentView(p,x.final),s=el("#paymentState");
+  s.textContent=paymentStatusLabel(view);
+  s.classList.remove("paid","partial","unpaid");
+  if(view.status!=="none")s.classList.add(view.status);
+  el("#paymentBill").textContent=won(x.final);
+  el("#paymentReceived").textContent=won(view.total);
+  el("#paymentRemaining").textContent=won(view.remaining);
+  el("#paymentDate").value=today();
+  el("#paymentAmount").value=view.remaining>0?Math.round(view.remaining):"";
+  el("#paymentMemo").value="";
+  renderPaymentHistory(view)
 }
 function savePayment(paid){
-  var key=paymentKey(selectedCompanyId(),monthPrefix()),x=calculate();
-  state.payments[key]={paid:!!paid,date:paid?(el("#paymentDate").value||today()):"",amount:paid?Math.max(0,Number(el("#paymentAmount").value)||Math.round(x.final)||0):0,memo:el("#paymentMemo").value.trim()};
-  saveState();renderPayment();renderReceivables()
+  var key=paymentKey(selectedCompanyId(),monthPrefix()),x=calculate(),p=normalizePaymentRecord(state.payments[key]);
+  if(!paid){
+    if(!p.transactions.length)return;
+    if(!confirm("이 달의 입금 내역을 모두 삭제할까요?"))return;
+    p.transactions=[]
+  }else{
+    var amount=Math.max(0,Number(el("#paymentAmount").value)||0);
+    if(amount<=0){alert("입금액을 입력해 주세요.");return}
+    p.transactions.push({
+      id:uid(),
+      date:el("#paymentDate").value||today(),
+      amount:amount,
+      memo:el("#paymentMemo").value.trim()
+    })
+  }
+  state.payments[key]=p;
+  saveState();renderPayment();renderReceivables();renderYearSummary();renderDashboard()
 }
 function calcFor(companyId,prefix){
   var rows=[],k,e,c=getCompany(companyId),units=0,labor=0,expenses=0,i,deduction;
@@ -1239,11 +1420,23 @@ function calcFor(companyId,prefix){
   return {rows:rows,units:units,labor:labor,expenses:expenses,deduction:deduction,final:labor-deduction+expenses}
 }
 function renderReceivables(){
-  var months={},k,e,parts,prefix,cid,x,p,items=[],html="",i;
-  for(k in state.entries){if(!Object.prototype.hasOwnProperty.call(state.entries,k))continue;e=state.entries[k];prefix=k.slice(0,7);cid=e.companyId;months[cid+"|"+prefix]=true}
-  for(k in months){parts=k.split("|");cid=parts[0];prefix=parts[1];x=calcFor(cid,prefix);p=state.payments[k]||{paid:false};if(x.final>0&&!p.paid)items.push({cid:cid,prefix:prefix,final:x.final,units:x.units})}
+  var months={},k,e,parts,prefix,cid,x,p,view,items=[],html="",i;
+  for(k in state.entries){
+    if(!Object.prototype.hasOwnProperty.call(state.entries,k))continue;
+    e=state.entries[k];prefix=k.slice(0,7);cid=e.companyId;months[cid+"|"+prefix]=true
+  }
+  for(k in months){
+    parts=k.split("|");cid=parts[0];prefix=parts[1];x=calcFor(cid,prefix);
+    p=state.payments[k]||{};view=paymentView(p,x.final);
+    if(x.final>0&&view.remaining>0)items.push({cid:cid,prefix:prefix,final:x.final,received:view.total,remaining:view.remaining,units:x.units,status:view.status})
+  }
   items.sort(function(a,b){return b.prefix.localeCompare(a.prefix)});
-  for(i=0;i<items.length;i++){var it=items[i],c=getCompany(it.cid),label=it.prefix.slice(0,4)+"년 "+Number(it.prefix.slice(5,7))+"월";html+='<div class="receivable-row"><div class="receivable-top"><strong>'+escapeHtml(c.name)+'</strong><span>'+label+'</span></div><div class="receivable-money">'+won(it.final)+'</div><div class="receivable-meta">'+(Math.round(it.units*10)/10)+'공수 · 미입금</div></div>'}
+  for(i=0;i<items.length;i++){
+    var it=items[i],c=getCompany(it.cid),label=it.prefix.slice(0,4)+"년 "+Number(it.prefix.slice(5,7))+"월";
+    html+='<div class="receivable-row"><div class="receivable-top"><strong>'+escapeHtml(c.name)+'</strong><span>'+label+'</span></div>'+
+      '<div class="receivable-money">'+won(it.remaining)+'</div>'+
+      '<div class="receivable-meta">'+(Math.round(it.units*10)/10)+'공수 · '+(it.status==="partial"?"부분 지급 · 입금 "+won(it.received):"미입금")+'</div></div>'
+  }
   el("#receivableList").innerHTML=html||'<div class="empty">현재 미수금이 없습니다.</div>'
 }
 
@@ -1253,7 +1446,7 @@ function renderYearSummary(){
   el("#yearLabel").textContent=summaryYear+"년";
   for(m=1;m<=12;m++){
     var prefix=summaryYear+"-"+String(m).padStart(2,"0");
-    x=calcFor(cid,prefix);key=paymentKey(cid,prefix);p=state.payments[key]||{paid:false};
+    x=calcFor(cid,prefix);key=paymentKey(cid,prefix);p=paymentView(state.payments[key],x.final);
     totalUnits+=x.units;totalNet+=x.final;
     body+='<tr data-month="'+m+'"><td>'+m+'월</td>'+
       '<td>'+(Math.round(x.units*10)/10)+'공수</td>'+
@@ -1299,11 +1492,9 @@ function renderDashboard(){
   var prefix=monthPrefix(),items=[],expected=0,paid=0,unpaid=0,maxUnits=0,i,c,x,p,key,html="",width;
   for(i=0;i<state.companies.length;i++){
     c=state.companies[i];x=calcCompanyMonth(c.id,prefix);
-    key=paymentKey(c.id,prefix);p=state.payments[key]||{paid:false,amount:0};
-    expected+=x.final;
-    if(p.paid)paid+=Number(p.amount)||x.final;
-    else unpaid+=x.final;
-    if(x.units>0||x.final>0){items.push({company:c,calc:x,paid:!!p.paid});maxUnits=Math.max(maxUnits,x.units)}
+    key=paymentKey(c.id,prefix);p=paymentView(state.payments[key],x.final);
+    expected+=x.final;paid+=p.total;unpaid+=p.remaining;
+    if(x.units>0||x.final>0){items.push({company:c,calc:x,payment:p});maxUnits=Math.max(maxUnits,x.units)}
   }
   el("#dashExpected").textContent=won(expected);
   el("#dashPaid").textContent=won(paid);
@@ -1313,7 +1504,7 @@ function renderDashboard(){
   else{
     for(i=0;i<items.length;i++){
       width=maxUnits?Math.max(3,items[i].calc.units/maxUnits*100):3;
-      html+='<div class="chart-item"><div class="chart-head"><span>'+(items[i].company.favorite?'★ ':'')+escapeHtml(items[i].company.name)+'</span><strong>'+Math.round(items[i].calc.units*10)/10+'공수</strong></div><div class="chart-track"><div class="chart-fill" style="width:'+width+'%"></div></div><div class="chart-meta">'+won(items[i].calc.final)+' · '+(items[i].paid?'입금완료':'미입금')+'</div></div>'
+      html+='<div class="chart-item"><div class="chart-head"><span>'+(items[i].company.favorite?'★ ':'')+escapeHtml(items[i].company.name)+'</span><strong>'+Math.round(items[i].calc.units*10)/10+'공수</strong></div><div class="chart-track"><div class="chart-fill" style="width:'+width+'%"></div></div><div class="chart-meta">'+won(items[i].calc.final)+' · '+paymentStatusLabel(items[i].payment)+(items[i].payment.total?' · 입금 '+won(items[i].payment.total):'')+'</div></div>'
     }
   }
   el("#companyStats").innerHTML=html;
@@ -1747,15 +1938,15 @@ async function saveSettlementPng(autoShare){
   }
 
   var sumY=gy+headH+weeks*cellH+34;
-  var payInfo=currentPayment(),paidAmount=payInfo.paid?(Number(payInfo.amount)||r.final):0,receivable=Math.max(0,r.final-paidAmount);
+  var payInfo=paymentView(currentPayment(),r.final),paidAmount=payInfo.total,receivable=payInfo.remaining;
   var items=[
     ["총 공수",(Math.round(r.units*10)/10)+"공수"],
     ["노무비",won(r.labor)],
     ["공제액",won(r.deduction)],
     ["경비",won(r.expenses)],
     ["최종 청구금액",won(r.final)],
-    ["입금액",won(paidAmount)],
-    ["미수금",won(receivable)]
+    ["총 입금액",won(paidAmount)],
+    ["남은 미수금",won(receivable)]
   ];
   for(i=0;i<items.length;i++){
     var iy=sumY+i*50;
@@ -1803,7 +1994,7 @@ async function saveSettlementPng(autoShare){
     }
   }
 
-  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("라비c공수 Pro v5.2",65,H-45);
+  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("라비c공수 Pro v5.3",65,H-45);
 
   var fileName="월간정산서_"+r.period.replace(/ /g,"_")+"_"+r.company+".png";
   var dataUrl;
@@ -1997,7 +2188,7 @@ function bind(){
   }
 }
 
-var APP_VERSION="5.2.0";
+var APP_VERSION="5.3.0";
 async function checkAppUpdate(){
   try{
     var res=await fetch("./version.json?t="+Date.now(),{cache:"no-store"});
