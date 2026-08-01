@@ -1,8 +1,9 @@
-const CACHE_NAME="rabic-gongsu-pro-v5";
+const CACHE_NAME="rabic-gongsu-pro-v5-1";
 const APP_FILES=[
   "./",
   "./index.html",
   "./manifest.webmanifest",
+  "./version.json",
   "./favicon.ico",
   "./favicon-32.png",
   "./icon-180.png",

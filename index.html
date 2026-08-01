@@ -618,7 +618,7 @@ textarea.control{
 }
 
 
-/* 라비c공수 Pro v5.0 브랜드 */
+/* 라비c공수 Pro v5.1 브랜드 */
 .brand-wrap{display:flex;align-items:center;gap:11px;min-width:0}
 .brand-logo{
   width:48px;height:48px;border-radius:15px;
@@ -639,12 +639,111 @@ textarea.control{
   .brand h1 em{margin-left:4px;padding:0 7px}
 }
 
+
+/* v5.1 영수증 첨부 */
+.exp-row{align-items:start}
+.receipt-box{
+  grid-column:1/-1;
+  padding:9px;
+  border:1px dashed #cfdae7;
+  border-radius:12px;
+  background:#f8fbfe;
+}
+.receipt-actions{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:7px;
+}
+.receipt-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:36px;
+  padding:0 11px;
+  border:1px solid #d7e3ef;
+  border-radius:10px;
+  background:#fff;
+  color:#19375f;
+  font-size:12px;
+  font-weight:850;
+  cursor:pointer;
+}
+.receipt-btn input{display:none}
+.receipt-count{
+  margin-left:auto;
+  color:#718096;
+  font-size:11px;
+  font-weight:800;
+}
+.receipt-list{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;
+  margin-top:8px;
+}
+.receipt-thumb{
+  position:relative;
+  aspect-ratio:1/1;
+  overflow:hidden;
+  border:1px solid #dce5ef;
+  border-radius:10px;
+  background:#edf2f7;
+}
+.receipt-thumb img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.receipt-thumb button{
+  position:absolute;
+  top:4px;
+  right:4px;
+  width:25px;
+  height:25px;
+  border:0;
+  border-radius:50%;
+  background:rgba(20,32,51,.82);
+  color:#fff;
+  font-size:15px;
+  line-height:25px;
+}
+.receipt-working{
+  padding:8px 0 2px;
+  color:#28745b;
+  font-size:11px;
+}
+.update-banner{
+  position:fixed;
+  left:12px;
+  right:12px;
+  bottom:calc(82px + env(safe-area-inset-bottom));
+  z-index:2147483000;
+  display:none;
+  max-width:640px;
+  margin:0 auto;
+  padding:13px;
+  border:1px solid #cfdef0;
+  border-radius:16px;
+  background:#fff;
+  box-shadow:0 14px 40px rgba(24,58,100,.2);
+}
+.update-banner.show{display:block}
+.update-banner strong{display:block;font-size:14px;color:#19375f}
+.update-banner p{margin:5px 0 10px;color:#66758a;font-size:12px;line-height:1.45}
+.update-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:430px){
+  .receipt-list{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .receipt-count{width:100%;margin-left:0}
+}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-  <div class="brand-wrap"><img class="brand-logo" src="icon-192.png" alt=""><div class="brand"><h1>라비<span class="sig-c">c</span>공수 Pro <em>v5.0</em></h1><p>내 공수와 정산을 한 번에</p></div></div>
+  <div class="brand-wrap"><img class="brand-logo" src="icon-192.png" alt=""><div class="brand"><h1>라비<span class="sig-c">c</span>공수 Pro <em>v5.1</em></h1><p>내 공수와 정산을 한 번에</p></div></div>
   <button id="backupTop" class="icon-btn" title="백업">⇩</button>
 </header>
 
@@ -761,7 +860,7 @@ textarea.control{
       <button id="backupBtn" class="btn primary">백업 저장</button>
       <label class="btn soft file">백업 복원<input id="restoreInput" type="file" accept=".json,application/json"></label>
     </div>
-    <div class="notice">데이터는 현재 아이폰 Safari에 저장됩니다. Safari 웹사이트 데이터를 삭제하면 기록도 사라질 수 있습니다.</div>
+    <div class="notice">공수 데이터는 브라우저에 저장되고 영수증 사진은 기기 내부 저장소에 보관됩니다. 브라우저 데이터를 삭제하면 함께 사라질 수 있으니 중요한 원본 사진은 사진 앱에도 보관해 주세요.</div>
   </div>
   <div class="card section">
     <div class="section-head"><div><h2>미수금 현황</h2><p>청구금액이 있고 아직 입금되지 않은 월</p></div></div>
@@ -787,9 +886,19 @@ textarea.control{
       <div class="box"><span>연간 실수령</span><strong id="yearNet">0원</strong></div>
     </div>
   </div>
-  <p class="version">라비c공수 Pro v5.0</p>
+  <p class="version">라비c공수 Pro v5.1</p>
 </section>
 </main>
+</div>
+
+
+<div id="updateBanner" class="update-banner">
+  <strong id="updateTitle">새 버전이 있습니다.</strong>
+  <p id="updateMessage">업데이트하면 최신 기능과 수정사항이 적용됩니다.</p>
+  <div class="update-buttons">
+    <button id="updateLater" class="btn soft" type="button">나중에</button>
+    <button id="updateNow" class="btn primary" type="button">지금 업데이트</button>
+  </div>
 </div>
 
 <nav class="bottom">
@@ -862,11 +971,19 @@ textarea.control{
     <input class="control exp-amount" type="number" min="0" step="100" inputmode="numeric" placeholder="금액">
     <input class="control exp-memo" placeholder="메모">
     <button class="remove" type="button">×</button>
+    <div class="receipt-box">
+      <div class="receipt-actions">
+        <label class="receipt-btn">📷 촬영<input class="receipt-camera" type="file" accept="image/*" capture="environment"></label>
+        <label class="receipt-btn">🖼 사진 선택<input class="receipt-gallery" type="file" accept="image/*" multiple></label>
+        <span class="receipt-count">영수증 0장</span>
+      </div>
+      <div class="receipt-list"></div>
+    </div>
   </div>
 </template>
 
 <script>
-console.log("라비c공수 Pro v5.0 로드 완료");
+console.log("라비c공수 Pro v5.1 로드 완료");
 
 (function(){
 "use strict";
@@ -929,7 +1046,7 @@ function normalize(raw){
       if(Array.isArray(e.expenses)){
         for(i=0;i<e.expenses.length;i++){
           x=e.expenses[i]||{};
-          base.entries[k].expenses.push({id:String(x.id||uid()),type:String(x.type||"fuel"),amount:Math.max(0,Number(x.amount)||0),memo:String(x.memo||"")})
+          base.entries[k].expenses.push({id:String(x.id||uid()),type:String(x.type||"fuel"),amount:Math.max(0,Number(x.amount)||0),memo:String(x.memo||""),receiptIds:Array.isArray(x.receiptIds)?x.receiptIds.map(String):[]})
         }
       }
     }
@@ -1199,23 +1316,166 @@ function updateUnitButtons(){
   var v=Number(el("#entryUnits").value);
   els(".unit").forEach(function(b){b.classList.toggle("on",Number(b.getAttribute("data-unit"))===v)})
 }
+
+var RECEIPT_DB="rabic-receipts-v1";
+var RECEIPT_STORE="receipts";
+var receiptDeleteQueue=[];
+var receiptNewIds=[];
+
+function receiptDb(){
+  return new Promise(function(resolve,reject){
+    var req=indexedDB.open(RECEIPT_DB,1);
+    req.onupgradeneeded=function(){
+      var db=req.result;
+      if(!db.objectStoreNames.contains(RECEIPT_STORE))db.createObjectStore(RECEIPT_STORE,{keyPath:"id"})
+    };
+    req.onsuccess=function(){resolve(req.result)};
+    req.onerror=function(){reject(req.error)}
+  })
+}
+async function receiptPut(record){
+  var db=await receiptDb();
+  return new Promise(function(resolve,reject){
+    var tx=db.transaction(RECEIPT_STORE,"readwrite");
+    tx.objectStore(RECEIPT_STORE).put(record);
+    tx.oncomplete=function(){db.close();resolve(record.id)};
+    tx.onerror=function(){db.close();reject(tx.error)}
+  })
+}
+async function receiptGet(id){
+  var db=await receiptDb();
+  return new Promise(function(resolve,reject){
+    var tx=db.transaction(RECEIPT_STORE,"readonly");
+    var req=tx.objectStore(RECEIPT_STORE).get(id);
+    req.onsuccess=function(){db.close();resolve(req.result||null)};
+    req.onerror=function(){db.close();reject(req.error)}
+  })
+}
+async function receiptDelete(id){
+  var db=await receiptDb();
+  return new Promise(function(resolve,reject){
+    var tx=db.transaction(RECEIPT_STORE,"readwrite");
+    tx.objectStore(RECEIPT_STORE).delete(id);
+    tx.oncomplete=function(){db.close();resolve()};
+    tx.onerror=function(){db.close();reject(tx.error)}
+  })
+}
+async function compressReceipt(file){
+  var image=await new Promise(function(resolve,reject){
+    var img=new Image(),url=URL.createObjectURL(file);
+    img.onload=function(){URL.revokeObjectURL(url);resolve(img)};
+    img.onerror=function(){URL.revokeObjectURL(url);reject(new Error("사진을 읽지 못했습니다."))};
+    img.src=url
+  });
+  var maxSide=1600,w=image.naturalWidth||image.width,h=image.naturalHeight||image.height,scale=Math.min(1,maxSide/Math.max(w,h));
+  w=Math.max(1,Math.round(w*scale));h=Math.max(1,Math.round(h*scale));
+  var canvas=document.createElement("canvas"),ctx=canvas.getContext("2d");
+  canvas.width=w;canvas.height=h;ctx.drawImage(image,0,0,w,h);
+  var quality=.76,blob;
+  for(var i=0;i<4;i++){
+    blob=await new Promise(function(resolve){canvas.toBlob(resolve,"image/jpeg",quality)});
+    if(!blob)throw new Error("사진 압축에 실패했습니다.");
+    if(blob.size<=380000||quality<=.48)break;
+    quality-=.1
+  }
+  return blob
+}
+async function saveReceiptFile(file,expenseId){
+  var blob=await compressReceipt(file),id=uid();
+  await receiptPut({id:id,expenseId:expenseId,blob:blob,name:(file.name||"영수증")+".jpg",type:"image/jpeg",size:blob.size,createdAt:new Date().toISOString()});
+  receiptNewIds.push(id);
+  return id
+}
+function rowReceiptIds(row){
+  try{return JSON.parse(row.getAttribute("data-receipts")||"[]")}catch(err){return []}
+}
+function setRowReceiptIds(row,ids){
+  row.setAttribute("data-receipts",JSON.stringify(ids));
+  var count=row.querySelector(".receipt-count");
+  if(count)count.textContent="영수증 "+ids.length+"장"
+}
+async function renderReceiptThumbs(row){
+  var list=row.querySelector(".receipt-list"),ids=rowReceiptIds(row);
+  if(!list)return;
+  list.innerHTML="";
+  setRowReceiptIds(row,ids);
+  for(var i=0;i<ids.length;i++){
+    (async function(id){
+      var rec=await receiptGet(id);
+      if(!rec)return;
+      var url=URL.createObjectURL(rec.blob),box=document.createElement("div"),img=document.createElement("img"),btn=document.createElement("button");
+      box.className="receipt-thumb";img.src=url;img.alt="영수증";
+      img.onload=function(){URL.revokeObjectURL(url)};
+      btn.type="button";btn.textContent="×";
+      btn.onclick=function(){
+        var next=rowReceiptIds(row).filter(function(x){return x!==id});
+        receiptDeleteQueue.push(id);setRowReceiptIds(row,next);renderReceiptThumbs(row)
+      };
+      box.appendChild(img);box.appendChild(btn);list.appendChild(box)
+    })(ids[i])
+  }
+}
+async function addReceiptFiles(row,files){
+  if(!files||!files.length)return;
+  var status=document.createElement("div"),expenseId=row.getAttribute("data-id")||uid();
+  status.className="receipt-working";status.textContent="사진을 압축하고 있습니다…";
+  row.querySelector(".receipt-box").appendChild(status);
+  try{
+    var ids=rowReceiptIds(row);
+    if(ids.length+files.length>12){alert("경비 한 건당 영수증은 최대 12장까지 등록할 수 있습니다.");return}
+    for(var i=0;i<files.length;i++){
+      if(!/^image\//.test(files[i].type)){continue}
+      ids.push(await saveReceiptFile(files[i],expenseId))
+    }
+    setRowReceiptIds(row,ids);await renderReceiptThumbs(row)
+  }catch(err){
+    alert("영수증 사진을 저장하지 못했습니다: "+(err&&err.message?err.message:"알 수 없는 오류"))
+  }finally{
+    status.remove()
+  }
+}
+async function deleteQueuedReceipts(){
+  var unique=Array.from(new Set(receiptDeleteQueue));receiptDeleteQueue=[];
+  for(var i=0;i<unique.length;i++){try{await receiptDelete(unique[i])}catch(err){}}
+}
+function allReceiptIdsForRows(rows){
+  var ids=[];
+  for(var i=0;i<rows.length;i++){
+    var ex=rows[i][1].expenses||[];
+    for(var j=0;j<ex.length;j++)ids=ids.concat(ex[j].receiptIds||[])
+  }
+  return Array.from(new Set(ids))
+}
+async function receiptFilesForRows(rows){
+  var ids=allReceiptIdsForRows(rows),files=[];
+  for(var i=0;i<ids.length;i++){
+    var rec=await receiptGet(ids[i]);
+    if(rec&&rec.blob)files.push(new File([rec.blob],"영수증_"+String(i+1).padStart(2,"0")+".jpg",{type:"image/jpeg"}))
+  }
+  return files
+}
+
 function updateExpenseTotal(){
   var t=0;els(".exp-amount").forEach(function(i){t+=Number(i.value)||0});el("#expenseTotal").textContent=won(t)
 }
 function addExpense(data){
   var frag=el("#expenseTemplate").content.cloneNode(true),row=frag.querySelector(".exp-row");
-  data=data||{};row.setAttribute("data-id",data.id||uid());
+  data=data||{};row.setAttribute("data-id",data.id||uid());setRowReceiptIds(row,Array.isArray(data.receiptIds)?data.receiptIds:[]);
   row.querySelector(".exp-type").value=data.type||"fuel";row.querySelector(".exp-amount").value=Number(data.amount)||"";
   row.querySelector(".exp-memo").value=data.memo||"";
-  row.querySelector(".remove").onclick=function(){row.remove();updateExpenseTotal()};
+  row.querySelector(".remove").onclick=function(){
+    receiptDeleteQueue=receiptDeleteQueue.concat(rowReceiptIds(row));row.remove();updateExpenseTotal()
+  };
   row.querySelector(".exp-amount").oninput=updateExpenseTotal;
-  el("#expenseList").appendChild(frag);updateExpenseTotal()
+  row.querySelector(".receipt-camera").onchange=function(e){addReceiptFiles(row,e.target.files);e.target.value=""};
+  row.querySelector(".receipt-gallery").onchange=function(e){addReceiptFiles(row,e.target.files);e.target.value=""};
+  el("#expenseList").appendChild(frag);updateExpenseTotal();renderReceiptThumbs(row)
 }
 function readExpenses(){
   var arr=[];
   els(".exp-row").forEach(function(r){
-    var amount=Math.max(0,Number(r.querySelector(".exp-amount").value)||0),memo=r.querySelector(".exp-memo").value.trim();
-    if(amount>0||memo)arr.push({id:r.getAttribute("data-id")||uid(),type:r.querySelector(".exp-type").value,amount:amount,memo:memo})
+    var amount=Math.max(0,Number(r.querySelector(".exp-amount").value)||0),memo=r.querySelector(".exp-memo").value.trim(),receiptIds=rowReceiptIds(r);
+    if(amount>0||memo||receiptIds.length)arr.push({id:r.getAttribute("data-id")||uid(),type:r.querySelector(".exp-type").value,amount:amount,memo:memo,receiptIds:receiptIds})
   });
   return arr
 }
@@ -1246,6 +1506,7 @@ function renderRecentWork(companyId){
 }
 
 function openEntry(date){
+  receiptDeleteQueue=[];receiptNewIds=[];
   var e,c,cid,i;
   editingDate=date||today();e=state.entries[editingDate];cid=e?e.companyId:selectedCompanyId();c=getCompany(cid);
   el("#entryTitle").textContent=e?"공수 기록 수정":"공수 기록 입력";
@@ -1262,12 +1523,15 @@ function saveEntry(){
   if(units===0&&!trip&&!expenses.length){alert("공수, 출장 또는 경비를 입력해 주세요.");return}
   if(editingDate&&editingDate!==date)delete state.entries[editingDate];
   state.entries[date]={companyId:cid,units:units,rate:Math.max(0,Number(el("#entryRate").value)||0),type:el("#entryWork").value.trim(),memo:el("#entryMemo").value.trim(),businessTrip:trip,expenses:expenses};
-  saveState();el("#companyFilter").value=cid;hide("entryModal");renderAll()
+  saveState();deleteQueuedReceipts();receiptNewIds=[];el("#companyFilter").value=cid;hide("entryModal");renderAll()
 }
 function deleteEntry(){
   if(!editingDate||!state.entries[editingDate])return;
   if(!confirm(editingDate+" 기록을 삭제할까요?"))return;
-  delete state.entries[editingDate];saveState();hide("entryModal");renderAll()
+  var oldEntry=state.entries[editingDate],ids=[];
+  (oldEntry.expenses||[]).forEach(function(x){ids=ids.concat(x.receiptIds||[])});
+  delete state.entries[editingDate];saveState();hide("entryModal");renderAll();
+  ids.forEach(function(id){receiptDelete(id).catch(function(){})})
 }
 function openCompany(id){
   var c=id?getCompany(id):{name:"",rate:180000,tax:3.3,fixed:0,color:"#2d6fbb",manager:"",phone:"",memo:"",favorite:false};
@@ -1473,7 +1737,7 @@ function saveSettlementPng(){
     }
   }
 
-  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("라비c공수 Pro v5.0",65,H-45);
+  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("라비c공수 Pro v5.1",65,H-45);
 
   var fileName="월간정산서_"+r.period.replace(/ /g,"_")+"_"+r.company+".png";
   var dataUrl;
@@ -1501,7 +1765,7 @@ function saveSettlementPng(){
   title.style.cssText="font-size:19px;font-weight:900;color:#142033;margin:2px 2px 5px";
 
   var guide=document.createElement("div");
-  guide.innerHTML="아래 이미지를 <b>길게 눌러 사진에 저장</b>하거나, 하단의 <b>공유·저장</b> 버튼을 이용하세요.";
+  guide.innerHTML="하단의 <b>공유·저장</b>을 누르면 월간 정산서와 등록된 영수증 사진을 한 번에 전송합니다. 이미지만 저장하려면 이미지를 길게 누르세요.";
   guide.style.cssText="font-size:13px;line-height:1.55;color:#66758a;margin:0 2px 11px";
 
   var img=document.createElement("img");
@@ -1551,16 +1815,22 @@ function saveSettlementPng(){
 
   shareBtn.onclick=async function(){
     try{
+      shareBtn.disabled=true;shareBtn.textContent="영수증 준비 중…";
       var blob=await (await fetch(dataUrl)).blob();
       var file=new File([blob],fileName,{type:"image/png"});
-      if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
-        await navigator.share({files:[file],title:"월간 정산서"})
+      var receiptFiles=await receiptFilesForRows(r.rows);
+      var files=[file].concat(receiptFiles);
+      if(navigator.share && (!navigator.canShare || navigator.canShare({files:files}))){
+        await navigator.share({files:files,title:"월간 정산서",text:receiptFiles.length?"정산서와 영수증 "+receiptFiles.length+"장을 첨부합니다.":"월간 정산서"})
       }else{
+        if(receiptFiles.length)alert("이 기기에서는 여러 파일 동시 공유를 지원하지 않아 정산서 이미지만 엽니다.");
         openBtn.click()
       }
     }catch(err){
       if(err && err.name==="AbortError")return;
-      openBtn.click()
+      alert("공유를 실행하지 못했습니다. 정산서 이미지를 직접 저장해 주세요.");
+    }finally{
+      shareBtn.disabled=false;shareBtn.textContent="공유·저장"
     }
   }
 
@@ -1624,8 +1894,36 @@ function bind(){
     reader.readAsText(file);e.target.value=""
   }
 }
+
+var APP_VERSION="5.1.0";
+async function checkAppUpdate(){
+  try{
+    var res=await fetch("./version.json?t="+Date.now(),{cache:"no-store"});
+    if(!res.ok)return;
+    var info=await res.json();
+    if(!info||!info.version||info.version===APP_VERSION)return;
+    var ignored=localStorage.getItem("rabic-update-ignore");
+    if(ignored===info.version)return;
+    el("#updateTitle").textContent="새 버전 v"+info.version+"이 있습니다.";
+    el("#updateMessage").textContent=info.message||"업데이트하면 최신 기능과 수정사항이 적용됩니다.";
+    el("#updateBanner").classList.add("show");
+    el("#updateLater").onclick=function(){localStorage.setItem("rabic-update-ignore",info.version);el("#updateBanner").classList.remove("show")};
+    el("#updateNow").onclick=async function(){
+      try{
+        if("serviceWorker" in navigator){
+          var regs=await navigator.serviceWorker.getRegistrations();
+          for(var i=0;i<regs.length;i++)await regs[i].unregister()
+        }
+        var keys=await caches.keys();
+        await Promise.all(keys.map(function(k){return caches.delete(k)}));
+      }catch(err){}
+      location.replace("./?v="+encodeURIComponent(info.version)+"&t="+Date.now())
+    }
+  }catch(err){}
+}
+
 function boot(){
-  try{state=loadState();bind();renderAll()}
+  try{state=loadState();bind();renderAll();setTimeout(checkAppUpdate,1200)}
   catch(err){
     var box=document.createElement("div");
     box.style.cssText="position:fixed;left:12px;right:12px;top:90px;z-index:9999;background:#fff3f3;border:1px solid #efb8b8;border-radius:16px;padding:16px;color:#9c2222;font-size:13px;line-height:1.5";
