@@ -618,7 +618,7 @@ textarea.control{
 }
 
 
-/* 라비c공수 Pro v5.1 브랜드 */
+/* 라비c공수 Pro v5.2 브랜드 */
 .brand-wrap{display:flex;align-items:center;gap:11px;min-width:0}
 .brand-logo{
   width:48px;height:48px;border-radius:15px;
@@ -640,7 +640,7 @@ textarea.control{
 }
 
 
-/* v5.1 영수증 첨부 */
+/* v5.2 영수증 첨부 */
 .exp-row{align-items:start}
 .receipt-box{
   grid-column:1/-1;
@@ -738,12 +738,58 @@ textarea.control{
   .receipt-count{width:100%;margin-left:0}
 }
 
+
+/* v5.2 원터치 정산 보내기 */
+.settlement-actions{
+  grid-template-columns:1.2fr .8fr;
+}
+.settlement-send-info{
+  margin:-2px 2px 12px;
+  color:#718096;
+  font-size:12px;
+  line-height:1.5;
+}
+.settlement-send-info strong{color:#19375f}
+.share-message-box{
+  margin-top:10px;
+  padding:11px 12px;
+  border:1px solid #dce5ef;
+  border-radius:12px;
+  background:#f8fafc;
+}
+.share-message-box strong{
+  display:block;
+  margin-bottom:6px;
+  color:#19375f;
+  font-size:12px;
+}
+.share-message-box pre{
+  margin:0;
+  white-space:pre-wrap;
+  font:12px/1.55 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
+  color:#536273;
+}
+.copy-message-btn{
+  width:100%;
+  margin-top:8px;
+  border:1px solid #cfdae7;
+  border-radius:10px;
+  padding:10px;
+  background:#fff;
+  color:#19375f;
+  font-size:12px;
+  font-weight:850;
+}
+@media(max-width:430px){
+  .settlement-actions{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-  <div class="brand-wrap"><img class="brand-logo" src="icon-192.png" alt=""><div class="brand"><h1>라비<span class="sig-c">c</span>공수 Pro <em>v5.1</em></h1><p>내 공수와 정산을 한 번에</p></div></div>
+  <div class="brand-wrap"><img class="brand-logo" src="icon-192.png" alt=""><div class="brand"><h1>라비<span class="sig-c">c</span>공수 Pro <em>v5.2</em></h1><p>내 공수와 정산을 한 번에</p></div></div>
   <button id="backupTop" class="icon-btn" title="백업">⇩</button>
 </header>
 
@@ -800,9 +846,11 @@ textarea.control{
     <h2>월간 정산서</h2>
     <p>선택한 업체와 월의 공수, 경비, 입금 상태를 한눈에 확인합니다.</p>
   </div>
-  <div class="export-actions">
-    <button id="savePng" class="btn primary">PNG 정산서 저장</button>
+  <div class="export-actions settlement-actions">
+    <button id="sendSettlement" class="btn primary">📤 정산 보내기</button>
+    <button id="savePng" class="btn soft">PNG 미리보기·저장</button>
   </div>
+  <div id="settlementSendInfo" class="settlement-send-info"></div>
   <div class="card payment-card">
     <div class="payment-head">
       <div><h3>입금 상태</h3><p>업체와 월별로 입금 여부를 저장합니다.</p></div>
@@ -886,7 +934,7 @@ textarea.control{
       <div class="box"><span>연간 실수령</span><strong id="yearNet">0원</strong></div>
     </div>
   </div>
-  <p class="version">라비c공수 Pro v5.1</p>
+  <p class="version">라비c공수 Pro v5.2</p>
 </section>
 </main>
 </div>
@@ -983,7 +1031,7 @@ textarea.control{
 </template>
 
 <script>
-console.log("라비c공수 Pro v5.1 로드 완료");
+console.log("라비c공수 Pro v5.2 로드 완료");
 
 (function(){
 "use strict";
@@ -1300,7 +1348,7 @@ function renderAllNow(){
   el("#totalUnits").textContent=(Math.round(x.units*10)/10)+"공수";
   el("#grossTotal").textContent=won(x.labor);
   el("#netTotal").textContent=won(x.labor-x.deduction);
-  renderCalendar();renderRecords();renderCompanies();renderPayment();renderReceivables();renderYearSummary();renderDashboard()
+  renderCalendar();renderRecords();renderCompanies();renderPayment();renderReceivables();renderYearSummary();renderDashboard();updateSettlementSendInfo()
 }
 function renderAll(){
   if(renderQueued)return;
@@ -1626,7 +1674,25 @@ function reportCalendarData(){
   r.year=y;r.month=m;r.first=first;r.last=last;r.byDate=byDate;
   return r
 }
-function saveSettlementPng(){
+
+function settlementShareMessage(r,receiptCount){
+  var monthText=r.year+"년 "+(r.month+1)+"월";
+  return "안녕하세요.\n\n"+
+    monthText+" "+r.company+" 월간 정산서입니다.\n\n"+
+    "첨부\n"+
+    "- 월간 정산서 1장\n"+
+    (receiptCount?"- 영수증 "+receiptCount+"장\n":"")+
+    "\n확인 부탁드립니다."
+}
+function updateSettlementSendInfo(){
+  try{
+    var r=reportCalendarData(),count=allReceiptIdsForRows(r.rows).length,box=el("#settlementSendInfo");
+    if(!box)return;
+    box.innerHTML='현재 선택: <strong>'+escapeHtml(r.company)+'</strong> · '+r.year+'년 '+(r.month+1)+'월 · 영수증 '+count+'장'
+  }catch(err){}
+}
+
+async function saveSettlementPng(autoShare){
   var r=reportCalendarData(),expenseDetails=[],expenseTotals=expenseCategories(r.rows),ei,ej,entry,expenseItem;
   for(ei=0;ei<r.rows.length;ei++){
     entry=r.rows[ei][1];
@@ -1737,7 +1803,7 @@ function saveSettlementPng(){
     }
   }
 
-  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("라비c공수 Pro v5.1",65,H-45);
+  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("라비c공수 Pro v5.2",65,H-45);
 
   var fileName="월간정산서_"+r.period.replace(/ /g,"_")+"_"+r.company+".png";
   var dataUrl;
@@ -1765,7 +1831,7 @@ function saveSettlementPng(){
   title.style.cssText="font-size:19px;font-weight:900;color:#142033;margin:2px 2px 5px";
 
   var guide=document.createElement("div");
-  guide.innerHTML="하단의 <b>공유·저장</b>을 누르면 월간 정산서와 등록된 영수증 사진을 한 번에 전송합니다. 이미지만 저장하려면 이미지를 길게 누르세요.";
+  guide.innerHTML="<b>공유·저장</b>을 누르면 정산서 PNG와 등록된 영수증을 한 번에 전송합니다. 아래 메시지도 자동으로 공유되며 따로 복사할 수 있습니다.";
   guide.style.cssText="font-size:13px;line-height:1.55;color:#66758a;margin:0 2px 11px";
 
   var img=document.createElement("img");
@@ -1793,7 +1859,28 @@ function saveSettlementPng(){
   closeBtn.style.cssText="width:100%;margin-top:8px;border:0;border-radius:12px;padding:13px;background:#edf2f7;color:#34465a;font-size:14px;font-weight:800";
 
   btnRow.appendChild(shareBtn);btnRow.appendChild(openBtn);
-  panel.appendChild(title);panel.appendChild(guide);panel.appendChild(img);panel.appendChild(btnRow);panel.appendChild(closeBtn);
+  var receiptCount=allReceiptIdsForRows(r.rows).length;
+  var shareMessage=settlementShareMessage(r,receiptCount);
+  var messageBox=document.createElement("div");
+  messageBox.className="share-message-box";
+  var messageTitle=document.createElement("strong");
+  messageTitle.textContent="보낼 메시지";
+  var messagePre=document.createElement("pre");
+  messagePre.textContent=shareMessage;
+  var copyMessageBtn=document.createElement("button");
+  copyMessageBtn.type="button";copyMessageBtn.className="copy-message-btn";copyMessageBtn.textContent="메시지 복사";
+  copyMessageBtn.onclick=async function(){
+    try{
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        await navigator.clipboard.writeText(shareMessage);copyMessageBtn.textContent="복사 완료"
+      }else{
+        prompt("아래 메시지를 복사해 주세요.",shareMessage)
+      }
+    }catch(err){prompt("아래 메시지를 복사해 주세요.",shareMessage)}
+  };
+  messageBox.appendChild(messageTitle);messageBox.appendChild(messagePre);messageBox.appendChild(copyMessageBtn);
+
+  panel.appendChild(title);panel.appendChild(guide);panel.appendChild(img);panel.appendChild(messageBox);panel.appendChild(btnRow);panel.appendChild(closeBtn);
   layer.appendChild(panel);
   document.body.appendChild(layer);
   document.documentElement.style.overflow="hidden";
@@ -1813,25 +1900,38 @@ function saveSettlementPng(){
     win.document.close()
   };
 
-  shareBtn.onclick=async function(){
+  async function performSettlementShare(){
     try{
-      shareBtn.disabled=true;shareBtn.textContent="영수증 준비 중…";
+      shareBtn.disabled=true;shareBtn.textContent="정산 자료 준비 중…";
       var blob=await (await fetch(dataUrl)).blob();
       var file=new File([blob],fileName,{type:"image/png"});
       var receiptFiles=await receiptFilesForRows(r.rows);
       var files=[file].concat(receiptFiles);
+      var message=settlementShareMessage(r,receiptFiles.length);
+
       if(navigator.share && (!navigator.canShare || navigator.canShare({files:files}))){
-        await navigator.share({files:files,title:"월간 정산서",text:receiptFiles.length?"정산서와 영수증 "+receiptFiles.length+"장을 첨부합니다.":"월간 정산서"})
+        await navigator.share({
+          files:files,
+          title:r.company+" "+r.year+"년 "+(r.month+1)+"월 정산서",
+          text:message
+        });
       }else{
-        if(receiptFiles.length)alert("이 기기에서는 여러 파일 동시 공유를 지원하지 않아 정산서 이미지만 엽니다.");
+        if(receiptFiles.length){
+          alert("이 기기에서는 여러 파일 동시 공유를 지원하지 않습니다. 정산서 이미지를 저장한 뒤 영수증과 함께 전송해 주세요.")
+        }
         openBtn.click()
       }
     }catch(err){
       if(err && err.name==="AbortError")return;
-      alert("공유를 실행하지 못했습니다. 정산서 이미지를 직접 저장해 주세요.");
+      alert("정산 보내기를 실행하지 못했습니다. 미리보기에서 이미지와 메시지를 직접 저장해 주세요.")
     }finally{
       shareBtn.disabled=false;shareBtn.textContent="공유·저장"
     }
+  }
+
+  shareBtn.onclick=performSettlementShare;
+  if(autoShare){
+    await performSettlementShare()
   }
 
 }
@@ -1883,7 +1983,9 @@ function bind(){
   els("[data-close]").forEach(function(b){b.onclick=function(){hide(b.getAttribute("data-close"))}});
   els(".modal").forEach(function(m){m.onclick=function(e){if(e.target===m)hide(m.id)}});
   els(".nav").forEach(function(n){n.onclick=function(){changePage(n.getAttribute("data-page"))}});
-  el("#backupBtn").onclick=exportBackup;el("#backupTop").onclick=exportBackup;el("#savePng").onclick=saveSettlementPng;
+  el("#backupBtn").onclick=exportBackup;el("#backupTop").onclick=exportBackup;
+  el("#savePng").onclick=function(){saveSettlementPng(false)};
+  el("#sendSettlement").onclick=function(){saveSettlementPng(true)};
   el("#markPaid").onclick=function(){savePayment(true)};el("#markUnpaid").onclick=function(){savePayment(false)};
   el("#prevYear").onclick=function(){summaryYear--;renderYearSummary()};
   el("#nextYear").onclick=function(){summaryYear++;renderYearSummary()};
@@ -1895,7 +1997,7 @@ function bind(){
   }
 }
 
-var APP_VERSION="5.1.0";
+var APP_VERSION="5.2.0";
 async function checkAppUpdate(){
   try{
     var res=await fetch("./version.json?t="+Date.now(),{cache:"no-store"});

@@ -1,4 +1,4 @@
-const CACHE_NAME="rabic-gongsu-pro-v5-1";
+const CACHE_NAME="rabic-gongsu-pro-v5-2";
 const APP_FILES=[
   "./",
   "./index.html",
