@@ -618,7 +618,7 @@ textarea.control{
 }
 
 
-/* 라비c공수 Pro v5.5.1 브랜드 */
+/* 라비c공수 Pro v5.6 브랜드 */
 .brand-wrap{display:flex;align-items:center;gap:11px;min-width:0}
 .brand-logo{
   width:48px;height:48px;border-radius:15px;
@@ -640,7 +640,7 @@ textarea.control{
 }
 
 
-/* v5.5.1 영수증 첨부 */
+/* v5.6 영수증 첨부 */
 .exp-row{align-items:start}
 .receipt-box{
   grid-column:1/-1;
@@ -739,7 +739,7 @@ textarea.control{
 }
 
 
-/* v5.5.1 원터치 정산 보내기 */
+/* v5.6 원터치 정산 보내기 */
 .settlement-actions{
   grid-template-columns:1.2fr .8fr;
 }
@@ -785,7 +785,7 @@ textarea.control{
 }
 
 
-/* v5.5.1 부분입금 관리 */
+/* v5.6 부분입금 관리 */
 .payment-summary-grid{
   display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));
@@ -873,7 +873,7 @@ textarea.control{
 }
 
 
-/* v5.5.1 지급 예정 관리 */
+/* v5.6 지급 예정 관리 */
 .pay-default-note{padding:10px 12px;border:1px solid #dce6f0;border-radius:12px;background:#f7fafe;color:#66758a;font-size:11px;line-height:1.5}
 .expected-payment-card{margin:14px 0;padding:13px;border:1px solid #d9e6f2;border-radius:16px;background:linear-gradient(145deg,#f8fbfe,#f1f6fb)}
 .expected-payment-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:11px}
@@ -890,7 +890,7 @@ textarea.control{
 @media(max-width:480px){.expected-payment-head{display:block}#expectedDateBadge{display:inline-flex;margin-top:8px}.expected-actions{grid-template-columns:1fr}}
 
 
-/* ===== v5.5.1 UI Refresh - safe scoped ===== */
+/* ===== v5.6 UI Refresh - safe scoped ===== */
 .v55-dashboard-title{
   display:flex;
   align-items:center;
@@ -953,12 +953,382 @@ textarea.control{
   .v55-summary-card.expected{grid-column:auto}
 }
 
+
+/* =========================================================
+   라비c공수 Pro v5.6 — Premium Navy Skin
+   레이아웃/데이터 구조는 유지하고 색감과 표면 디자인만 개선
+   ========================================================= */
+:root{
+  --premium-navy:#142d4c;
+  --premium-navy-2:#1d426d;
+  --premium-blue:#2f78c4;
+  --premium-lilac:#8b74d6;
+  --premium-bg:#f3f6fa;
+  --premium-surface:#ffffff;
+  --premium-line:#dfe6ee;
+  --premium-soft:#eef3f8;
+  --premium-text:#182638;
+  --premium-muted:#718096;
+}
+
+/* 전체 배경 */
+body{
+  background:
+    radial-gradient(circle at 16% -5%,rgba(47,120,196,.10),transparent 28%),
+    radial-gradient(circle at 100% 8%,rgba(139,116,214,.07),transparent 24%),
+    linear-gradient(180deg,#f8fafc 0%,#f1f5f9 44%,#edf2f7 100%) !important;
+  color:var(--premium-text);
+}
+
+/* 상단 브랜드 */
+header{
+  position:relative;
+}
+.brand-logo{
+  box-shadow:0 8px 22px rgba(20,45,76,.16);
+}
+.brand h1{
+  color:var(--premium-navy);
+  letter-spacing:-.035em;
+}
+.brand h1 em{
+  background:linear-gradient(135deg,#e9eff7,#f2ecff);
+  color:var(--premium-navy-2);
+  border:1px solid rgba(139,116,214,.18);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.8);
+}
+.sig-c{
+  color:var(--premium-lilac) !important;
+  text-shadow:0 3px 12px rgba(139,116,214,.18);
+}
+.icon-btn{
+  background:rgba(255,255,255,.86) !important;
+  border-color:rgba(205,216,229,.9) !important;
+  box-shadow:0 6px 18px rgba(28,50,79,.08);
+}
+
+/* 공통 카드 표면 */
+.card{
+  background:rgba(255,255,255,.94);
+  border-color:rgba(218,227,237,.95);
+  box-shadow:
+    0 10px 28px rgba(30,50,78,.055),
+    inset 0 1px 0 rgba(255,255,255,.88);
+}
+
+/* v5.5 요약 대시보드 */
+.v55-dashboard-title strong{
+  color:var(--premium-navy);
+  font-size:15px;
+  letter-spacing:-.02em;
+}
+.v55-dashboard-title span{
+  color:#8391a2;
+  font-weight:700;
+}
+.v55-summary-card{
+  position:relative;
+  overflow:hidden;
+  border-color:#e2e9f0;
+  background:linear-gradient(160deg,#ffffff 0%,#f8fafc 100%);
+  box-shadow:0 8px 22px rgba(31,52,80,.06);
+}
+.v55-summary-card:before{
+  content:"";
+  position:absolute;
+  left:0;right:0;top:0;
+  height:3px;
+  background:linear-gradient(90deg,var(--premium-blue),var(--premium-lilac));
+  opacity:.85;
+}
+.v55-summary-card span{
+  color:#7a8899;
+  letter-spacing:.01em;
+}
+.v55-summary-card strong{
+  color:var(--premium-navy);
+  letter-spacing:-.035em;
+}
+.v55-summary-card.receivable{
+  background:linear-gradient(160deg,#fff 0%,#fff8f7 100%);
+}
+.v55-summary-card.receivable:before{
+  background:linear-gradient(90deg,#d86b63,#ef9b85);
+}
+.v55-summary-card.receivable strong{
+  color:#c34d48;
+}
+.v55-summary-card.expected{
+  background:linear-gradient(160deg,#fff 0%,#f8f5ff 100%);
+}
+.v55-summary-card.expected:before{
+  background:linear-gradient(90deg,#755fca,#a491e5);
+}
+
+/* 월 이동/업체 선택 카드 */
+.month-card{
+  background:
+    linear-gradient(135deg,rgba(20,45,76,.985),rgba(31,74,119,.97)) !important;
+  border-color:rgba(255,255,255,.08) !important;
+  box-shadow:0 14px 32px rgba(20,45,76,.18) !important;
+}
+.month-top strong,
+#monthTitle{
+  color:#fff !important;
+  letter-spacing:-.035em;
+}
+.month-top button{
+  color:#fff !important;
+  background:rgba(255,255,255,.10) !important;
+  border-color:rgba(255,255,255,.14) !important;
+}
+.month-top button:active{
+  background:rgba(255,255,255,.18) !important;
+}
+.month-bottom .control,
+.month-bottom .btn{
+  background:rgba(255,255,255,.96) !important;
+  border-color:rgba(255,255,255,.55) !important;
+  color:#173a63 !important;
+}
+
+/* 기존 4개 통계 카드 */
+.stats .stat{
+  position:relative;
+  overflow:hidden;
+  background:linear-gradient(165deg,#fff,#f9fbfd);
+}
+.stats .stat span{
+  color:#8190a1;
+  font-weight:750;
+}
+.stats .stat strong{
+  color:var(--premium-navy);
+  letter-spacing:-.035em;
+}
+.stats .stat:nth-child(1){border-top:3px solid #5f88b4}
+.stats .stat:nth-child(2){border-top:3px solid #7c6bd0}
+.stats .stat:nth-child(3){border-top:3px solid #3e8d85}
+.stats .stat:nth-child(4){border-top:3px solid #c28b4f}
+
+/* 달력 */
+.calendar{
+  background:rgba(255,255,255,.96);
+}
+.week{
+  background:#f5f8fb;
+  border-radius:13px;
+  padding-top:2px;
+  padding-bottom:2px;
+}
+.week div{
+  color:#78889a;
+  font-weight:850;
+}
+.week div:first-child{color:#d25b5b}
+.week div:last-child{color:#447cb6}
+.day{
+  border-color:#e4ebf2 !important;
+  background:linear-gradient(160deg,#fff,#fbfcfe) !important;
+  box-shadow:none !important;
+  transition:transform .12s ease,box-shadow .12s ease,border-color .12s ease;
+}
+.day:active{
+  transform:scale(.985);
+}
+.day.today{
+  border-color:#6b8fb7 !important;
+  box-shadow:inset 0 0 0 1px rgba(47,120,196,.12) !important;
+  background:linear-gradient(160deg,#f9fcff,#f0f6fc) !important;
+}
+.day .num{
+  color:#34495e;
+  font-weight:900;
+}
+.pill{
+  background:linear-gradient(135deg,#755fca,#9a82df) !important;
+  box-shadow:0 5px 12px rgba(117,95,202,.18);
+}
+
+/* 섹션 제목/대시보드 */
+.section-head h2,
+.page-intro h2{
+  color:var(--premium-navy);
+  letter-spacing:-.03em;
+}
+.section-head p,
+.page-intro p{
+  color:#7b8999;
+}
+.page-intro .eyebrow{
+  color:var(--premium-lilac);
+  font-weight:900;
+  letter-spacing:.10em;
+}
+.dashboard-card{
+  background:linear-gradient(165deg,#fff 0%,#fbfcfe 100%);
+}
+.money-dashboard>div{
+  border-color:#e3eaf1;
+  background:#f7f9fc;
+}
+.money-dashboard>div strong{
+  color:var(--premium-navy);
+}
+
+/* 버튼 */
+.btn.primary{
+  background:linear-gradient(135deg,#1b4f80,#2e70ad) !important;
+  border-color:#1c568a !important;
+  color:#fff !important;
+  box-shadow:0 7px 16px rgba(27,79,128,.17);
+}
+.btn.primary:active{
+  box-shadow:0 3px 9px rgba(27,79,128,.13);
+}
+.btn.soft{
+  background:#f4f7fa !important;
+  border-color:#dce5ee !important;
+  color:#284663 !important;
+}
+.btn.danger,.danger{
+  background:#fff5f4 !important;
+  border-color:#f0d6d2 !important;
+  color:#c24e48 !important;
+}
+#sendSettlement{
+  background:linear-gradient(135deg,#173f68,#755fca) !important;
+  border-color:transparent !important;
+  box-shadow:0 9px 20px rgba(64,61,132,.20);
+}
+
+/* 입력창 */
+.control{
+  background:#fbfcfe !important;
+  border-color:#dce5ee !important;
+  color:#203449 !important;
+  box-shadow:inset 0 1px 2px rgba(28,50,75,.025);
+}
+.control:focus{
+  outline:none !important;
+  border-color:#6f93b8 !important;
+  box-shadow:0 0 0 3px rgba(47,120,196,.10) !important;
+}
+
+/* 정산/입금 */
+.payment-card{
+  border-color:#dbe5ef;
+  background:linear-gradient(170deg,#fff,#fbfcfe);
+}
+.payment-head h3{
+  color:var(--premium-navy);
+}
+.payment-state{
+  border:1px solid rgba(210,220,230,.85);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7);
+}
+.payment-state.paid{
+  background:#eaf7f1 !important;
+  color:#247c5e !important;
+}
+.payment-state.partial{
+  background:#fff5df !important;
+  color:#9a671e !important;
+}
+.payment-state.unpaid{
+  background:#fff1f1 !important;
+  color:#bf4b4b !important;
+}
+.payment-summary-grid>div{
+  border-color:#e2e9f0 !important;
+  box-shadow:none !important;
+}
+.expected-payment-card{
+  border-color:#e0e5f0 !important;
+  background:linear-gradient(145deg,#f8faff,#f6f2ff) !important;
+}
+#expectedDateBadge{
+  background:#eaf1f8 !important;
+  color:#315f8b !important;
+}
+#expectedDateBadge.override{
+  background:#fff0dc !important;
+  color:#96601d !important;
+}
+
+/* 정산 요약 */
+.summary-box{
+  background:linear-gradient(165deg,#fff,#f8fafc);
+}
+.summary-line{
+  border-bottom-color:#e7edf3 !important;
+}
+.summary-line.final{
+  margin-top:4px;
+  padding:14px 12px;
+  border-radius:14px;
+  background:linear-gradient(135deg,#edf4fb,#f3efff);
+  border:1px solid #dce5f0 !important;
+}
+.summary-line.final strong{
+  color:#203f68;
+}
+
+/* 리스트 */
+.row,.receivable-row,.payment-history-row{
+  border-color:#e2e9f0 !important;
+  background:linear-gradient(160deg,#fff,#fbfcfe) !important;
+}
+.row:hover{
+  border-color:#d4e0ec !important;
+}
+
+/* 모달 */
+.sheet,.modal-box{
+  background:#fdfefe !important;
+  border-color:#e0e7ef !important;
+  box-shadow:0 -12px 42px rgba(18,39,62,.16) !important;
+}
+.handle{
+  background:#cdd7e2 !important;
+}
+
+/* 하단 메뉴 — 위치/크기 구조는 기존 그대로 */
+.bottom{
+  background:rgba(249,251,253,.94) !important;
+  border-top-color:rgba(211,222,233,.95) !important;
+  box-shadow:0 -8px 26px rgba(27,47,70,.08) !important;
+  backdrop-filter:blur(20px) saturate(150%) !important;
+  -webkit-backdrop-filter:blur(20px) saturate(150%) !important;
+}
+.nav{
+  color:#7b8998 !important;
+  transition:background .15s ease,color .15s ease;
+}
+.nav b{
+  filter:saturate(.82);
+}
+.nav.active{
+  background:linear-gradient(135deg,#e9f1f9,#efeaff) !important;
+  color:var(--premium-navy) !important;
+  box-shadow:inset 0 0 0 1px rgba(116,105,190,.08);
+}
+.nav.active b{
+  filter:saturate(1.08);
+}
+
+/* 작은 화면 */
+@media(max-width:430px){
+  .v55-summary-card strong{font-size:17px}
+  .month-card{box-shadow:0 11px 26px rgba(20,45,76,.16) !important}
+}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-  <div class="brand-wrap"><img class="brand-logo" src="icon-192.png" alt=""><div class="brand"><h1>라비<span class="sig-c">c</span>공수 Pro <em>v5.5.1</em></h1><p>내 공수와 정산을 한 번에</p></div></div>
+  <div class="brand-wrap"><img class="brand-logo" src="icon-192.png" alt=""><div class="brand"><h1>라비<span class="sig-c">c</span>공수 Pro <em>v5.6</em></h1><p>내 공수와 정산을 한 번에</p></div></div>
   <button id="backupTop" class="icon-btn" title="백업">⇩</button>
 </header>
 
@@ -1158,7 +1528,7 @@ textarea.control{
       <div class="box"><span>연간 실수령</span><strong id="yearNet">0원</strong></div>
     </div>
   </div>
-  <p class="version">라비c공수 Pro v5.5.1</p>
+  <p class="version">라비c공수 Pro v5.6</p>
 </section>
 </main>
 </div>
@@ -1267,7 +1637,7 @@ textarea.control{
 </template>
 
 <script>
-console.log("라비c공수 Pro v5.5.1 로드 완료");
+console.log("라비c공수 Pro v5.6 로드 완료");
 
 (function(){
 "use strict";
@@ -2212,7 +2582,7 @@ async function saveSettlementPng(autoShare){
     }
   }
 
-  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("라비c공수 Pro v5.5.1",65,H-45);
+  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("라비c공수 Pro v5.6",65,H-45);
 
   var fileName="월간정산서_"+r.period.replace(/ /g,"_")+"_"+r.company+".png";
   var dataUrl;
@@ -2407,7 +2777,7 @@ function bind(){
   }
 }
 
-var APP_VERSION="5.5.1";
+var APP_VERSION="5.6.0";
 async function checkAppUpdate(){
   try{
     var res=await fetch("./version.json?t="+Date.now(),{cache:"no-store"});
