@@ -618,7 +618,7 @@ textarea.control{
 }
 
 
-/* 라비c공수 Pro v5.6.1 브랜드 */
+/* 라비c공수 Pro v5.6.2 브랜드 */
 .brand-wrap{display:flex;align-items:center;gap:11px;min-width:0}
 .brand-logo{
   width:48px;height:48px;border-radius:15px;
@@ -640,7 +640,7 @@ textarea.control{
 }
 
 
-/* v5.6.1 영수증 첨부 */
+/* v5.6.2 영수증 첨부 */
 .exp-row{align-items:start}
 .receipt-box{
   grid-column:1/-1;
@@ -739,7 +739,7 @@ textarea.control{
 }
 
 
-/* v5.6.1 원터치 정산 보내기 */
+/* v5.6.2 원터치 정산 보내기 */
 .settlement-actions{
   grid-template-columns:1.2fr .8fr;
 }
@@ -785,7 +785,7 @@ textarea.control{
 }
 
 
-/* v5.6.1 부분입금 관리 */
+/* v5.6.2 부분입금 관리 */
 .payment-summary-grid{
   display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));
@@ -873,7 +873,7 @@ textarea.control{
 }
 
 
-/* v5.6.1 지급 예정 관리 */
+/* v5.6.2 지급 예정 관리 */
 .pay-default-note{padding:10px 12px;border:1px solid #dce6f0;border-radius:12px;background:#f7fafe;color:#66758a;font-size:11px;line-height:1.5}
 .expected-payment-card{margin:14px 0;padding:13px;border:1px solid #d9e6f2;border-radius:16px;background:linear-gradient(145deg,#f8fbfe,#f1f6fb)}
 .expected-payment-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:11px}
@@ -890,7 +890,7 @@ textarea.control{
 @media(max-width:480px){.expected-payment-head{display:block}#expectedDateBadge{display:inline-flex;margin-top:8px}.expected-actions{grid-template-columns:1fr}}
 
 
-/* ===== v5.6.1 UI Refresh - safe scoped ===== */
+/* ===== v5.6.2 UI Refresh - safe scoped ===== */
 .v55-dashboard-title{
   display:flex;
   align-items:center;
@@ -955,7 +955,7 @@ textarea.control{
 
 
 /* =========================================================
-   라비c공수 Pro v5.6.1 — Premium Navy Skin
+   라비c공수 Pro v5.6.2 — Premium Navy Skin
    레이아웃/데이터 구조는 유지하고 색감과 표면 디자인만 개선
    ========================================================= */
 :root{
@@ -1324,7 +1324,7 @@ header{
 }
 
 
-/* ===== v5.6.1 월간 정산서 제목 가독성 수정 ===== */
+/* ===== v5.6.2 월간 정산서 제목 가독성 수정 ===== */
 .page-intro{
   background:
     linear-gradient(135deg,rgba(20,45,76,.99) 0%,rgba(31,82,130,.97) 58%,rgba(52,112,163,.95) 100%) !important;
@@ -1353,7 +1353,7 @@ header{
 <body>
 <div class="app">
 <header>
-  <div class="brand-wrap"><img class="brand-logo" src="icon-192.png" alt=""><div class="brand"><h1>라비<span class="sig-c">c</span>공수 Pro <em>v5.6.1</em></h1><p>내 공수와 정산을 한 번에</p></div></div>
+  <div class="brand-wrap"><img class="brand-logo" src="icon-192.png" alt=""><div class="brand"><h1>라비<span class="sig-c">c</span>공수 Pro <em>v5.6.2</em></h1><p>내 공수와 정산을 한 번에</p></div></div>
   <button id="backupTop" class="icon-btn" title="백업">⇩</button>
 </header>
 
@@ -1553,7 +1553,7 @@ header{
       <div class="box"><span>연간 실수령</span><strong id="yearNet">0원</strong></div>
     </div>
   </div>
-  <p class="version">라비c공수 Pro v5.6.1</p>
+  <p class="version">라비c공수 Pro v5.6.2</p>
 </section>
 </main>
 </div>
@@ -1662,7 +1662,7 @@ header{
 </template>
 
 <script>
-console.log("라비c공수 Pro v5.6.1 로드 완료");
+console.log("라비c공수 Pro v5.6.2 로드 완료");
 
 (function(){
 "use strict";
@@ -2510,104 +2510,223 @@ async function saveSettlementPng(autoShare){
     }
   }
   expenseDetails.sort(function(a,b){return a.date.localeCompare(b.date)});
-  var expenseCategoryKeys=Object.keys(expenseTotals).filter(function(k){return expenseTotals[k]>0});
-  var expenseSectionHeight=expenseDetails.length?86+expenseCategoryKeys.length*32+expenseDetails.length*36:0;
-  var S=2,W=980,H=1320+expenseSectionHeight,c=document.createElement("canvas"),ctx=c.getContext("2d");
-  c.width=W*S;c.height=H*S;ctx.scale(S,S);
-  ctx.fillStyle="#f4f6f9";ctx.fillRect(0,0,W,H);
-  ctx.fillStyle="#fff";ctx.fillRect(35,30,W-70,H-60);
 
-  ctx.fillStyle="#142033";ctx.font="bold 32px sans-serif";ctx.fillText("월간 정산서",65,82);
-  ctx.fillStyle="#718096";ctx.font="16px sans-serif";ctx.fillText("작업기간 : "+r.year+"."+String(r.month+1).padStart(2,"0")+".01 ~ "+r.year+"."+String(r.month+1).padStart(2,"0")+"."+String(r.last).padStart(2,"0"),65,112);
-  ctx.fillStyle="#142033";ctx.font="bold 17px sans-serif";ctx.fillText("업체명 : "+r.company,65,138);
-  var expectedInfo=expectedPaymentInfo(getCompany(selectedCompanyId()),monthPrefix(),state.payments[paymentKey(selectedCompanyId(),monthPrefix())]);
-  ctx.fillStyle=expectedInfo.changed?"#9a641d":"#536273";ctx.font="14px sans-serif";ctx.fillText("예상 입금일 : "+(expectedInfo.finalDate?dateDisplay(expectedInfo.finalDate):"미설정")+(expectedInfo.changed&&expectedInfo.baseDate?" (기본 "+dateDisplay(expectedInfo.baseDate)+"에서 변경)":""),65,162);
-  var gx=65,gy=190,gw=850,cellW=gw/7,headH=38,cellH=105;
-  var names=["일","월","화","수","목","금","토"],i,d,row,col,date,e;
-  ctx.fillStyle="#edf4fb";ctx.fillRect(gx,gy,gw,headH);
-  ctx.strokeStyle="#dce5ef";ctx.lineWidth=1;
+  var payInfo=paymentView(currentPayment(),r.final),statusText=paymentStatusLabel(payInfo),statusColor;
+  if(payInfo.status==="paid")statusColor={bg:"#e8f7ef",fg:"#1d7a46"};
+  else if(payInfo.status==="partial")statusColor={bg:"#fff4de",fg:"#b16a00"};
+  else if(payInfo.status==="unpaid")statusColor={bg:"#ffe7e7",fg:"#c94c4c"};
+  else statusColor={bg:"#eef3f8",fg:"#536273"};
+
+  function roundRectPath(ctx,x,y,w,h,r){
+    r=Math.max(0,Math.min(r,Math.min(w,h)/2));
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r);
+    ctx.closePath();
+  }
+  function fillRound(ctx,x,y,w,h,r,color){
+    roundRectPath(ctx,x,y,w,h,r);
+    ctx.fillStyle=color;
+    ctx.fill();
+  }
+  function strokeRound(ctx,x,y,w,h,r,color,width){
+    roundRectPath(ctx,x,y,w,h,r);
+    ctx.strokeStyle=color;
+    ctx.lineWidth=width||1;
+    ctx.stroke();
+  }
+  function card(ctx,x,y,w,h,title,value,opt){
+    opt=opt||{};
+    fillRound(ctx,x,y,w,h,opt.radius||22,opt.bg||"#ffffff");
+    if(opt.border)strokeRound(ctx,x,y,w,h,opt.radius||22,opt.border,1.2);
+    ctx.fillStyle=opt.titleColor||"#7a8798";
+    ctx.font=(opt.smallTitle?"12px":"13px")+" sans-serif";
+    ctx.fillText(title,x+18,y+26);
+    ctx.fillStyle=opt.valueColor||"#142033";
+    ctx.font=(opt.big?"bold 30px":"bold 24px")+" sans-serif";
+    ctx.fillText(value,x+18,y+(opt.big?67:60));
+    if(opt.sub){
+      ctx.fillStyle=opt.subColor||"#8d98a8";
+      ctx.font="12px sans-serif";
+      ctx.fillText(opt.sub,x+18,y+h-18);
+    }
+  }
+  function unitLabel(v){
+    var n=Math.round((Number(v)||0)*10)/10;
+    return String(n).replace(/\.0$/,'')+"공수";
+  }
+  function expenseLabel(amount){
+    return amount>0?"경비 "+won(amount):"";
+  }
+  function shortMemo(s,max){
+    s=String(s||"-");
+    if(s.length>max)return s.slice(0,max)+"…";
+    return s;
+  }
+  function headerText(ctx,text,x,y,maxWidth,font,color){
+    ctx.font=font;ctx.fillStyle=color;
+    var out=text;
+    while(ctx.measureText(out).width>maxWidth && out.length>2)out=out.slice(0,out.length-2)+"…";
+    ctx.fillText(out,x,y);
+  }
+
+  var expenseCategoryKeys=Object.keys(expenseTotals).filter(function(k){return expenseTotals[k]>0});
+  var detailRows=Math.min(expenseDetails.length,14);
+  var expenseSectionHeight=0;
+  if(expenseCategoryKeys.length||expenseDetails.length){
+    expenseSectionHeight=110+expenseCategoryKeys.length*34+(detailRows?52+detailRows*34:0)+(expenseDetails.length>14?28:0);
+  }
+
+  var weeks=Math.ceil((r.first+r.last)/7);
+  var heroH=168, summaryH=228, calHeadH=42, cellH=94, paymentH=208, footerH=78;
+  var calendarH=78+calHeadH+weeks*cellH;
+  var contentH=heroH+summaryH+calendarH+paymentH+expenseSectionHeight+footerH;
+  var S=2,W=1080,H=Math.max(1480,contentH+120),c=document.createElement("canvas"),ctx=c.getContext("2d");
+  c.width=W*S;c.height=H*S;ctx.scale(S,S);
+
+  ctx.fillStyle="#eef3f8";ctx.fillRect(0,0,W,H);
+  fillRound(ctx,28,28,W-56,H-56,30,"#ffffff");
+
+  var gx=58,gw=W-116;
+  var grad=ctx.createLinearGradient(gx,0,gx+gw,0);
+  grad.addColorStop(0,"#162844");
+  grad.addColorStop(0.55,"#214f88");
+  grad.addColorStop(1,"#4a86d9");
+  fillRound(ctx,gx,54,gw,heroH,28,grad);
+
+  ctx.fillStyle="rgba(255,255,255,.72)";
+  ctx.font="bold 16px sans-serif";
+  ctx.fillText("MONTHLY SETTLEMENT",gx+24,84);
+  ctx.fillStyle="#ffffff";
+  ctx.font="bold 38px sans-serif";
+  ctx.fillText("월간 정산서",gx+24,128);
+  ctx.fillStyle="rgba(255,255,255,.88)";
+  ctx.font="16px sans-serif";
+  ctx.fillText("작업기간 : "+r.year+"."+String(r.month+1).padStart(2,"0")+".01 ~ "+r.year+"."+String(r.month+1).padStart(2,"0")+"."+String(r.last).padStart(2,"0"),gx+24,156);
+
+  fillRound(ctx,gx+gw-232,74,208,40,20,"rgba(255,255,255,.16)");
+  ctx.fillStyle="rgba(255,255,255,.8)";
+  ctx.font="12px sans-serif";
+  ctx.fillText("업체명",gx+gw-210,91);
+  ctx.fillStyle="#ffffff";
+  ctx.font="bold 18px sans-serif";
+  headerText(ctx,r.company,gx+gw-210,108,168,"bold 18px sans-serif","#ffffff");
+
+  fillRound(ctx,gx+gw-190,134,166,34,17,statusColor.bg);
+  ctx.fillStyle=statusColor.fg;
+  ctx.font="bold 15px sans-serif";
+  ctx.textAlign="center";
+  ctx.fillText(statusText,gx+gw-107,156);
+  ctx.textAlign="left";
+
+  var payExpected=expectedPaymentInfo(getCompany(selectedCompanyId()),monthPrefix(),state.payments[paymentKey(selectedCompanyId(),monthPrefix())]);
+  ctx.fillStyle="rgba(255,255,255,.82)";
+  ctx.font="13px sans-serif";
+  var expectedTxt="예상 입금일 : "+(payExpected.finalDate?dateDisplay(payExpected.finalDate):"미설정");
+  if(payExpected.changed&&payExpected.baseDate)expectedTxt+="  ·  변경됨";
+  ctx.fillText(expectedTxt,gx+24,191);
+
+  var sY=240, gap=18, cardW=(gw-gap*2)/3, cardH=96, row2Y=sY+cardH+16, wideW=(gw-gap)/2;
+  card(ctx,gx,sY,cardW,cardH,"총 공수",unitLabel(r.units),{bg:"#f7faff",border:"#deebfb",big:false});
+  card(ctx,gx+cardW+gap,sY,cardW,cardH,"노무비",won(r.labor),{bg:"#f9f8ff",border:"#e8e3ff",big:false});
+  card(ctx,gx+(cardW+gap)*2,sY,cardW,cardH,"공제액",won(r.deduction),{bg:"#fff8f1",border:"#fae7c8",big:false});
+  card(ctx,gx,row2Y,wideW,108,"경비",won(r.expenses),{bg:"#f5fbf8",border:"#d9efe3",big:false,sub:expenseCategoryKeys.length?"등록 구분 "+expenseCategoryKeys.length+"개":"등록된 경비 없음"});
+  card(ctx,gx+wideW+gap,row2Y,wideW,108,"실수령",won(r.final),{bg:"#19375f",big:true,titleColor:"rgba(255,255,255,.78)",valueColor:"#ffffff",sub:statusText,subColor:"rgba(255,255,255,.82)"});
+
+  var calY=row2Y+132;
+  fillRound(ctx,gx,calY,gw,calendarH,26,"#ffffff");
+  strokeRound(ctx,gx,calY,gw,calendarH,26,"#dde7f2",1.2);
+  ctx.fillStyle="#142033";ctx.font="bold 24px sans-serif";ctx.fillText("출근 달력",gx+20,calY+34);
+  ctx.fillStyle="#7a8798";ctx.font="14px sans-serif";ctx.fillText("날짜별 공수와 경비 입력 현황",gx+20,calY+56);
+
+  var cgx=gx+18,cgy=calY+74,cgw=gw-36,cellW=cgw/7,names=["일","월","화","수","목","금","토"],i,row,col,d,date,e;
+  fillRound(ctx,cgx,cgy,cgw,calHeadH,18,"#edf4fb");
   for(i=0;i<7;i++){
-    ctx.strokeRect(gx+i*cellW,gy,cellW,headH);
     ctx.fillStyle=i===0?"#d84d4d":(i===6?"#2b68ad":"#536273");
-    ctx.font="bold 14px sans-serif";ctx.textAlign="center";ctx.fillText(names[i],gx+i*cellW+cellW/2,gy+25)
+    ctx.font="bold 15px sans-serif";ctx.textAlign="center";ctx.fillText(names[i],cgx+i*cellW+cellW/2,cgy+26);
   }
   ctx.textAlign="left";
-  var weeks=Math.ceil((r.first+r.last)/7);
   for(row=0;row<weeks;row++){
     for(col=0;col<7;col++){
       d=row*7+col-r.first+1;
-      var x=gx+col*cellW,y=gy+headH+row*cellH;
-      ctx.fillStyle="#fff";ctx.fillRect(x,y,cellW,cellH);ctx.strokeStyle="#dce5ef";ctx.strokeRect(x,y,cellW,cellH);
+      var x=cgx+col*cellW,y=cgy+calHeadH+row*cellH;
+      fillRound(ctx,x+4,y+6,cellW-8,cellH-8,18,"#ffffff");
+      strokeRound(ctx,x+4,y+6,cellW-8,cellH-8,18,"#dde7f2",1);
       if(d<1||d>r.last)continue;
       date=r.year+"-"+String(r.month+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");e=r.byDate[date];
-      ctx.fillStyle=col===0?"#d84d4d":(col===6?"#2b68ad":"#1688f4");ctx.font="bold 14px sans-serif";ctx.fillText(String(d),x+9,y+20);
+      ctx.fillStyle=col===0?"#d84d4d":(col===6?"#2b68ad":"#1688f4");
+      ctx.font="bold 15px sans-serif";ctx.fillText(String(d),x+17,y+28);
       if(e){
-        ctx.fillStyle="#a879f7";ctx.fillRect(x+8,y+34,cellW-16,27);
-        ctx.fillStyle="#fff";ctx.font="bold 13px sans-serif";ctx.textAlign="center";ctx.fillText((Number(e.units)||0)+"공수",x+cellW/2,y+52);ctx.textAlign="left";
-        if(e.businessTrip){ctx.fillStyle="#eea23e";ctx.beginPath();ctx.arc(x+cellW-12,y+14,4,0,Math.PI*2);ctx.fill()}
-        if(expenseSum(e)>0){ctx.fillStyle="#20a579";ctx.font="11px sans-serif";ctx.fillText("경비 "+won(expenseSum(e)),x+8,y+82)}
+        fillRound(ctx,x+12,y+38,cellW-24,30,15,"#a879f7");
+        ctx.fillStyle="#ffffff";ctx.font="bold 13px sans-serif";ctx.textAlign="center";ctx.fillText(unitLabel(e.units),x+cellW/2,y+58);ctx.textAlign="left";
+        if(e.businessTrip){ctx.fillStyle="#eea23e";ctx.beginPath();ctx.arc(x+cellW-22,y+22,5,0,Math.PI*2);ctx.fill()}
+        if(expenseSum(e)>0){ctx.fillStyle="#20a579";ctx.font="11px sans-serif";ctx.fillText(expenseLabel(expenseSum(e)),x+14,y+84)}
       }
     }
   }
 
-  var sumY=gy+headH+weeks*cellH+34;
-  var payInfo=paymentView(currentPayment(),r.final),paidAmount=payInfo.total,receivable=payInfo.remaining;
-  var items=[
-    ["총 공수",(Math.round(r.units*10)/10)+"공수"],
-    ["노무비",won(r.labor)],
-    ["공제액",won(r.deduction)],
-    ["경비",won(r.expenses)],
-    ["최종 청구금액",won(r.final)],
-    ["총 입금액",won(paidAmount)],
-    ["남은 미수금",won(receivable)]
-  ];
-  for(i=0;i<items.length;i++){
-    var iy=sumY+i*50;
-    ctx.fillStyle=i===4?"#19375f":(i===6?"#fff2ee":"#f7f9fc");ctx.fillRect(gx,iy,gw,42);
-    ctx.fillStyle=i===4?"#fff":(i===6?"#c94c4c":"#718096");ctx.font=i===4?"bold 16px sans-serif":"14px sans-serif";ctx.fillText(items[i][0],gx+20,iy+27);
-    ctx.textAlign="right";ctx.fillStyle=i===4?"#fff":(i===6?"#c94c4c":"#142033");ctx.font=i===4?"bold 20px sans-serif":"bold 17px sans-serif";ctx.fillText(items[i][1],gx+gw-20,iy+27);ctx.textAlign="left"
-  }
+  var payY=calY+calendarH+24;
+  fillRound(ctx,gx,payY,gw,paymentH,26,"#ffffff");
+  strokeRound(ctx,gx,payY,gw,paymentH,26,"#dde7f2",1.2);
+  ctx.fillStyle="#142033";ctx.font="bold 24px sans-serif";ctx.fillText("입금 요약",gx+20,payY+34);
+  ctx.fillStyle="#7a8798";ctx.font="14px sans-serif";ctx.fillText("청구금액과 실제 입금 상태",gx+20,payY+56);
+  fillRound(ctx,gx+gw-154,payY+18,132,34,17,statusColor.bg);
+  ctx.fillStyle=statusColor.fg;ctx.font="bold 14px sans-serif";ctx.textAlign="center";ctx.fillText(statusText,gx+gw-88,payY+40);ctx.textAlign="left";
 
-  if(expenseDetails.length){
-    var expenseY=sumY+items.length*50+22,categoryX=gx,categoryW=gw;
-    ctx.fillStyle="#142033";ctx.font="bold 20px sans-serif";ctx.fillText("경비 내역",categoryX,expenseY);
-    expenseY+=18;
+  var pCardY=payY+76,pGap=16,pW=(gw-pGap*2)/3;
+  card(ctx,gx,pCardY,pW,96,"청구금액",won(r.final),{bg:"#f7faff",border:"#deebfb",big:false});
+  card(ctx,gx+pW+pGap,pCardY,pW,96,"총 입금액",won(payInfo.total),{bg:"#f5fbf8",border:"#d9efe3",big:false});
+  card(ctx,gx+(pW+pGap)*2,pCardY,pW,96,"남은 미수금",won(payInfo.remaining),{bg:payInfo.remaining>0?"#fff2ee":"#f7faff",border:payInfo.remaining>0?"#ffd5cc":"#deebfb",valueColor:payInfo.remaining>0?"#c94c4c":"#142033",big:false});
 
-    ctx.fillStyle="#edf7f3";ctx.fillRect(categoryX,expenseY,categoryW,34);
-    ctx.fillStyle="#28745b";ctx.font="bold 14px sans-serif";ctx.fillText("경비 구분별 합계",categoryX+14,expenseY+22);
-    expenseY+=40;
+  var expenseY=payY+paymentH+24;
+  if(expenseCategoryKeys.length||expenseDetails.length){
+    fillRound(ctx,gx,expenseY,gw,expenseSectionHeight,26,"#ffffff");
+    strokeRound(ctx,gx,expenseY,gw,expenseSectionHeight,26,"#dde7f2",1.2);
+    ctx.fillStyle="#142033";ctx.font="bold 24px sans-serif";ctx.fillText("경비 내역",gx+20,expenseY+34);
+    ctx.fillStyle="#7a8798";ctx.font="14px sans-serif";ctx.fillText("월간 경비 합계와 상세 내역",gx+20,expenseY+56);
 
-    for(i=0;i<expenseCategoryKeys.length;i++){
-      var categoryKey=expenseCategoryKeys[i];
-      ctx.fillStyle=i%2===0?"#f8fafc":"#fff";ctx.fillRect(categoryX,expenseY,categoryW,28);
-      ctx.fillStyle="#536273";ctx.font="13px sans-serif";ctx.fillText(expenseLabels[categoryKey]||categoryKey,categoryX+14,expenseY+19);
-      ctx.textAlign="right";ctx.fillStyle="#142033";ctx.font="bold 13px sans-serif";ctx.fillText(won(expenseTotals[categoryKey]),categoryX+categoryW-14,expenseY+19);ctx.textAlign="left";
-      expenseY+=32
+    var cy=expenseY+78;
+    if(expenseCategoryKeys.length){
+      ctx.fillStyle="#536273";ctx.font="bold 14px sans-serif";ctx.fillText("구분별 합계",gx+20,cy);
+      cy+=16;
+      for(i=0;i<expenseCategoryKeys.length;i++){
+        var ck=expenseCategoryKeys[i],bw=(gw-40-(expenseCategoryKeys.length-1)*10)/expenseCategoryKeys.length,bx=gx+20+i*(bw+10);
+        fillRound(ctx,bx,cy,bw,54,16,i%2===0?"#f5fbf8":"#f7faff");
+        ctx.fillStyle="#7a8798";ctx.font="12px sans-serif";headerText(ctx,expenseLabels[ck]||ck,bx+12,cy+22,bw-24,"12px sans-serif","#7a8798");
+        ctx.fillStyle="#142033";ctx.font="bold 15px sans-serif";headerText(ctx,won(expenseTotals[ck]),bx+12,cy+41,bw-24,"bold 15px sans-serif","#142033");
+      }
+      cy+=72;
     }
 
-    expenseY+=8;
-    ctx.fillStyle="#edf4fb";ctx.fillRect(categoryX,expenseY,categoryW,32);
-    ctx.fillStyle="#536273";ctx.font="bold 13px sans-serif";
-    ctx.fillText("날짜",categoryX+12,expenseY+21);
-    ctx.fillText("구분",categoryX+125,expenseY+21);
-    ctx.fillText("메모",categoryX+300,expenseY+21);
-    ctx.textAlign="right";ctx.fillText("금액",categoryX+categoryW-12,expenseY+21);ctx.textAlign="left";
-    expenseY+=32;
-
-    for(i=0;i<expenseDetails.length;i++){
-      var detail=expenseDetails[i],memo=detail.memo||"-";
-      if(memo.length>28)memo=memo.slice(0,28)+"…";
-      ctx.fillStyle=i%2===0?"#fff":"#f9fbfd";ctx.fillRect(categoryX,expenseY,categoryW,32);
-      ctx.strokeStyle="#e4eaf1";ctx.beginPath();ctx.moveTo(categoryX,expenseY+32);ctx.lineTo(categoryX+categoryW,expenseY+32);ctx.stroke();
-      ctx.fillStyle="#536273";ctx.font="12px sans-serif";ctx.fillText(detail.date.slice(5).replace("-","."),categoryX+12,expenseY+21);
-      ctx.fillStyle="#142033";ctx.font="bold 12px sans-serif";ctx.fillText(detail.type,categoryX+125,expenseY+21);
-      ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText(memo,categoryX+300,expenseY+21);
-      ctx.textAlign="right";ctx.fillStyle="#142033";ctx.font="bold 12px sans-serif";ctx.fillText(won(detail.amount),categoryX+categoryW-12,expenseY+21);ctx.textAlign="left";
-      expenseY+=36
+    if(expenseDetails.length){
+      ctx.fillStyle="#536273";ctx.font="bold 14px sans-serif";ctx.fillText("상세 내역",gx+20,cy);
+      cy+=16;
+      fillRound(ctx,gx+20,cy,gw-40,34,14,"#edf4fb");
+      ctx.fillStyle="#536273";ctx.font="bold 13px sans-serif";
+      ctx.fillText("날짜",gx+34,cy+22);
+      ctx.fillText("구분",gx+150,cy+22);
+      ctx.fillText("메모",gx+308,cy+22);
+      ctx.textAlign="right";ctx.fillText("금액",gx+gw-56,cy+22);ctx.textAlign="left";
+      cy+=42;
+      for(i=0;i<detailRows;i++){
+        var detail=expenseDetails[i];
+        fillRound(ctx,gx+20,cy,gw-40,30,12,i%2===0?"#ffffff":"#f9fbfd");
+        ctx.fillStyle="#536273";ctx.font="12px sans-serif";ctx.fillText(detail.date.slice(5).replace("-","."),gx+34,cy+19);
+        ctx.fillStyle="#142033";ctx.font="bold 12px sans-serif";headerText(ctx,detail.type,gx+150,cy+19,130,"bold 12px sans-serif","#142033");
+        ctx.fillStyle="#718096";ctx.font="12px sans-serif";headerText(ctx,shortMemo(detail.memo,32),gx+308,cy+19,420,"12px sans-serif","#718096");
+        ctx.textAlign="right";ctx.fillStyle="#142033";ctx.font="bold 12px sans-serif";ctx.fillText(won(detail.amount),gx+gw-56,cy+19);ctx.textAlign="left";
+        cy+=34;
+      }
+      if(expenseDetails.length>14){
+        ctx.fillStyle="#7a8798";ctx.font="12px sans-serif";ctx.fillText("외 "+(expenseDetails.length-14)+"건은 앱에서 확인",gx+20,cy+10);
+      }
     }
   }
 
-  ctx.fillStyle="#718096";ctx.font="12px sans-serif";ctx.fillText("라비c공수 Pro v5.6.1",65,H-45);
+  ctx.fillStyle="#8b97a6";ctx.font="12px sans-serif";ctx.fillText("라비c공수 Pro v5.6.2",gx,H-48);
 
   var fileName="월간정산서_"+r.period.replace(/ /g,"_")+"_"+r.company+".png";
   var dataUrl;
@@ -2802,7 +2921,7 @@ function bind(){
   }
 }
 
-var APP_VERSION="5.6.1";
+var APP_VERSION="5.6.2";
 async function checkAppUpdate(){
   try{
     var res=await fetch("./version.json?t="+Date.now(),{cache:"no-store"});
