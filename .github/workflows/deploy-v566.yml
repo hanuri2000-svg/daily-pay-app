@@ -1,0 +1,73 @@
+name: Deploy v5.6.6 company name enlargement
+
+on:
+  push:
+    paths:
+      - '.github/workflows/deploy-v566.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Apply v5.6.6 update
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import json, re
+
+          p = Path('index.html')
+          text = p.read_text(encoding='utf-8')
+
+          old_block = '''  fillRound(ctx,gx+gw-278,76,252,52,22,"rgba(255,255,255,.14)");
+          ctx.fillStyle="rgba(255,255,255,.74)";
+          ctx.font="12px sans-serif";
+          ctx.fillText("업체명",gx+gw-252,98);
+          ctx.fillStyle="#ffffff";
+          ctx.font="bold 22px sans-serif";
+          headerText(ctx,r.company,gx+gw-252,120,208,"bold 22px sans-serif","#ffffff");
+          '''
+          new_block = '''  fillRound(ctx,gx+gw-334,68,308,66,24,"rgba(255,255,255,.16)");
+          ctx.fillStyle="rgba(255,255,255,.78)";
+          ctx.font="13px sans-serif";
+          ctx.fillText("업체명",gx+gw-306,93);
+          ctx.fillStyle="#ffffff";
+          ctx.font="bold 28px sans-serif";
+          headerText(ctx,r.company,gx+gw-306,123,256,"bold 28px sans-serif","#ffffff");
+          '''
+          if old_block not in text:
+              raise SystemExit('업체명 영역을 찾지 못했습니다.')
+          text = text.replace(old_block, new_block, 1)
+          text = text.replace('v5.6.5', 'v5.6.6')
+          text = text.replace('5.6.5', '5.6.6')
+          p.write_text(text, encoding='utf-8')
+
+          Path('version.json').write_text(json.dumps({
+              'version': '5.6.6',
+              'message': '업체에 보내는 월간 정산서 이미지에서 업체명 박스와 글자 크기를 크게 확대했습니다.'
+          }, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+
+          sw = Path('service-worker.js')
+          sw_text = sw.read_text(encoding='utf-8').replace('rabic-gongsu-pro-v5-6-5', 'rabic-gongsu-pro-v5-6-6')
+          sw.write_text(sw_text, encoding='utf-8')
+
+          html = p.read_text(encoding='utf-8')
+          scripts = re.findall(r'<script>(.*?)</script>', html, re.S)
+          Path('/tmp/app.js').write_text('\n'.join(scripts), encoding='utf-8')
+          PY
+          node --check /tmp/app.js
+
+      - name: Commit update
+        shell: bash
+        run: |
+          git config user.name "hanuri2000-svg"
+          git config user.email "hanuri2000@naver.com"
+          git add index.html version.json service-worker.js
+          git commit -m "Update to v5.6.6 - enlarge company name on settlement PNG"
+          git push
