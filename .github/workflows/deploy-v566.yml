@@ -25,25 +25,26 @@ jobs:
           p = Path('index.html')
           text = p.read_text(encoding='utf-8')
 
-          old_block = '''  fillRound(ctx,gx+gw-278,76,252,52,22,"rgba(255,255,255,.14)");
-          ctx.fillStyle="rgba(255,255,255,.74)";
-          ctx.font="12px sans-serif";
-          ctx.fillText("업체명",gx+gw-252,98);
-          ctx.fillStyle="#ffffff";
-          ctx.font="bold 22px sans-serif";
-          headerText(ctx,r.company,gx+gw-252,120,208,"bold 22px sans-serif","#ffffff");
-          '''
-          new_block = '''  fillRound(ctx,gx+gw-334,68,308,66,24,"rgba(255,255,255,.16)");
+          pattern = re.compile(
+              r'fillRound\(ctx,gx\+gw-278,76,252,52,22,"rgba\(255,255,255,.14\)"\);\s*'
+              r'ctx\.fillStyle="rgba\(255,255,255,.74\)";\s*'
+              r'ctx\.font="12px sans-serif";\s*'
+              r'ctx\.fillText\("업체명",gx\+gw-252,98\);\s*'
+              r'ctx\.fillStyle="#ffffff";\s*'
+              r'ctx\.font="bold 22px sans-serif";\s*'
+              r'headerText\(ctx,r\.company,gx\+gw-252,120,208,"bold 22px sans-serif","#ffffff"\);'
+          )
+          replacement = '''fillRound(ctx,gx+gw-334,68,308,66,24,"rgba(255,255,255,.16)");
           ctx.fillStyle="rgba(255,255,255,.78)";
           ctx.font="13px sans-serif";
           ctx.fillText("업체명",gx+gw-306,93);
           ctx.fillStyle="#ffffff";
           ctx.font="bold 28px sans-serif";
-          headerText(ctx,r.company,gx+gw-306,123,256,"bold 28px sans-serif","#ffffff");
-          '''
-          if old_block not in text:
+          headerText(ctx,r.company,gx+gw-306,123,256,"bold 28px sans-serif","#ffffff");'''
+          text, count = pattern.subn(replacement, text, count=1)
+          if count != 1:
               raise SystemExit('업체명 영역을 찾지 못했습니다.')
-          text = text.replace(old_block, new_block, 1)
+
           text = text.replace('v5.6.5', 'v5.6.6')
           text = text.replace('5.6.5', '5.6.6')
           p.write_text(text, encoding='utf-8')
