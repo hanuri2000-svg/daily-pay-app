@@ -1,0 +1,160 @@
+from pathlib import Path
+import json
+import re
+
+p = Path('index.html')
+text = p.read_text(encoding='utf-8')
+
+old_report = 'function reportData(){var x=calculate();return {period:viewDate.getFullYear()+"년 "+(viewDate.getMonth()+1)+"월",company:x.company.name,tax:Number(x.company.tax)||0,fixed:Number(x.company.fixed)||0,rows:x.rows,units:x.units,labor:x.labor,deduction:x.deduction,expenses:x.expenses,final:x.final}}'
+new_report = 'function reportData(){var x=calculate(),cp=companyProfile(selectedCompanyId());return {period:viewDate.getFullYear()+"년 "+(viewDate.getMonth()+1)+"월",company:x.company.name,manager:cp.manager||"",tax:Number(x.company.tax)||0,fixed:Number(x.company.fixed)||0,rows:x.rows,units:x.units,labor:x.labor,deduction:x.deduction,expenses:x.expenses,final:x.final}}'
+if old_report in text:
+    text = text.replace(old_report, new_report, 1)
+
+if 'function wrapChars(ctx,text,maxWidth)' not in text:
+    anchor = '''  function headerText(ctx,text,x,y,maxWidth,font,color){
+    ctx.font=font;ctx.fillStyle=color;
+    var out=text;
+    while(ctx.measureText(out).width>maxWidth && out.length>2)out=out.slice(0,out.length-2)+"…";
+    ctx.fillText(out,x,y);
+  }
+'''
+    insert = anchor + '''  function wrapChars(ctx,text,maxWidth){
+    text=String(text||"").trim();
+    if(!text)return [""];
+    var out=[],line="",i,ch,test;
+    for(i=0;i<text.length;i++){
+      ch=text.charAt(i);
+      test=line+ch;
+      if(line && ctx.measureText(test).width>maxWidth){out.push(line);line=ch}else{line=test}
+    }
+    if(line)out.push(line);
+    return out;
+  }
+  function drawFitWrappedText(ctx,text,x,y,maxWidth,maxLines,startSize,minSize,lineGap,color,weight){
+    text=String(text||"").trim();
+    if(!text)return;
+    var size,lines,display,i,last;
+    for(size=startSize;size>=minSize;size--){
+      ctx.font=(weight||"bold ")+size+"px sans-serif";
+      lines=wrapChars(ctx,text,maxWidth);
+      if(lines.length<=maxLines){
+        ctx.fillStyle=color||"#ffffff";
+        for(i=0;i<lines.length;i++)ctx.fillText(lines[i],x,y+i*(size+lineGap));
+        return;
+      }
+    }
+    ctx.font=(weight||"bold ")+minSize+"px sans-serif";
+    lines=wrapChars(ctx,text,maxWidth);
+    display=lines.slice(0,maxLines);
+    if(lines.length>maxLines){
+      last=display[maxLines-1];
+      while(last.length>1 && ctx.measureText(last+"…").width>maxWidth)last=last.slice(0,-1);
+      display[maxLines-1]=last+"…";
+    }
+    ctx.fillStyle=color||"#ffffff";
+    for(i=0;i<display.length;i++)ctx.fillText(display[i],x,y+i*(minSize+lineGap));
+  }
+'''
+    if anchor not in text:
+        raise SystemExit('headerText anchor not found')
+    text = text.replace(anchor, insert, 1)
+
+company_pattern = re.compile(r'''\s*fillRound\(ctx,gx\+gw-334,68,308,66,24,"rgba\(255,255,255,\.16\)"\);\s*ctx\.fillStyle="rgba\(255,255,255,\.78\)";\s*ctx\.font="13px sans-serif";\s*ctx\.fillText\("업체명",gx\+gw-306,93\);\s*ctx\.fillStyle="#ffffff";\s*ctx\.font="bold 28px sans-serif";\s*headerText\(ctx,r\.company,gx\+gw-306,123,256,"bold 28px sans-serif","#ffffff"\);''', re.S)
+company_new = '''
+  fillRound(ctx,gx+gw-372,64,346,96,26,"rgba(255,255,255,.16)");
+  ctx.fillStyle="rgba(255,255,255,.76)";
+  ctx.font="13px sans-serif";
+  ctx.fillText("업체명",gx+gw-342,90);
+  drawFitWrappedText(ctx,r.company,gx+gw-342,120,286,2,30,20,4,"#ffffff","bold ");
+
+  fillRound(ctx,gx+gw-372,170,190,42,20,"rgba(255,255,255,.14)");
+  ctx.fillStyle="rgba(255,255,255,.76)";
+  ctx.font="12px sans-serif";
+  ctx.fillText("담당자",gx+gw-348,196);
+  ctx.fillStyle="#ffffff";
+  ctx.font="bold 16px sans-serif";
+  headerText(ctx,r.manager||"-",gx+gw-296,196,92,"bold 16px sans-serif","#ffffff");'''
+text, n = company_pattern.subn(company_new, text, count=1)
+if n != 1 and 'drawFitWrappedText(ctx,r.company' not in text:
+    raise SystemExit('company header block not found')
+
+text = text.replace('sectionTitle(gx+20,calY+36,gw-40,"출근 달력","날짜별 공수와 경비 입력 현황",r.year+"년 "+(r.month+1)+"월");',
+                    'sectionTitle(gx+20,calY+36,gw-40,"출근 달력","거래처 제출용으로 정리된 날짜별 공수·경비 현황",r.year+"년 "+(r.month+1)+"월");', 1)
+text = text.replace('sectionTitle(gx+20,expenseY+36,gw-40,"경비 내역","월간 경비 합계와 상세 내역",expenseDetails.length?"총 "+expenseDetails.length+"건":"경비 없음");',
+                    'sectionTitle(gx+20,expenseY+36,gw-40,"경비 내역","월간 경비 합계와 사용 내역",expenseDetails.length?"총 "+expenseDetails.length+"건":"경비 없음");', 1)
+text = text.replace("infoBar.innerHTML='<span><strong style=\"color:#142033\">'+escapeHtml(r.company)+'</strong> · '+r.year+'년 '+(r.month+1)+'월</span><span>'+fileName+'</span>';",
+                    "infoBar.innerHTML='<span><strong style=\"color:#142033;font-size:15px\">'+escapeHtml(r.company)+'</strong>'+(r.manager?' <span style=\"color:#6c7c90\">· 담당자 '+escapeHtml(r.manager)+'</span>':'')+' · '+r.year+'년 '+(r.month+1)+'월</span><span>'+fileName+'</span>';", 1)
+
+message_start = text.find('  var receiptCount=allReceiptIdsForRows(r.rows).length;')
+message_end = text.find('  body.appendChild(imageCard);', message_start)
+if message_start < 0 or message_end < 0:
+    raise SystemExit('message preview block not found')
+message_block = '''  var receiptCount=allReceiptIdsForRows(r.rows).length;
+  var defaultShareMessage=settlementShareMessage(r,receiptCount);
+  var messageBox=document.createElement("div");
+  messageBox.className="share-message-box";
+  messageBox.style.cssText="margin-top:12px!important;background:#ffffff!important;border:1px solid #dce5ef!important;border-radius:18px!important;padding:12px!important;box-shadow:0 6px 18px rgba(20,32,51,.05)!important";
+  var messageTitle=document.createElement("strong");
+  messageTitle.textContent="보낼 메시지";
+  messageTitle.style.cssText="display:block!important;color:#142033!important;margin-bottom:6px!important";
+  var messageGuide=document.createElement("div");
+  messageGuide.textContent="여기서 메시지를 직접 수정하면 공유·저장할 때 수정한 내용 그대로 전송됩니다.";
+  messageGuide.style.cssText="font-size:12px!important;line-height:1.45!important;color:#6c7c90!important;margin-bottom:8px!important";
+  var messageInput=document.createElement("textarea");
+  messageInput.value=defaultShareMessage;
+  messageInput.setAttribute("aria-label","보낼 메시지 입력창");
+  messageInput.style.cssText="display:block!important;width:100%!important;min-height:130px!important;max-height:220px!important;resize:vertical!important;overflow:auto!important;padding:12px!important;border:1px solid #d7e1eb!important;border-radius:14px!important;background:#f7fafc!important;color:#42546b!important;font-size:13px!important;line-height:1.55!important;box-sizing:border-box!important;-webkit-appearance:none!important;appearance:none!important";
+  var messageActionRow=document.createElement("div");
+  messageActionRow.style.cssText="display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;margin-top:10px!important";
+  var resetMessageBtn=document.createElement("button");
+  resetMessageBtn.type="button";
+  resetMessageBtn.textContent="기본 문구 복원";
+  resetMessageBtn.style.cssText="border:1px solid #d7e1eb!important;border-radius:12px!important;padding:11px 12px!important;background:#ffffff!important;color:#44566e!important;font-size:13px!important;font-weight:800!important;width:100%!important";
+  var copyMessageBtn=document.createElement("button");
+  copyMessageBtn.type="button";
+  copyMessageBtn.textContent="메시지 복사";
+  copyMessageBtn.style.cssText="border:0!important;border-radius:12px!important;padding:11px 12px!important;background:#edf3ff!important;color:#19375f!important;font-size:13px!important;font-weight:800!important;width:100%!important";
+  function currentShareMessage(){
+    return String(messageInput.value||"").trim()||defaultShareMessage;
+  }
+  resetMessageBtn.onclick=function(){
+    messageInput.value=defaultShareMessage;
+    messageInput.focus();
+  };
+  copyMessageBtn.onclick=async function(){
+    var currentMessage=currentShareMessage();
+    try{
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        await navigator.clipboard.writeText(currentMessage);
+        copyMessageBtn.textContent="복사 완료";
+        setTimeout(function(){copyMessageBtn.textContent="메시지 복사"},1200);
+      }else{
+        prompt("아래 메시지를 복사해 주세요.",currentMessage)
+      }
+    }catch(err){prompt("아래 메시지를 복사해 주세요.",currentMessage)}
+  };
+  messageActionRow.appendChild(resetMessageBtn);
+  messageActionRow.appendChild(copyMessageBtn);
+  messageBox.appendChild(messageTitle);
+  messageBox.appendChild(messageGuide);
+  messageBox.appendChild(messageInput);
+  messageBox.appendChild(messageActionRow);
+
+'''
+text = text[:message_start] + message_block + text[message_end:]
+text = text.replace('var message=settlementShareMessage(r,receiptFiles.length);','var message=currentShareMessage();',1)
+
+text = text.replace('ctx.fillText("월간 작업·정산 내역서",gx+gw,H-50)', 'ctx.fillText("거래처 제출용 월간 정산서",gx+gw,H-50)', 1)
+text = text.replace('v5.6.6','v5.6.8')
+text = text.replace('5.6.6','5.6.8')
+p.write_text(text, encoding='utf-8')
+
+Path('version.json').write_text(json.dumps({
+    'version': '5.6.8',
+    'message': '거래처 제출용 정산서의 업체명 2줄 자동정렬·담당자 분리 표시를 적용하고, 보낼 메시지를 미리보기에서 직접 수정·복원할 수 있게 개선했습니다.'
+}, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+
+sw = Path('service-worker.js')
+sw_text = sw.read_text(encoding='utf-8')
+sw_text = re.sub(r'rabic-gongsu-pro-v5-6-\d+', 'rabic-gongsu-pro-v5-6-8', sw_text, count=1)
+sw.write_text(sw_text, encoding='utf-8')
