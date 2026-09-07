@@ -1,0 +1,35 @@
+name: Deploy v5.6.8
+
+on:
+  push:
+    paths:
+      - '.github/workflows/deploy-v568b.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply patch
+        run: python3 .github/scripts/apply_v568.py
+      - name: Validate
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html=Path('index.html').read_text(encoding='utf-8')
+          scripts=re.findall(r'<script>(.*?)</script>', html, re.S)
+          Path('/tmp/app.js').write_text('\n'.join(scripts), encoding='utf-8')
+          PY
+          node --check /tmp/app.js
+          node --check service-worker.js
+      - name: Commit
+        run: |
+          git config user.name "hanuri2000-svg"
+          git config user.email "hanuri2000@naver.com"
+          git add index.html version.json service-worker.js
+          git commit -m "Update to v5.6.8 - editable settlement message"
+          git push
