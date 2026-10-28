@@ -1,0 +1,12 @@
+{
+  "name": "rabic-gongsu-pro",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/pwa.test.cjs",
+    "test:browser": "node --test tests/browser/pwa.test.cjs",
+    "test:all": "npm test && npm run test:browser"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
+}

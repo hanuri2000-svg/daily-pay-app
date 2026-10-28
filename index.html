@@ -1353,7 +1353,7 @@ header{
 <body>
 <div class="app">
 <header>
-  <div class="brand-wrap"><img class="brand-logo" src="icon-192.png" alt=""><div class="brand"><h1>라비<span class="sig-c">c</span>공수 Pro <em>v5.6.8</em></h1><p>내 공수와 정산을 한 번에</p></div></div>
+  <div class="brand-wrap"><img class="brand-logo" src="icon-192.png" alt=""><div class="brand"><h1>라비<span class="sig-c">c</span>공수 Pro <em>v5.6.9</em></h1><p>내 공수와 정산을 한 번에</p></div></div>
   <button id="backupTop" class="icon-btn" title="백업">⇩</button>
 </header>
 
@@ -1553,7 +1553,7 @@ header{
       <div class="box"><span>연간 실수령</span><strong id="yearNet">0원</strong></div>
     </div>
   </div>
-  <p class="version">라비c공수 Pro v5.6.8</p>
+  <p class="version">라비c공수 Pro v5.6.9</p>
 </section>
 </main>
 </div>
@@ -1662,7 +1662,7 @@ header{
 </template>
 
 <script>
-console.log("라비c공수 Pro v5.6.8 로드 완료");
+console.log("라비c공수 Pro v5.6.9 로드 완료");
 
 (function(){
 "use strict";
@@ -2813,7 +2813,7 @@ async function saveSettlementPng(autoShare){
     }
   }
 
-  ctx.fillStyle="#8b97a6";ctx.font="12px sans-serif";ctx.fillText("라비c공수 Pro v5.6.8",gx,H-50);
+  ctx.fillStyle="#8b97a6";ctx.font="12px sans-serif";ctx.fillText("라비c공수 Pro v5.6.9",gx,H-50);
   ctx.textAlign="right";ctx.fillStyle="#90a0b0";ctx.font="12px sans-serif";ctx.fillText("거래처 제출용 월간 정산서",gx+gw,H-50);ctx.textAlign="left";
 
   var fileName="월간정산서_"+r.period.replace(/ /g,"_")+"_"+r.company+".png";
@@ -3123,7 +3123,22 @@ function bind(){
   }
 }
 
-var APP_VERSION="5.6.8";
+var APP_VERSION="5.6.9";
+function waitForAppWorker(worker){
+  return new Promise(function(resolve,reject){
+    if(!worker){reject(new Error("worker unavailable"));return}
+    var timer=setTimeout(function(){finish(new Error("update timeout"))},30000);
+    function finish(error){
+      clearTimeout(timer);worker.removeEventListener("statechange",check);
+      if(error)reject(error);else resolve()
+    }
+    function check(){
+      if(worker.state==="activated")finish();
+      else if(worker.state==="redundant")finish(new Error("installation failed"))
+    }
+    worker.addEventListener("statechange",check);check()
+  })
+}
 async function checkAppUpdate(){
   try{
     var res=await fetch("./version.json?t="+Date.now(),{cache:"no-store"});
@@ -3137,15 +3152,29 @@ async function checkAppUpdate(){
     el("#updateBanner").classList.add("show");
     el("#updateLater").onclick=function(){localStorage.setItem("rabic-update-ignore",info.version);el("#updateBanner").classList.remove("show")};
     el("#updateNow").onclick=async function(){
+      var button=el("#updateNow");
+      button.disabled=true;
       try{
+        if(navigator.onLine===false)throw new Error("offline");
         if("serviceWorker" in navigator){
-          var regs=await navigator.serviceWorker.getRegistrations();
-          for(var i=0;i<regs.length;i++)await regs[i].unregister()
+          // Update the exact app scope in place. Never unregister other applications
+          // or delete the working offline cache before the replacement is installed.
+          var scope=new URL("./",location.href).href;
+          var reg=await navigator.serviceWorker.register(new URL("service-worker.js",scope).href,{
+            scope:scope,updateViaCache:"none"
+          });
+          await reg.update();
+          await waitForAppWorker(reg.installing||reg.waiting||reg.active);
+        }else{
+          var page=await fetch("./index.html",{cache:"reload"});
+          if(!page.ok)throw new Error("update unavailable");
         }
-        var keys=await caches.keys();
-        await Promise.all(keys.map(function(k){return caches.delete(k)}));
-      }catch(err){}
-      location.replace("./?v="+encodeURIComponent(info.version)+"&t="+Date.now())
+        location.replace("./?v="+encodeURIComponent(info.version)+"&t="+Date.now());
+      }catch(err){
+        el("#updateMessage").textContent="업데이트를 완료하지 못했습니다. 인터넷 연결을 확인하고 다시 시도해 주세요. 기존 기록과 오프라인 파일은 유지됩니다.";
+      }finally{
+        button.disabled=false;
+      }
     }
   }catch(err){}
 }
@@ -3163,7 +3192,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 
 if("serviceWorker" in navigator){
   window.addEventListener("load",function(){
-    navigator.serviceWorker.register("./service-worker.js").catch(function(err){
+    navigator.serviceWorker.register("./service-worker.js",{scope:"./",updateViaCache:"none"}).catch(function(err){
       console.warn("서비스워커 등록 실패",err)
     })
   })
